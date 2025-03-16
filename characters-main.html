@@ -1,0 +1,194 @@
+<script>
+  function onUpdateStat(value, stat) {
+    console.log(value, stat);
+  }
+</script>
+
+<div style="display: flex; margin-top: 4px; flex-direction: row">
+  <!-- Portrait and STATs Column -->
+  <div style="display: flex; flex-direction: column">
+    <div
+      style="
+        width: 120px;
+        min-width: 120px;
+        max-width: 120px;
+        min-height: 120px;
+        max-height: 120px;
+      "
+    >
+      <portrait width="120px" height="120px"></portrait>
+    </div>
+
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        margin-left: 4px;
+        width: fit-content;
+      "
+    >
+      <!-- INT -->
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="120px"
+        field="int"
+        label="INT"
+        onchange="onUpdateStat(value, 'int')"
+      ></numberfield>
+
+      <!-- REF -->
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="120px"
+        field="ref"
+        label="REF"
+        onchange="onUpdateStat(value, 'ref')"
+      ></numberfield>
+
+      <!-- DEX -->
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="120px"
+        field="dex"
+        label="DEX"
+        onchange="onUpdateStat(value, 'dex')"
+      ></numberfield>
+
+      <!-- TECH -->
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="120px"
+        field="tech"
+        label="TECH"
+        onchange="onUpdateStat(value, 'tech')"
+      ></numberfield>
+
+      <!-- COOL -->
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="120px"
+        field="cool"
+        label="COOL"
+        onchange="onUpdateStat(value, 'cool')"
+      ></numberfield>
+
+      <!-- WILL -->
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="120px"
+        field="will"
+        label="WILL"
+        onchange="onUpdateStat(value, 'will')"
+      ></numberfield>
+
+      <!-- LUCK -->
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 4px;
+          align-items: flex-end;
+        "
+      >
+        <!-- Luck Current -->
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="50px"
+          label="LUCK"
+          field="curLuck"
+          onchange="onUpdateStat(value, 'curLuck')"
+        ></numberfield>
+
+        <label field="outofluck" label="of" size="xs"></label>
+
+        <!-- Luck Max -->
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="50px"
+          field="luck"
+          onchange="onUpdateStat(value, 'luck')"
+        ></numberfield>
+      </div>
+
+      <!-- MOVE -->
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="120px"
+        field="move"
+        label="MOVE"
+        onchange="onUpdateStat(value, 'move')"
+      ></numberfield>
+
+      <!-- BODY -->
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="120px"
+        field="body"
+        label="BODY"
+        onchange="onUpdateStat(value, 'body')"
+      ></numberfield>
+
+      <!-- EMP -->
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 4px;
+          align-items: flex-end;
+        "
+      >
+        <!-- Luck Current -->
+        <numberfield
+          placeholder="0"
+          size="xs"
+          label="EMP"
+          width="50px"
+          field="curEmp"
+          onchange="onUpdateStat(value, 'curEmp')"
+        ></numberfield>
+
+        <label field="outofemp" label="of" size="xs"></label>
+
+        <!-- Luck Max -->
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="50px"
+          field="emp"
+          onchange="onUpdateStat(value, 'emp')"
+        ></numberfield>
+      </div>
+    </div>
+  </div>
+
+  <!-- HP, Humanity, Armor -->
+  <div style="display: flex; flex-direction: column; margin-left: 4px">
+    <div style="display: flex; flex-direction: row; gap: 4px">
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="120px"
+        field="curhp"
+        label="Current HP"
+      ></numberfield>
+
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="120px"
+        field="hitpoints"
+        label="Max HP"
+      ></numberfield>
+    </div>
+  </div>
+</div>
