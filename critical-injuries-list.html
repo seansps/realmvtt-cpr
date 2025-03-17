@@ -1,0 +1,23 @@
+<script>
+  function applyEffect() {
+    console.log("applyEffect TODO");
+  }
+</script>
+
+<div style="display: flex; flex-direction: row; gap: 4px; align-items: center">
+  <namefield
+    placeholder="Enter name"
+    size="xs"
+    width="100%"
+    field="namefield"
+    variant="tooltop"
+  ></namefield>
+  <iconbutton
+    field="applyEffect"
+    size="sm"
+    color="default"
+    variant="default"
+    options='[{"icon": "IconWalk", "label": "Apply Effect", "value": "apply"}]'
+    onclick="applyEffect()"
+  ></iconbutton>
+</div>
