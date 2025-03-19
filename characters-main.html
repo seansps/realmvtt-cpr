@@ -1,6 +1,106 @@
 <script>
+  function onDrop(type, recordLink) {
+    if (type === "role") {
+      // TODO role add
+    } else if (type === "critical_injuries") {
+      onDropCondition(type, recordLink);
+    }
+  }
+
+  function onDropCondition(type, recordLink) {
+    // Check if already has a background
+    const criticalInjuries = record?.data?.criticalInjuries || [];
+    const addictions = record?.data?.addictions || [];
+
+    const conditionObj = {
+      ...recordLink.value,
+    };
+
+    const conditionType = conditionObj.data?.type || "critical_injury";
+
+    const fieldsToSet = {};
+
+    // After adding the condition, add the effects to the character sequentially
+    const addEffects = (newRecord) => {
+      record = newRecord;
+      const effects = conditionObj.data?.effects || [];
+      const recordId = record._id;
+
+      // Process effects sequentially using a recursive approach
+      function processEffectsSequentially(effects, index) {
+        // Base case: all effects processed
+        if (index >= effects.length) return;
+
+        // Re-query the record to get the latest data before each effect is processed
+        api.getRecord("characters", recordId, (recordUpdated) => {
+          record = recordUpdated;
+
+          // Process current effect
+          const effect = effects[index];
+          const effectObj = JSON.parse(effect);
+
+          // Add the effect and wait for completion before processing the next one
+          api.addEffectById(
+            effectObj._id,
+            recordUpdated,
+            undefined,
+            undefined,
+            () => {
+              // Process next effect (only after current addition is complete)
+              processEffectsSequentially(effects, index + 1);
+            }
+          );
+        });
+      }
+
+      // Start processing from the first effect
+      if (effects.length > 0) {
+        processEffectsSequentially(effects, 0);
+      }
+    };
+
+    // Add the background to the the backgrounds list if needed
+    if (conditionType === "critical_injury") {
+      api.addValue("data.criticalInjuries", conditionObj, addEffects);
+    } else if (conditionType === "addiction") {
+      api.addValue("data.addictions", conditionObj, addEffects);
+    }
+  }
+
   function onUpdateStat(value, stat) {
     console.log(value, stat);
+  }
+
+  function onConditionChange() {
+    const deletedItem = data.deletedItem;
+    if (!deletedItem) return;
+
+    const deletedEffects = deletedItem.data?.effects || [];
+    const recordId = record._id;
+
+    // Process effects sequentially using a recursive approach
+    function processEffectsSequentially(effects, index) {
+      // Base case: all effects processed
+      if (index >= effects.length) return;
+
+      // Re-query the record to get the latest data
+      api.getRecord("characters", recordId, (recordUpdated) => {
+        // Process current effect
+        const effect = effects[index];
+        const effectObj = JSON.parse(effect);
+
+        // Remove the effect and wait for completion before processing the next one
+        api.removeEffectById(effectObj._id, recordUpdated, () => {
+          // Process next effect (only after current removal is complete)
+          processEffectsSequentially(effects, index + 1);
+        });
+      });
+    }
+
+    // Start processing from the first effect
+    if (deletedEffects.length > 0) {
+      processEffectsSequentially(deletedEffects, 0);
+    }
   }
 
   function onUseLuck() {
@@ -586,6 +686,7 @@
             field="criticalInjuries"
             variant="striped"
             height="100%"
+            onchange="onConditionChange()"
           ></list>
         </div>
       </div>
@@ -605,6 +706,7 @@
             field="addictions"
             variant="striped"
             height="100%"
+            onchange="onConditionChange()"
           ></list>
         </div>
       </div>
@@ -629,7 +731,6 @@
         field="curHumanity"
         label="Humanity"
         color="cyan"
-        maxvaluefield="humanity"
       ></numberfield>
 
       <numberfield

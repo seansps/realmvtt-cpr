@@ -1,10 +1,13 @@
 <script>
-  function applyEffect() {
-    console.log("applyEffect TODO");
+  function applyEffects() {
+    console.log("applyEffects TODO");
   }
 </script>
 
 <div style="display: flex; flex-direction: row; gap: 4px; align-items: center">
+  <div style="width: 30px; height: 30px; min-width: 30px; min-height: 30px">
+    <portrait field="portrait"></portrait>
+  </div>
   <namefield
     placeholder="Enter name"
     size="xs"
@@ -13,11 +16,11 @@
     variant="tooltop"
   ></namefield>
   <iconbutton
-    field="applyEffect"
+    field="applyEffects"
     size="sm"
     color="default"
     variant="default"
-    options='[{"icon": "IconWalk", "label": "Apply Effect", "value": "apply"}]'
-    onclick="applyEffect()"
+    options='[{"icon": "IconWalk", "label": "Apply Effects", "value": "apply"}]'
+    onclick="applyEffects()"
   ></iconbutton>
 </div>
