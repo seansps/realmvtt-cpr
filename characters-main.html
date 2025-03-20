@@ -1,4 +1,62 @@
 <script>
+  function onLoad() {
+    // If we don't have skills added yet, we need to add the default skill groups and skills
+    const skillGroups1 = record?.data?.skillGroups1 || [];
+    const skillGroups2 = record?.data?.skillGroups2 || [];
+    if (skillGroups1.length === 0 && skillGroups2.length === 0) {
+      const allSkills = getAllSkills();
+
+      // Helper function to add skill groups recursively one at a time
+      function addSkillGroupSequentially(skillGroups, index) {
+        // Base case: all skill groups processed
+        if (index >= skillGroups.length) {
+          return;
+        }
+
+        const skillGroup = skillGroups[index];
+        const groupField = skillGroup.groupField;
+
+        // Add the skill group to the character
+        api.addValue(
+          `data.${groupField}`,
+          {
+            name: skillGroup.groupName,
+          },
+          (record) => {
+            const skillGroupIndex = record.data[groupField].length - 1;
+            // Add skills to the skill group
+            // Map skills to expected format
+            const skills = skillGroup.skills.map((skill) => {
+              return {
+                name: skill.name,
+                data: {
+                  stat: skill.stat,
+                  lvl: skill.lvl,
+                  base: skill.base,
+                  isDefault: skill.isDefault,
+                  isTimesTwo: skill.isTimesTwo,
+                  hasSubskills: skill.hasSubskills,
+                },
+                recordType: "skill",
+              };
+            });
+            api.addValues(
+              `data.${groupField}.${skillGroupIndex}.data.skills`,
+              skills,
+              (record) => {
+                // Move to the next skill group only after the current one is complete
+                addSkillGroupSequentially(skillGroups, index + 1);
+              }
+            );
+          }
+        );
+      }
+
+      // Start the sequential process with the first skill group
+      addSkillGroupSequentially(allSkills, 0);
+    }
+  }
+
   function onDrop(type, recordLink) {
     if (type === "role") {
       // TODO role add
@@ -194,6 +252,7 @@
         textalign="center"
         minvalue="0"
         onchange="onUpdateStat(value, 'int')"
+        onload="onLoad()"
       ></numberfield>
 
       <!-- REF -->
@@ -679,7 +738,9 @@
           height: 100%;
         "
       >
-        <label variant="bold" size="sm" label="Critical Injuries"></label>
+        <div style="margin-left: 4px">
+          <label variant="bold" size="sm" label="Critical Injuries"></label>
+        </div>
         <div style="flex-grow: 1; height: 100px; overflow-y: auto">
           <list
             listtype="critical_injury_list"
@@ -699,7 +760,9 @@
           height: 100%;
         "
       >
-        <label variant="bold" size="sm" label="Addictions"></label>
+        <div style="margin-left: 4px">
+          <label variant="bold" size="sm" label="Addictions"></label>
+        </div>
         <div style="flex-grow: 1; height: 100px; overflow-y: auto">
           <list
             listtype="addictions_list"
