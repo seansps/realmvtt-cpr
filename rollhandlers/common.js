@@ -585,3 +585,106 @@ function getAllSkills() {
     },
   ];
 }
+
+function setStatsAndSkills(record, value, stat, moreValuesToSet = null) {
+  // Create an object to hold all the values we want to set
+  const valuesToSet = {};
+
+  // Parse the stat value
+  const val = parseInt(value, 10);
+  if (isNaN(val)) {
+    return;
+  }
+
+  // Store the base stat value
+  valuesToSet[`data.${stat}`] = val;
+
+  // Handle hitpoints calculation when body or will changes
+  if (stat === "body" || stat === "will") {
+    // Get the current values of body and will
+    let bodyValue =
+      stat === "body"
+        ? val
+        : moreValuesToSet?.["data.body"] || record.data.body;
+    let willValue =
+      stat === "will"
+        ? val
+        : moreValuesToSet?.["data.will"] || record.data.will;
+
+    // Calculate hitpoints using the formula: 10 + (5 * (average of BODY and WILL, rounded up))
+    const average = Math.ceil((bodyValue + willValue) / 2);
+    const hitpoints = 10 + 5 * average;
+
+    valuesToSet["data.hitpoints"] = hitpoints;
+    if (record?.data?.initialHp) {
+      valuesToSet["data.curhp"] = hitpoints;
+      valuesToSet["data.initialHp"] = hitpoints;
+    }
+
+    // Set deathSave equal to body when body changes if deathSave is not already set
+    if (stat === "body" && !record?.data?.initialDeathSave) {
+      valuesToSet["data.initialDeathSave"] = val;
+      valuesToSet["data.deathSave"] = val;
+    }
+  }
+
+  // If the stat was emp, we set maxHumanity
+  if (stat === "emp") {
+    valuesToSet["data.maxHumanity"] = val * 10;
+    // Only set humanity if it's not already set
+    if (!record?.data?.humanity && !moreValuesToSet?.["data.initialHumanity"]) {
+      valuesToSet["data.initialHumanity"] = val * 10;
+      valuesToSet["data.humanity"] = val * 10;
+    }
+  }
+
+  // // Update derived stats for specific attributes
+  // switch (stat) {
+  //   case "ref":
+  //     // REF affects initiative in Cyberpunk RED
+  //     valuesToSet["data.initiative"] = val;
+  //     break;
+  //   case "cool":
+  //     // COOL affects reputation
+  //     valuesToSet["data.reputation"] = val;
+  //     break;
+  //   case "move":
+  //     // Calculate movement speed (in m/turn)
+  //     valuesToSet["data.movementSpeed"] = val * 3;
+  //     break;
+  //   case "emp":
+  //     // Calculate humanity
+  //     const baseHumanity = val * 10;
+  //     valuesToSet["data.humanity"] = baseHumanity;
+  //     break;
+  // }
+
+  // // Update all skills based on this stat
+  // const allSkills = getAllSkills();
+  // allSkills.forEach((group) => {
+  //   group.skills.forEach((skill) => {
+  //     if (skill.stat === stat) {
+  //       // For skills with this stat as base, set the skill level
+  //       const skillField = `data.skills.${skill.name}`;
+  //       const skillLevel = api.getValue(skillField) || 0;
+
+  //       // In Cyberpunk RED, skill checks are STAT + SKILL
+  //       const totalValue = val + parseInt(skillLevel, 10);
+  //       valuesToSet[`${skillField}Total`] = totalValue;
+  //     }
+  //   });
+  // });
+
+  // Apply all the changes
+  if (Object.keys(valuesToSet).length > 0) {
+    if (moreValuesToSet) {
+      // If additional values were provided, merge our calculated values into that object
+      Object.keys(valuesToSet).forEach((key) => {
+        moreValuesToSet[key] = valuesToSet[key];
+      });
+    } else {
+      // Otherwise, set the values directly
+      api.setValues(valuesToSet);
+    }
+  }
+}

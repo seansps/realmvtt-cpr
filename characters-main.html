@@ -60,7 +60,7 @@
   function onDrop(type, recordLink) {
     if (type === "role") {
       // TODO role add
-    } else if (type === "critical_injuries") {
+    } else if (type === "conditions") {
       onDropCondition(type, recordLink);
     }
   }
@@ -122,11 +122,22 @@
       api.addValue("data.criticalInjuries", conditionObj, addEffects);
     } else if (conditionType === "addiction") {
       api.addValue("data.addictions", conditionObj, addEffects);
+    } else if (conditionType === "cover") {
+      // For cover, we just reset the character's Cover HP
+      const coverHp = conditionObj.data?.coverHp || 0;
+      const coverName = conditionObj?.name || "Cover";
+      addEffects(record);
+      api.sendMessage(
+        `Taking Cover: ${coverName}. Cover HP set to ${coverHp}.`,
+        undefined,
+        [],
+        [{ tooltip: `Cover (${coverHp}): ${coverName}`, name: "Cover" }]
+      );
     }
   }
 
   function onUpdateStat(value, stat) {
-    console.log(value, stat);
+    setStatsAndSkills(record, value, stat);
   }
 
   function onConditionChange() {
@@ -205,12 +216,15 @@
     }, 500);
   }
 
+  function onShieldToggle(value) {
+    console.log(value);
+  }
+
   function onRest() {
     const valuesToSet = {
-      // TODO
+      // TODO recover up to BODY hp + any modifiers for healing
+      // TODO reset deathSave to equal to body
     };
-
-    // TODO heal up to body plus any modifiers for healing
 
     // api.setValues(valuesToSet);
 
@@ -538,6 +552,7 @@
             icon="IconHeart"
             label="Current HP"
             color="pink"
+            minvalue="0"
           ></numberfield>
 
           <numberfield
@@ -548,6 +563,18 @@
             field="hitpoints"
             label="Max HP"
             color="green"
+            minvalue="0"
+          ></numberfield>
+
+          <numberfield
+            placeholder="0"
+            size="sm"
+            width="100%"
+            icon="IconShield"
+            field="coverHp"
+            label="Cover HP"
+            color="blue"
+            minvalue="0"
           ></numberfield>
 
           <iconbutton
@@ -688,12 +715,22 @@
             <label variant="bold" size="xs" label="Shield"></label>
           </td>
           <td>
-            <stringfield
-              placeholder="No Shield Equipped"
-              size="xs"
-              width="100%"
-              field="shieldArmor"
-            ></stringfield>
+            <div style="display: flex; flex-direction: row; gap: 4px">
+              <stringfield
+                placeholder="No Shield Equipped"
+                size="xs"
+                width="100%"
+                field="shield"
+              ></stringfield>
+              <iconbutton
+                field="shieldDown"
+                size="md"
+                color="secondary"
+                variant="light"
+                options='[{"icon": "IconShieldDown", "label": "Shield Down", "value": "shieldDown"}, {"icon": "IconShieldCheckFilled", "label": "Shield Up", "value": "shieldUp"}]'
+                onchange="onShieldToggle(value)"
+              ></iconbutton>
+            </div>
           </td>
           <td>
             <numberfield
@@ -701,7 +738,7 @@
               minvalue="0"
               size="xs"
               width="70px"
-              field="shieldArmorHP"
+              field="shieldHP"
             ></numberfield>
           </td>
           <td>
@@ -710,7 +747,7 @@
               minvalue="0"
               size="xs"
               width="70px"
-              field="shieldArmorPenalty"
+              field="shieldPenalty"
             ></numberfield>
           </td>
         </tr>

@@ -2,9 +2,15 @@
   function onTypeChange(value) {
     const fieldsToSet = {};
     if (value === "critical_injury") {
+      fieldsToSet["fields.effects.hidden"] = false;
       fieldsToSet["fields.quick_fix.hidden"] = false;
       fieldsToSet["fields.treatment.hidden"] = false;
-    } else {
+    } else if (value === "addiction") {
+      fieldsToSet["fields.effects.hidden"] = false;
+      fieldsToSet["fields.quick_fix.hidden"] = true;
+      fieldsToSet["fields.treatment.hidden"] = true;
+    } else if (value === "cover") {
+      fieldsToSet["fields.effects.hidden"] = false;
       fieldsToSet["fields.quick_fix.hidden"] = true;
       fieldsToSet["fields.treatment.hidden"] = true;
     }
@@ -42,8 +48,8 @@
         field="type"
         placeholder="Select Type"
         onchange="onTypeChange(value);"
-        label="Injury or Addiction"
-        options='[{"label": "Critical Injury", "value": "critical_injury"}, {"label": "Addiction", "value": "addiction"}]'
+        label="Condition Type"
+        options='[{"label": "Critical Injury", "value": "critical_injury"}, {"label": "Addiction", "value": "addiction"}, {"label": "Cover", "value": "cover"}]'
       >
       </dropdown>
       <dropdown
