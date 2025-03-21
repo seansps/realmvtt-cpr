@@ -604,6 +604,7 @@
             description="-2 to All Actions When Seriously Wounded"
             field="seriouslyWounded"
             label="Seriously Wounded"
+            editable="false"
           ></numberfield>
 
           <numberfield
@@ -829,6 +830,7 @@
         width="100%"
         icon="IconBrain"
         field="curHumanity"
+        onchange="onUpdateStat(value, 'curHumanity')"
         label="Humanity"
         color="cyan"
       ></numberfield>

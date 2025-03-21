@@ -7,19 +7,84 @@
     });
   }
 
-  function onUpdateSkillLevel(value, stat) {
-    console.log(value, stat);
+  function onUpdateSkillLevel(value) {
+    const val = parseInt(value, 10);
+    if (isNaN(val)) {
+      return;
+    }
+
+    const pathToSkill = dataPath.replace(".data.lvl", "");
+    const skill = api.getValue(pathToSkill);
+    let stat = skill.data?.stat;
+
+    // Get the base value
+    if (stat === "emp") {
+      // Special case for emp, we use curEmp instead of max emp
+      stat = "curEmp";
+    } else if (stat === "luck") {
+      // Special case for luck, we use curLuck instead of max luck
+      stat = "curLuck";
+    }
+
+    const statValue = api.getValue(`data.${stat}`) || 0;
+
+    api.setValues({
+      [`${pathToSkill}.data.base`]: val + statValue,
+    });
   }
 
-  function onUpdateStat(value, stat) {
-    console.log(value, stat);
+  function onUpdateStat(value) {
+    const pathToSkill = dataPath.replace(".data.stat", "");
+    const skill = api.getValue(pathToSkill);
+    let lvl = skill.data?.lvl || 0;
+
+    // value here is the stat name from the onChange event
+    let statName = value;
+    if (statName === "emp") {
+      // Special case for emp, we use curEmp instead of max emp
+      statName = "curEmp";
+    } else if (statName === "luck") {
+      // Special case for luck, we use curLuck instead of max luck
+      statName = "curLuck";
+    }
+
+    // Get the numeric value of the stat from the character sheet
+    const statValue = api.getValue(`data.${statName}`) || 0;
+
+    api.setValues({
+      [`${pathToSkill}.data.base`]: lvl + statValue,
+    });
   }
 
   function onRollSkill() {
     // Get the spell by path to ensure most up-to-date value
     const skillDataPath = dataPath.replace(".data.rollSkill", "");
     const skill = api.getValue(skillDataPath);
-    console.log(skill);
+    // Get the skill name
+    const skillName = skill.name || "New Skill";
+
+    let skillModifiers = [
+      {
+        name: "Skill Modifier",
+        value: skill.data?.base || 0,
+        active: true,
+        valueType: "number",
+      },
+    ];
+    // TODO write and call common script method to collect all additonal modifiers
+
+    const metadata = {
+      rollName: skillName,
+      modifiers: skillModifiers,
+    };
+
+    api.promptRoll(
+      `Skill Check: ${skillName}`,
+      "1d10",
+      skillModifiers,
+      metadata,
+      "skill"
+    );
   }
 </script>
 
@@ -55,7 +120,7 @@
       size="sm"
       field="stat"
       variant="default"
-      onchange="onUpdateStat(value, 'stat')"
+      onchange="onUpdateStat(value)"
       options='[
       {"label": "INT", "value": "int", "icon": "IconHexagonLetterIFilled"}, 
       {"label": "REF", "value": "ref", "icon": "IconHexagonLetterRFilled"}, 
@@ -76,7 +141,7 @@
       width="36px"
       field="lvl"
       variant="tooltip"
-      onchange="onUpdateStat(value, 'lvl')"
+      onchange="onUpdateSkillLevel(value)"
       hidecontrols="true"
     ></numberfield>
     <numberfield

@@ -591,10 +591,13 @@ function setStatsAndSkills(record, value, stat, moreValuesToSet = null) {
   const valuesToSet = {};
 
   // Parse the stat value
-  const val = parseInt(value, 10);
+  let val = parseInt(value, 10);
   if (isNaN(val)) {
     return;
   }
+
+  // The stat we'll use when checking for skill changes
+  let statToCheck = stat;
 
   // Store the base stat value
   valuesToSet[`data.${stat}`] = val;
@@ -616,65 +619,86 @@ function setStatsAndSkills(record, value, stat, moreValuesToSet = null) {
     const hitpoints = 10 + 5 * average;
 
     valuesToSet["data.hitpoints"] = hitpoints;
-    if (record?.data?.initialHp) {
-      valuesToSet["data.curhp"] = hitpoints;
-      valuesToSet["data.initialHp"] = hitpoints;
-    }
+    valuesToSet["data.curhp"] = hitpoints;
+
+    // Set seriouslyWounded to half rounded up of hitpoints
+    valuesToSet["data.seriouslyWounded"] = Math.ceil(hitpoints / 2);
 
     // Set deathSave equal to body when body changes if deathSave is not already set
-    if (stat === "body" && !record?.data?.initialDeathSave) {
-      valuesToSet["data.initialDeathSave"] = val;
+    if (stat === "body") {
       valuesToSet["data.deathSave"] = val;
     }
   }
 
   // If the stat was emp, we set maxHumanity
   if (stat === "emp") {
-    valuesToSet["data.maxHumanity"] = val * 10;
-    // Only set humanity if it's not already set
-    if (!record?.data?.humanity && !moreValuesToSet?.["data.initialHumanity"]) {
-      valuesToSet["data.initialHumanity"] = val * 10;
-      valuesToSet["data.humanity"] = val * 10;
+    valuesToSet["data.humanity"] = val * 10;
+    // Only set curHumanity if it's not already set
+    if (record?.data?.curHumanity === undefined) {
+      valuesToSet["data.curHumanity"] = val * 10;
     }
+    // We change skills only based on curEmp, not maxEmp
+    statToCheck = "n/a";
   }
 
-  // // Update derived stats for specific attributes
-  // switch (stat) {
-  //   case "ref":
-  //     // REF affects initiative in Cyberpunk RED
-  //     valuesToSet["data.initiative"] = val;
-  //     break;
-  //   case "cool":
-  //     // COOL affects reputation
-  //     valuesToSet["data.reputation"] = val;
-  //     break;
-  //   case "move":
-  //     // Calculate movement speed (in m/turn)
-  //     valuesToSet["data.movementSpeed"] = val * 3;
-  //     break;
-  //   case "emp":
-  //     // Calculate humanity
-  //     const baseHumanity = val * 10;
-  //     valuesToSet["data.humanity"] = baseHumanity;
-  //     break;
-  // }
+  if (stat === "curHumanity") {
+    // Set curEmp equal to curHumanity / 10
+    valuesToSet["data.curEmp"] = Math.floor(val / 10);
+    statToCheck = "emp";
+    val = Math.floor(val / 10);
+  }
 
-  // // Update all skills based on this stat
-  // const allSkills = getAllSkills();
-  // allSkills.forEach((group) => {
-  //   group.skills.forEach((skill) => {
-  //     if (skill.stat === stat) {
-  //       // For skills with this stat as base, set the skill level
-  //       const skillField = `data.skills.${skill.name}`;
-  //       const skillLevel = api.getValue(skillField) || 0;
+  if (stat === "curEmp") {
+    // We actually adjust skills by curEmp
+    statToCheck = "emp";
+  }
 
-  //       // In Cyberpunk RED, skill checks are STAT + SKILL
-  //       const totalValue = val + parseInt(skillLevel, 10);
-  //       valuesToSet[`${skillField}Total`] = totalValue;
-  //     }
-  //   });
-  // });
+  // Also for luck, we adjust skills by curLuck
+  if (stat === "curLuck") {
+    statToCheck = "luck";
+  }
+  if (stat === "luck") {
+    statToCheck = "n/a";
+  }
 
+  // Update all skills based on this stat
+  if (
+    [
+      "int",
+      "ref",
+      "dex",
+      "tech",
+      "cool",
+      "will",
+      "luck",
+      "move",
+      "body",
+      "emp",
+    ].includes(statToCheck)
+  ) {
+    const skillGroup1 = record?.data?.skillGroups1 || [];
+    const skillGroup2 = record?.data?.skillGroups2 || [];
+    [
+      { groups: skillGroup1, field: "skillGroups1" },
+      { groups: skillGroup2, field: "skillGroups2" },
+    ].forEach(({ groups, field }) => {
+      groups.forEach((group, groupIndex) => {
+        const skills = group.data?.skills || [];
+        skills.forEach((skill, skillIndex) => {
+          if (skill.data?.stat === statToCheck) {
+            // Set the Base to LVL + value
+            const lvl = skill.data?.lvl || 0;
+            const base = lvl + val;
+            valuesToSet[
+              `data.${field}.${groupIndex}.data.skills.${skillIndex}.data.base`
+            ] = base;
+          }
+        });
+      });
+    });
+  }
+
+  // Apply all the changes
   // Apply all the changes
   if (Object.keys(valuesToSet).length > 0) {
     if (moreValuesToSet) {
