@@ -1,4 +1,16 @@
-// TODO add default subskills, or a function to return them
+// Generates a random UUID for adding Subskills manually to Skills during character creation
+function generateUuid() {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    // Generate a random number between 0 and 15 (0xF)
+    const r = Math.floor(Math.random() * 16);
+    // For 'x', use random digit
+    // For 'y', use random digit with bits 0 and 1 set to 1 and 0 respectively (8, 9, A, or B)
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    // Convert to hexadecimal string
+    return v.toString(16);
+  });
+}
+
 function getAllSkills() {
   return [
     {
@@ -230,6 +242,20 @@ function getAllSkills() {
           hasSubskills: true,
           isTimesTwo: false,
           recordType: "skill",
+          subSkills: [
+            {
+              name: "Streetslang",
+              isDefault: true,
+            },
+            {
+              name: "",
+              isDefault: false,
+            },
+            {
+              name: "",
+              isDefault: false,
+            },
+          ],
         },
         {
           name: "Library Search",
@@ -246,6 +272,20 @@ function getAllSkills() {
           hasSubskills: true,
           isTimesTwo: false,
           recordType: "skill",
+          subSkills: [
+            {
+              name: "Your Home",
+              isDefault: true,
+            },
+            {
+              name: "",
+              isDefault: false,
+            },
+            {
+              name: "",
+              isDefault: false,
+            },
+          ],
         },
         {
           name: "Science",
@@ -254,6 +294,16 @@ function getAllSkills() {
           hasSubskills: true,
           isTimesTwo: false,
           recordType: "skill",
+          subSkills: [
+            {
+              name: "",
+              isDefault: false,
+            },
+            {
+              name: "",
+              isDefault: false,
+            },
+          ],
         },
         {
           name: "Tactics",
@@ -300,6 +350,12 @@ function getAllSkills() {
           hasSubskills: true,
           isTimesTwo: true,
           recordType: "skill",
+          subSkills: [
+            {
+              name: "",
+              isDefault: false,
+            },
+          ],
         },
         {
           name: "Melee Weapon",
@@ -330,6 +386,16 @@ function getAllSkills() {
           hasSubskills: true,
           isTimesTwo: false,
           recordType: "skill",
+          subSkills: [
+            {
+              name: "",
+              isDefault: false,
+            },
+            {
+              name: "",
+              isDefault: false,
+            },
+          ],
         },
       ],
     },
@@ -685,7 +751,7 @@ function setStatsAndSkills(record, value, stat, moreValuesToSet = null) {
       groups.forEach((group, groupIndex) => {
         const skills = group.data?.skills || [];
         skills.forEach((skill, skillIndex) => {
-          if (skill.data?.stat === statToCheck) {
+          if (skill.data?.stat === statToCheck && !skill.data?.hasSubskills) {
             // Set the Base to LVL + value
             const lvl = skill.data?.lvl || 0;
             const base = lvl + val;
@@ -693,6 +759,17 @@ function setStatsAndSkills(record, value, stat, moreValuesToSet = null) {
               `data.${field}.${groupIndex}.data.skills.${skillIndex}.data.base`
             ] = base;
           }
+          const subSkills = skill.data?.subSkills || [];
+          subSkills.forEach((subSkill, subSkillIndex) => {
+            if (subSkill.data?.stat === statToCheck) {
+              // Set the Base to LVL + value
+              const lvl = subSkill.data?.lvl || 0;
+              const base = lvl + val;
+              valuesToSet[
+                `data.${field}.${groupIndex}.data.skills.${skillIndex}.data.subSkills.${subSkillIndex}.data.base`
+              ] = base;
+            }
+          });
         });
       });
     });

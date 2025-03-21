@@ -31,13 +31,58 @@
                 name: skill.name,
                 data: {
                   stat: skill.stat,
-                  lvl: skill.lvl,
-                  base: skill.base,
                   isDefault: skill.isDefault,
                   isTimesTwo: skill.isTimesTwo,
                   hasSubskills: skill.hasSubskills,
+                  subSkills: skill.hasSubskills
+                    ? skill.subSkills.map((subSkill) => {
+                        return {
+                          _id: generateUuid(),
+                          name: subSkill.name,
+                          undefinedName: subSkill.name,
+                          data: {
+                            stat: skill.stat,
+                            isDefault: subSkill.isDefault,
+                            isTimesTwo: skill.isTimesTwo,
+                            hasSubskills: false,
+                          },
+                          fields: {
+                            name: {
+                              hidden: !subSkill.isDefault,
+                            },
+                            namefield: {
+                              hidden: subSkill.isDefault,
+                            },
+                          },
+                        };
+                      })
+                    : [],
                 },
                 recordType: "skill",
+                // Hide/unhide the name and namefield fields based on isDefault
+                fields: {
+                  name: {
+                    hidden: !skill.isDefault,
+                  },
+                  stat: {
+                    hidden: skill.hasSubskills,
+                  },
+                  base: {
+                    hidden: skill.hasSubskills,
+                  },
+                  lvl: {
+                    hidden: skill.hasSubskills,
+                  },
+                  rollSkill: {
+                    hidden: skill.hasSubskills,
+                  },
+                  namefield: {
+                    hidden: skill.isDefault,
+                  },
+                  subSkills: {
+                    hidden: !skill.hasSubskills,
+                  },
+                },
               };
             });
             api.addValues(

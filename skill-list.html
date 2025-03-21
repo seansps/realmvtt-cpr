@@ -1,6 +1,25 @@
 <script>
   function onClickSkill(value) {
-    const record = api.getRecordByTypeAndName("skill", value, (record) => {
+    // Get the record of the skill you're clicking on.
+    // If it is a subskill, open the parent skill instead.
+    let skillName = value;
+
+    let skillDataPath = dataPath.includes(".namefield")
+      ? dataPath.replace(".namefield", "")
+      : dataPath.replace(".name", "");
+    let skill = api.getValue(skillDataPath);
+
+    if (skill.data?.hasSubskills) {
+      // Use regex to extract the parent skill path
+      const parentSkillDataPath = skillDataPath.replace(
+        /\.data\.subSkills\.\d+$/,
+        ""
+      );
+      const parentSkill = api.getValue(parentSkillDataPath);
+      skillName = parentSkill.name;
+    }
+
+    const record = api.getRecordByTypeAndName("skill", skillName, (record) => {
       if (record) {
         api.openRecord(record);
       }
@@ -106,6 +125,18 @@
       variant="unstyled"
       onclick="onClickSkill(value)"
     ></namefield>
+    <!-- Below is used for defaul skills -->
+    <namefield
+      placeholder="Skill name..."
+      size="xs"
+      width="100%"
+      hidden="true"
+      bold="true"
+      field="name"
+      variant="unstyled"
+      hidden=""
+      onclick="onClickSkill(value)"
+    ></namefield>
   </div>
   <div
     style="
@@ -162,4 +193,13 @@
       onclick="onRollSkill()"
     ></iconbutton>
   </div>
+</div>
+<div style="width: calc(100% - 8px); margin-left: 8px">
+  <list
+    listtype="subskill_list"
+    field="subSkills"
+    variant="striped"
+    hidden="true"
+    height="100%"
+  ></list>
 </div>
