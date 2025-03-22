@@ -1,0 +1,69 @@
+<div style="display: flex; flex-direction: row; gap: 4px">
+  <dropdown
+    width="50%"
+    size="xs"
+    field="type"
+    placeholder="Select Modifier Type"
+    label="Modifier Type"
+    options='[{"label": "Skill Check Bonus", "value": "skillBonus"},
+    {"label": "Skill Check Penalty", "value": "skillPenalty"},
+    {"label": "Attack Bonus", "value": "attackBonus"}, 
+    {"label": "Attack Penalty", "value": "attackPenalty"},
+    {"label": "Initiative Bonus", "value": "initiativeBonus"},
+    {"label": "Initiative Penalty", "value": "initiativePenalty"},
+    {"label": "Role Ability Bonus", "value": "roleAbilityBonus"},
+    {"label": "Role Ability Penalty", "value": "roleAbilityPenalty"},
+    {"label": "Damage Bonus", "value": "damageBonus"},
+    {"label": "Damage Penalty", "value": "damagePenalty"},
+    {"label": "Healing Bonus", "value": "healingBonus"},
+    {"label": "Healing Penalty", "value": "healingPenalty"}]'
+  >
+  </dropdown>
+
+  <stringfield
+    width="50%"
+    size="xs"
+    field="field"
+    label="Field"
+    placeholder="Enter Field, if Applicable"
+  ></stringfield>
+</div>
+
+<div
+  style="
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    align-items: center;
+    margin-top: 4px;
+  "
+>
+  <dropdown
+    width="35%"
+    size="xs"
+    field="valueType"
+    placeholder="Select Value Type"
+    label="Value Type"
+    options='[{"label": "Number", "value": "number"}, 
+    {"label": "String", "value": "string"}, {"label": "From Field", "value": "field"}]'
+  >
+  </dropdown>
+
+  <stringfield
+    width="35%"
+    size="xs"
+    field="value"
+    label="Value"
+    placeholder="Enter Value"
+  ></stringfield>
+
+  <div style="display: flex; flex-direction: column; gap: 4px">
+    <checkbox size="xs" field="active" label="Active by Default"></checkbox>
+    <checkbox
+      size="xs"
+      width="175px"
+      field="itemOnly"
+      label="Only Applies To This Item"
+    ></checkbox>
+  </div>
+</div>
