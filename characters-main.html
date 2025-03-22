@@ -27,6 +27,13 @@
             // Add skills to the skill group
             // Map skills to expected format
             const skills = skillGroup.skills.map((skill) => {
+              let statToCheck = skill.stat;
+              if (statToCheck === "emp") {
+                statToCheck = "curEmp";
+              } else if (statToCheck === "luck") {
+                statToCheck = "curLuck";
+              }
+              const statValue = record.data?.[statToCheck] || 0;
               return {
                 name: skill.name,
                 data: {
@@ -34,6 +41,16 @@
                   isDefault: skill.isDefault,
                   isTimesTwo: skill.isTimesTwo,
                   hasSubskills: skill.hasSubskills,
+                  lvl: !skill.hasSubskills
+                    ? skill.isDefault
+                      ? 2
+                      : 0
+                    : undefined,
+                  base: !skill.hasSubskills
+                    ? skill.isDefault
+                      ? 2 + statValue
+                      : statValue
+                    : undefined,
                   subSkills: skill.hasSubskills
                     ? skill.subSkills.map((subSkill) => {
                         return {
@@ -44,6 +61,10 @@
                             stat: skill.stat,
                             isDefault: subSkill.isDefault,
                             isTimesTwo: skill.isTimesTwo,
+                            lvl: subSkill.isDefault ? 2 : 0,
+                            base: subSkill.isDefault
+                              ? 2 + statValue
+                              : statValue,
                             hasSubskills: false,
                           },
                           fields: {

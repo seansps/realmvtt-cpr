@@ -90,7 +90,13 @@
         valueType: "number",
       },
     ];
-    // TODO write and call common script method to collect all additonal modifiers
+
+    const additionalModifiers = getEffectsAndModifiersForToken(
+      record,
+      ["skillBonus", "skillPenalty"],
+      skillName
+    );
+    skillModifiers.push(...additionalModifiers);
 
     const metadata = {
       rollName: skillName,

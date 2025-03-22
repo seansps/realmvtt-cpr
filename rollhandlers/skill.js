@@ -11,9 +11,20 @@ const d10 = (roll?.dice || []).find(
 
 // Preserve modifiers and metadata
 const metadata = data?.roll?.metadata;
-const modifiers = metadata?.modifiers;
+const modifiers = metadata?.modifiers || [];
 const skillName = metadata?.rollName;
 const tooltip = `Skill Roll for ${skillName}`;
+
+// If we used luck, we need to remove it from the token that rolled
+let usedLuck = false;
+if (modifiers.find((m) => m.name === "Luck Used")) {
+  usedLuck = true;
+}
+if (usedLuck && record !== undefined && record !== null) {
+  api.setValues({
+    [`data.nextRoll`]: 0,
+  });
+}
 
 const dv = metadata?.dv;
 
