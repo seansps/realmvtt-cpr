@@ -3,6 +3,10 @@
     //todo
   }
 
+  function rollDamage() {
+    //todo
+  }
+
   function reload() {
     //todo
   }
@@ -20,6 +24,31 @@
       }));
     } else {
       return [{ value: "none", label: "None" }];
+    }
+  }
+
+  function useAmmo() {
+    const weaponDataPath = dataPath.replace(".data.useSpecialBtn", "");
+    const weapon = api.getValue(weaponDataPath);
+
+    // Get the Ammo item
+    const selectedAmmo = weapon?.data?.ammo;
+    if (selectedAmmo) {
+      const ammoId = JSON.parse(selectedAmmo)?._id;
+      if (ammoId) {
+        let ammoIndex = -1;
+        const ammo = record.data.inventory.find((item, index) => {
+          if (item._id === ammoId) {
+            ammoIndex = index;
+            return true;
+          }
+          return false;
+        });
+        if (ammo) {
+          // Found the ammo, now use it
+          useItem(`data.inventory.${ammoIndex}`);
+        }
+      }
     }
   }
 </script>
@@ -87,7 +116,7 @@
       style="
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 2px;
         align-items: flex-start;
         width: fit-content;
       "
@@ -99,7 +128,60 @@
         placeholder="Select Ammo..."
         optionsFunction="return ammoOptions();"
       ></dropdown>
-      <!-- Buttons TODO -->
+      <button
+        size="xs"
+        width="125px"
+        hidden="false"
+        field="useSpecialBtn"
+        variant="default"
+        label="Use Special"
+        icon="IconWalk"
+        onclick="useAmmo();"
+      ></button>
+    </div>
+
+    <!-- Ammo Count and Damage Button -->
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        align-items: flex-start;
+        width: fit-content;
+      "
+    >
+      <button
+        size="xs"
+        width="100px"
+        label="Damage"
+        variant="light"
+        color="primary"
+        onclick="rollDamage();"
+      ></button>
+      <div style="display: flex; flex-direction: row; gap: 4px; width: 100px">
+        <numberfield
+          field="ammountCount"
+          size="xs"
+          label="Ammo Remaining"
+          width="60%"
+          variant="tooltip"
+          placeholder="0"
+        ></numberfield>
+        <numberfield
+          field="rof"
+          size="xs"
+          width="40%"
+          variant="tooltip"
+          label="Rate of Fire"
+          placeholder="0"
+          hidecontrols="true"
+          editable="false"
+        ></numberfield>
+      </div>
     </div>
   </div>
 </div>
+
+<!-- TODO button with popover panel for shot by range -->
+
+<!-- TODO - ATTACHMENTS LIST -->
