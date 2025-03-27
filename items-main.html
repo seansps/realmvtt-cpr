@@ -1,38 +1,79 @@
 <script>
   function showHideValues(typeStr) {
+    // If this is an nested item, just return. (Like a weapon attachment)
+    if (dataPath.includes(".attachments")) {
+      return;
+    }
+
     const valuesToSet = {
       "fields.weaponProperties.hidden": true,
+      "fields.dvProperties.hidden": true,
       "fields.packProperties.hidden": true,
       "fields.rangedWeaponProperties.hidden": true,
       "fields.weaponType.hidden": true,
       "fields.ammoType.hidden": true,
       "fields.magazine.hidden": true,
+      "fields.weaponAttachmentProperties.hidden": true,
+      "fields.attachmentsProperties.hidden": true,
+      "fields.maxSlots.hidden": true,
+      "fields.ammoProperties.hidden": true,
+      "fields.armorProperties.hidden": true,
+      "fields.blackICEProperties.hidden": true,
+      "fields.demonProperties.hidden": true,
+      "fields.droneProperties.hidden": true,
+      "fields.programProperties.hidden": true,
+      "fields.vehicleProperties.hidden": true,
+      "fields.cyberdeckProperties.hidden": true,
+      "fields.cyberwareProperties.hidden": true,
+      "fields.weaponAttachedLabel.hidden": true,
+      "fields.weaponAttached.hidden": true,
+      "fields.cyberwareWeaponLabel.hidden": true,
+      "fields.vehicleUpgradeProperties.hidden": true,
+      "fields.drugProperties.hidden": true,
+      "fields.consumableProperties.hidden":
+        record.data?.consumable || record.data?.hasUseBtn ? false : true,
     };
 
     if (typeStr === "agent app") {
       valuesToSet["fields.consumable.hidden"] = true;
       valuesToSet["fields.hasUseBtn.hidden"] = false;
+    } else if (typeStr === "ammo") {
+      valuesToSet["fields.consumable.hidden"] = true;
+      valuesToSet["fields.hasUseBtn.hidden"] = true;
+      valuesToSet["fields.ammoProperties.hidden"] = false;
+      valuesToSet["fields.consumableProperties.hidden"] = false;
     } else if (typeStr === "armor") {
       valuesToSet["fields.consumable.hidden"] = true;
       valuesToSet["fields.hasUseBtn.hidden"] = false;
+      valuesToSet["fields.armorProperties.hidden"] = false;
     } else if (typeStr === "black ice") {
       valuesToSet["fields.consumable.hidden"] = true;
       valuesToSet["fields.hasUseBtn.hidden"] = false;
+      valuesToSet["fields.blackICEProperties.hidden"] = false;
     } else if (typeStr === "cyberdeck") {
       valuesToSet["fields.consumable.hidden"] = true;
       valuesToSet["fields.hasUseBtn.hidden"] = true;
+      valuesToSet["fields.cyberdeckProperties.hidden"] = false;
+      valuesToSet["fields.maxSlots.hidden"] = false;
     } else if (typeStr === "cyberware") {
       valuesToSet["fields.consumable.hidden"] = true;
       valuesToSet["fields.hasUseBtn.hidden"] = true;
+      valuesToSet["fields.cyberwareProperties.hidden"] = false;
+      valuesToSet["fields.cyberwareWeaponLabel.hidden"] = false;
+      valuesToSet["fields.weaponAttached.hidden"] = false;
     } else if (typeStr === "demon") {
       valuesToSet["fields.consumable.hidden"] = true;
       valuesToSet["fields.hasUseBtn.hidden"] = false;
+      valuesToSet["fields.demonProperties.hidden"] = false;
     } else if (typeStr === "drone") {
       valuesToSet["fields.consumable.hidden"] = true;
       valuesToSet["fields.hasUseBtn.hidden"] = false;
+      valuesToSet["fields.droneProperties.hidden"] = false;
     } else if (typeStr === "drug") {
-      valuesToSet["fields.consumable.hidden"] = false;
-      valuesToSet["fields.hasUseBtn.hidden"] = false;
+      valuesToSet["fields.drugProperties.hidden"] = false;
+      valuesToSet["fields.consumable.hidden"] = true;
+      valuesToSet["fields.hasUseBtn.hidden"] = true;
+      valuesToSet["fields.consumableProperties.hidden"] = false;
     } else if (typeStr === "fashion") {
       valuesToSet["fields.consumable.hidden"] = true;
       valuesToSet["fields.hasUseBtn.hidden"] = true;
@@ -44,6 +85,8 @@
       valuesToSet["fields.hasUseBtn.hidden"] = false;
       valuesToSet["fields.weaponProperties.hidden"] = false;
       valuesToSet["fields.weaponType.hidden"] = false;
+      valuesToSet["fields.attachmentsProperties.hidden"] = false;
+      valuesToSet["fields.maxSlots.hidden"] = false;
       // Defaults for melee weapons
       valuesToSet["data.weaponSkill"] = "brawling";
       valuesToSet["data.rof"] = "1";
@@ -54,6 +97,7 @@
     } else if (typeStr === "program or hardware") {
       valuesToSet["fields.consumable.hidden"] = true;
       valuesToSet["fields.hasUseBtn.hidden"] = false;
+      valuesToSet["fields.programProperties.hidden"] = false;
     } else if (typeStr === "ranged weapon") {
       valuesToSet["fields.consumable.hidden"] = true;
       valuesToSet["fields.hasUseBtn.hidden"] = false;
@@ -61,6 +105,9 @@
       valuesToSet["fields.rangedWeaponProperties.hidden"] = false;
       valuesToSet["fields.ammoType.hidden"] = false;
       valuesToSet["fields.magazine.hidden"] = false;
+      valuesToSet["fields.dvProperties.hidden"] = false;
+      valuesToSet["fields.attachmentsProperties.hidden"] = false;
+      valuesToSet["fields.maxSlots.hidden"] = false;
       // Defaults for ranged weapons
       valuesToSet["data.weaponSkill"] = "archery";
       valuesToSet["data.rof"] = "1";
@@ -75,15 +122,100 @@
     } else if (typeStr === "vehicle") {
       valuesToSet["fields.consumable.hidden"] = true;
       valuesToSet["fields.hasUseBtn.hidden"] = false;
+      valuesToSet["fields.vehicleProperties.hidden"] = false;
     } else if (typeStr === "vehicle upgrade") {
       valuesToSet["fields.consumable.hidden"] = true;
       valuesToSet["fields.hasUseBtn.hidden"] = true;
+      valuesToSet["fields.vehicleUpgradeProperties.hidden"] = false;
     } else if (typeStr === "weapon attachment") {
       valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = true;
+      valuesToSet["fields.hasUseBtn.hidden"] = false;
+      valuesToSet["fields.weaponAttachmentProperties.hidden"] = false;
     } else {
       valuesToSet["fields.consumable.hidden"] = true;
       valuesToSet["fields.hasUseBtn.hidden"] = true;
+    }
+
+    api.setValues(valuesToSet);
+  }
+
+  function isAttachment(value) {
+    return value.data?.type === "weapon attachment";
+  }
+
+  function isWeapon(value) {
+    return (
+      value.data?.type === "ranged weapon" ||
+      value.data?.type === "melee weapon"
+    );
+  }
+
+  function isBlackICE(value) {
+    return value.data?.type === "black ice";
+  }
+
+  function isProgram(value) {
+    return value.data?.type === "program";
+  }
+
+  function isDemon(value) {
+    return value.data?.type === "demon";
+  }
+
+  function isDrone(value) {
+    return value.data?.type === "drone";
+  }
+
+  function isVehicle(value) {
+    return value.data?.type === "vehicle";
+  }
+
+  function isProgramOrHardware(value) {
+    return (
+      value.data?.type === "program" ||
+      value.data?.type === "program or hardware"
+    );
+  }
+
+  function onAttachmentTypeChange(value) {
+    // Rebuild the attachment data path incase this is a nested item
+    let attachmentDataPath = dataPath.replace(/data.attachmentType[.]?/, "");
+    const valuesToSet = {
+      [`${attachmentDataPath}fields.dvProperties.hidden`]: true,
+      [`${attachmentDataPath}fields.afDvProperties.hidden`]: true,
+      [`${attachmentDataPath}fields.magazineSize.hidden`]: true,
+      [`${attachmentDataPath}fields.weaponAttached.hidden`]: true,
+      [`${attachmentDataPath}fields.weaponAttachedLabel.hidden`]: true,
+    };
+
+    if (value === "altRange") {
+      valuesToSet[`${attachmentDataPath}fields.dvProperties.hidden`] = false;
+      valuesToSet[`${attachmentDataPath}fields.afDvProperties.hidden`] = false;
+    } else if (value === "magazine") {
+      valuesToSet[`${attachmentDataPath}fields.magazineSize.hidden`] = false;
+    } else if (value === "weapon") {
+      valuesToSet[`${attachmentDataPath}fields.weaponAttached.hidden`] = false;
+      valuesToSet[
+        `${attachmentDataPath}fields.weaponAttachedLabel.hidden`
+      ] = false;
+    }
+
+    api.setValues(valuesToSet);
+  }
+
+  function onProgramHardwareTypeChange(value) {
+    let programDataPath = dataPath.replace(/data.programHardwareType[.]?/, "");
+    const valuesToSet = {
+      [`${programDataPath}fields.program.hidden`]: true,
+      [`${programDataPath}fields.programLabel.hidden`]: true,
+    };
+
+    if (value === "hardware" || value === "quickhack") {
+      valuesToSet[`${programDataPath}fields.program.hidden`] = true;
+      valuesToSet[`${programDataPath}fields.programLabel.hidden`] = true;
+    } else {
+      valuesToSet[`${programDataPath}fields.program.hidden`] = false;
+      valuesToSet[`${programDataPath}fields.programLabel.hidden`] = false;
     }
 
     api.setValues(valuesToSet);
@@ -183,6 +315,134 @@
     // Apply the changes to the data model
     api.setValues(valuesToSet);
   }
+
+  function onProgramsAndHardwareChange() {
+    // Requery the record to address race condition
+    const recordId = record._id;
+    const recordType = record.recordType;
+
+    let programDataPath = dataPath;
+    let blackICEDataPath = dataPath.replace(
+      "data.installedProgramsAndHardware",
+      "data.installedBlackICE"
+    );
+    let maxSlotsDataPath = dataPath.replace(
+      "data.installedProgramsAndHardware",
+      "data.maxSlots"
+    );
+    let recordDataPath = dataPath.replace(
+      "data.installedProgramsAndHardware",
+      ""
+    );
+
+    api.getRecord(recordType, recordId, (record) => {
+      const installedBlackICE = record.data?.installedBlackICE || [];
+      const installedProgramsAndHardware =
+        record.data?.installedProgramsAndHardware || [];
+
+      const valuesToSet = {};
+
+      // Get slots used
+      let slotsUsed = 0;
+      installedBlackICE.forEach((blackICE) => {
+        // Black ICE always takes 2 slots (check field for future proofing if it takes more)
+        const slots = Math.max(blackICE.data?.slots || 0, 2);
+        slotsUsed += slots;
+      });
+
+      installedProgramsAndHardware.forEach((programOrHardware) => {
+        slotsUsed += programOrHardware.data?.slots || 0;
+      });
+
+      const maxSlots = record.data?.maxSlots || 3;
+      valuesToSet[`${recordDataPath}data.slotsUsed`] = Math.min(
+        slotsUsed,
+        maxSlots
+      );
+
+      if (Object.keys(valuesToSet).length > 0) {
+        api.setValues(valuesToSet);
+      }
+    });
+  }
+
+  function onBlackICEChange() {
+    // Requery the record to address race condition
+    const recordId = record._id;
+    const recordType = record.recordType;
+
+    let blackICEDataPath = dataPath;
+    let programsDataPath = dataPath.replace(
+      "data.installedBlackICE",
+      "data.installedProgramsAndHardware"
+    );
+    let maxSlotsDataPath = dataPath.replace(
+      "data.installedBlackICE",
+      "data.maxSlots"
+    );
+    let recordDataPath = dataPath.replace("data.installedBlackICE", "");
+
+    api.getRecord(recordType, recordId, (record) => {
+      const installedBlackICE = record.data?.installedBlackICE || [];
+      const installedProgramsAndHardware =
+        record.data?.installedProgramsAndHardware || [];
+      // Make sure all attachemetns are of type "weapon attachment"
+      const valuesToSet = {};
+
+      // Get slots used
+      let slotsUsed = 0;
+      installedBlackICE.forEach((blackICE) => {
+        // Black ICE always takes 2 slots (check field for future proofing if it takes more)
+        const slots = Math.max(blackICE.data?.slots || 0, 2);
+        slotsUsed += slots;
+      });
+
+      installedProgramsAndHardware.forEach((programOrHardware) => {
+        slotsUsed += programOrHardware.data?.slots || 0;
+      });
+
+      const maxSlots = record.data?.maxSlots || 3;
+      valuesToSet[`${recordDataPath}data.slotsUsed`] = Math.min(
+        slotsUsed,
+        maxSlots
+      );
+
+      if (Object.keys(valuesToSet).length > 0) {
+        api.setValues(valuesToSet);
+      }
+    });
+  }
+
+  function onAttachmentsChange() {
+    const attachments = record.data?.attachments;
+    // Make sure all attachemetns are of type "weapon attachment"
+    const valuesToSet = {};
+    attachments.forEach((attachment, index) => {
+      if (attachment.data?.type !== "weapon attachment") {
+        valuesToSet[`data.attachments.${index}.data.type`] =
+          "weapon attachment";
+        valuesToSet[
+          `data.attachments.${index}.fields.weaponAttachmentProperties.hidden`
+        ] = false;
+        valuesToSet[
+          `data.attachments.${index}.fields.hasUseBtn.hidden`
+        ] = false;
+      }
+    });
+
+    // Get slots used
+    let slotsUsed = 0;
+    attachments.forEach((attachment) => {
+      slotsUsed += attachment.data?.slots || 0;
+    });
+
+    const maxSlots = record.data?.maxSlots || 3;
+    valuesToSet["data.slotsUsed"] = Math.min(slotsUsed, maxSlots);
+
+    if (Object.keys(valuesToSet).length > 0) {
+      api.setValues(valuesToSet);
+    }
+  }
 </script>
 
 <div
@@ -207,6 +467,7 @@
         multiselect="1"
         placeholder="Select Type"
         onchange="showHideValues(value);"
+        s
         field="type"
         label="Type"
         defaultvalue="gear"
@@ -238,15 +499,7 @@
   <!-- Other General Properties -->
 
   <box field="otherGeneralProperties" hidewhenidentified="false">
-    <div
-      style="
-        display: flex;
-        flex-direction: row;
-        gap: 16px;
-        margin-top: 8px;
-        margin-bottom: 8px;
-      "
-    >
+    <div style="display: flex; flex-direction: row; gap: 16px">
       <checkbox
         field="hasUseBtn"
         label="Has Use"
@@ -422,10 +675,186 @@
       multiline="true"
       placeholder="Enter features..."
     ></stringfield>
+  </box>
 
-    <!-- Weapon Attachments List TODO -->
+  <box field="attachmentsProperties" hidden="true" hidewhenidentified="false">
+    <div style="margin-top: 4px">
+      <label
+        field="attachmentsLabel"
+        label="Weapon Attachments"
+        size="sm"
+        variant="bold"
+        textalign="center"
+      ></label>
+      <counter
+        field="slotsUsed"
+        label="Slots Used"
+        textalign="center"
+        size="sm"
+        maxvalue="3"
+        maxvaluefield="maxSlots"
+        textalign="center"
+      ></counter>
+      <list
+        listtype="attachment_list"
+        field="attachments"
+        variant="outline-striped"
+        allowadd="return isAttachment(value);"
+        onchange="onAttachmentsChange();"
+      ></list>
+    </div>
+  </box>
 
-    <!-- DVs -->
+  <!-- Weapon Attachment Properties -->
+  <box
+    field="weaponAttachmentProperties"
+    hidden="true"
+    hidewhenidentified="false"
+  >
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+        align-items: flex-end;
+      "
+    >
+      <div style="display: flex; flex-direction: row; width: 100%; gap: 8px">
+        <dropdown
+          width="100%"
+          field="attachmentType"
+          label="Attachment Type"
+          placeholder="Select Type..."
+          options='[{"label": "Standard", "value": "standard"}, {"label": "Altered Range", "value": "altRange"}, {"label": "Magazine", "value": "magazine"}, {"label": "Weapon", "value": "weapon"}]'
+          onchange="onAttachmentTypeChange(value);"
+        ></dropdown>
+
+        <numberfield
+          width="100%"
+          field="slots"
+          label="Slots Required"
+          placeholder="Enter Slots..."
+          minvalue="0"
+        ></numberfield>
+
+        <numberfield
+          width="100%"
+          field="magazineSize"
+          label="Magazine Size"
+          placeholder="Enter Size..."
+          minvalue="0"
+        ></numberfield>
+      </div>
+    </div>
+  </box>
+
+  <!-- Black ICE Properties -->
+  <box field="blackICEProperties" hidden="true" hidewhenidentified="false">
+    <label
+      field="blackICELabel"
+      label="Black ICE"
+      size="sm"
+      variant="bold"
+      textalign="center"
+    ></label>
+    <list
+      listtype="items_black_ice_select_list"
+      field="blackICE"
+      variant="outline"
+      allowadd="return isBlackICE(value);"
+    ></list>
+  </box>
+
+  <!-- Demon Properties -->
+  <box field="demonProperties" hidden="true" hidewhenidentified="false">
+    <label
+      field="demonLabel"
+      label="Demon"
+      size="sm"
+      variant="bold"
+      textalign="center"
+    ></label>
+    <list
+      listtype="items_demon_select_list"
+      field="demon"
+      variant="outline"
+      allowadd="return isDemon(value);"
+    ></list>
+  </box>
+
+  <!-- Drone Properties -->
+  <box field="droneProperties" hidden="true" hidewhenidentified="false">
+    <label
+      field="droneLabel"
+      label="Drone"
+      size="sm"
+      variant="bold"
+      textalign="center"
+    ></label>
+    <list
+      listtype="items_drone_select_list"
+      field="drone"
+      variant="outline"
+      allowadd="return isDrone(value);"
+    ></list>
+  </box>
+
+  <!-- Vehicle Properties -->
+  <box field="vehicleProperties" hidden="true" hidewhenidentified="false">
+    <label
+      field="vehicleLabel"
+      label="Vehicle"
+      size="sm"
+      variant="bold"
+      textalign="center"
+    ></label>
+    <list
+      listtype="items_vehicle_select_list"
+      field="vehicle"
+      variant="outline"
+      allowadd="return isVehicle(value);"
+    ></list>
+  </box>
+
+  <!-- Program Properties -->
+  <box field="programProperties" hidden="true" hidewhenidentified="false">
+    <div style="display: flex; flex-direction: row; width: 100%; gap: 8px">
+      <dropdown
+        width="100%"
+        field="programHardwareType"
+        label="Select Type"
+        placeholder="Select Type..."
+        onchange="onProgramHardwareTypeChange(value);"
+        options='[{"label": "Anti-Personnel Attacker", "value": "anti-personnel attacker"}, {"label": "Anti-Program Attacker", "value": "anti-program attacker"}, {"label": "Booster", "value": "booster"}, {"label": "Defender", "value": "defender"}, {"label": "Hardware", "value": "hardware"}, {"label": "Quickhack", "value": "quickhack"}]'
+      ></dropdown>
+      <numberfield
+        width="100%"
+        field="slots"
+        label="Slots Required"
+        placeholder="Enter Slots..."
+        minvalue="0"
+      ></numberfield>
+    </div>
+    <label
+      field="programLabel"
+      label="Program"
+      hidden="true"
+      size="sm"
+      variant="bold"
+      textalign="center"
+    ></label>
+    <list
+      listtype="items_program_select_list"
+      hidden="true"
+      field="program"
+      variant="outline"
+      allowadd="return isProgram(value);"
+    ></list>
+  </box>
+
+  <!-- DVs for Weapons and Weapon Attachments -->
+  <box field="dvProperties" hidden="true" hidewhenidentified="false">
     <div style="margin-top: 4px">
       <label
         field="dvLabel"
@@ -494,64 +923,188 @@
         placeholder="DV..."
       ></numberfield>
     </div>
+  </box>
 
-    <box field="afDvProperties" hidden="true">
-      <div style="margin-top: 4px">
-        <label
-          field="afDvLabel"
-          label="Autofire DVs Based on Range"
-          size="sm"
-          variant="bold"
-          textalign="center"
-        ></label>
-      </div>
-      <div
-        style="
-          display: flex;
-          flex-direction: row;
-          width: 100%;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 8px;
-        "
-      >
-        <numberfield
-          width="120px"
-          field="af0to6"
-          label="0 to 6 m/yds"
-          placeholder="DV..."
-        ></numberfield>
-        <numberfield
-          width="120px"
-          field="af7to12"
-          label="7 to 12 m/yds"
-          placeholder="DV..."
-        ></numberfield>
-        <numberfield
-          width="120px"
-          field="af13to25"
-          label="13 to 25 m/yds"
-          placeholder="DV..."
-        ></numberfield>
-        <numberfield
-          width="120px"
-          field="af26to50"
-          label="26 to 50 m/yds"
-          placeholder="DV..."
-        ></numberfield>
-        <numberfield
-          width="120px"
-          field="af51to100"
-          label="51 to 100 m/yds"
-          placeholder="DV..."
-        ></numberfield>
-      </div>
-    </box>
+  <box field="afDvProperties" hidden="true" hidewhenidentified="false">
+    <div style="margin-top: 4px">
+      <label
+        field="afDvLabel"
+        label="Autofire DVs Based on Range"
+        size="sm"
+        variant="bold"
+        textalign="center"
+      ></label>
+    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+      "
+    >
+      <numberfield
+        width="120px"
+        field="af0to6"
+        label="0 to 6 m/yds"
+        placeholder="DV..."
+      ></numberfield>
+      <numberfield
+        width="120px"
+        field="af7to12"
+        label="7 to 12 m/yds"
+        placeholder="DV..."
+      ></numberfield>
+      <numberfield
+        width="120px"
+        field="af13to25"
+        label="13 to 25 m/yds"
+        placeholder="DV..."
+      ></numberfield>
+      <numberfield
+        width="120px"
+        field="af26to50"
+        label="26 to 50 m/yds"
+        placeholder="DV..."
+      ></numberfield>
+      <numberfield
+        width="120px"
+        field="af51to100"
+        label="51 to 100 m/yds"
+        placeholder="DV..."
+      ></numberfield>
+    </div>
+  </box>
+
+  <!-- Ammo Properties -->
+  <box field="ammoProperties" hidden="true" hidewhenidentified="false">
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        gap: 8px;
+        align-items: center;
+      "
+    >
+      <numberfield
+        width="200px"
+        field="rounds"
+        label="Rounds Included"
+        placeholder="Enter # Rounds..."
+        minvalue="1"
+      ></numberfield>
+      <checkbox
+        field="isShell"
+        label="Is Shell"
+        textalign="left"
+        size="sm"
+      ></checkbox>
+    </div>
   </box>
 
   <!-- Armor Properties -->
+  <box field="armorProperties" hidden="true" hidewhenidentified="false">
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        gap: 8px;
+        align-items: center;
+      "
+    >
+      <dropdown
+        width="100%"
+        field="armorLocation"
+        label="Armor Location"
+        placeholder="Select Location..."
+        options='[{"label": "Head", "value": "head"}, {"label": "Body", "value": "body"}, {"label": "Shield", "value": "shield"}]'
+      ></dropdown>
+      <numberfield
+        width="100%"
+        field="sp"
+        label="SP"
+        placeholder="Enter SP..."
+        minvalue="0"
+      ></numberfield>
+      <numberfield
+        width="100%"
+        field="penalty"
+        label="Penalty"
+        placeholder="Enter Penalty..."
+        minvalue="0"
+      ></numberfield>
+    </div>
+  </box>
 
-  <!-- Properties for Consumable Items -->
+  <!-- Properties for Cyberdecks and Programs -->
+  <box field="cyberdeckProperties" hidden="true" hidewhenidentified="false">
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        gap: 8px;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 8px;
+      "
+    >
+      <counter
+        field="slotsUsed"
+        label="Cyberdeck Slots Used"
+        textalign="center"
+        size="sm"
+        maxvalue="3"
+        maxvaluefield="maxSlots"
+        textalign="center"
+      ></counter>
+      <numberfield
+        width="100px"
+        field="maxSlots"
+        label="Max Slots"
+        placeholder="3"
+        minvalue="0"
+      ></numberfield>
+    </div>
+    <label
+      field="attachmentsLabel"
+      label="Installed Programs and Handware"
+      size="sm"
+      variant="bold"
+      textalign="center"
+    ></label>
+    <div style="margin-top: 4px">
+      <list
+        listtype="programs_and_hardware_list"
+        field="installedProgramsAndHardware"
+        variant="outline-striped"
+        allowadd="return isProgramOrHardware(value);"
+        onchange="onProgramsAndHardwareChange();"
+      ></list>
+    </div>
+    <label
+      field="blackICELabel"
+      label="Black ICE"
+      size="sm"
+      variant="bold"
+      textalign="center"
+    ></label>
+    <div style="margin-top: 4px">
+      <list
+        listtype="black_ice_list"
+        field="installedBlackICE"
+        variant="outline-striped"
+        allowadd="return isBlackICE(value);"
+        onchange="onBlackICEChange();"
+      ></list>
+    </div>
+  </box>
+
+  <!-- Properties for Consumable Items and Items with Use Buttons -->
   <box field="consumableProperties" hidden="true" hidewhenidentified="false">
     <dropdown
       width="100%"
@@ -579,6 +1132,105 @@
         placeholder="Enter Damage when used if Applicable..."
       ></stringfield>
     </div>
+    <div style="display: flex; flex-direction: row; width: 100%; gap: 8px">
+      <numberfield
+        width="100%"
+        field="checkDV"
+        label="Skill Check DV"
+        placeholder="Enter DV..."
+        minvalue="0"
+      ></numberfield>
+      <dropdown
+        width="100%"
+        field="checkSkill"
+        label="Skill"
+        placeholder="Select Skill..."
+        optionsquery='{"type": "skill", "query": {}}'
+      ></dropdown>
+    </div>
+  </box>
+
+  <box field="drugProperties" hidden="true" hidewhenidentified="false">
+    <dropdown
+      width="100%"
+      field="addictions"
+      label="Addictions"
+      description="Addictions that can be applied when used"
+      placeholder="Select Addictions if Applicable..."
+      multiselect="10"
+      optionsquery='{"type": "conditions", "query": {"data.type": "addiction"}}'
+    >
+    </dropdown>
+    <div style="display: flex; flex-direction: row; width: 100%; gap: 8px">
+      <stringfield
+        width="100%"
+        field="primaryDiceRoll"
+        label="Primary Humanity Loss Dice Roll"
+        placeholder="Enter Primary Dice Roll..."
+      ></stringfield>
+      <numberfield
+        width="100%"
+        field="primaryHumanityLoss"
+        label="Primary Humanity Loss"
+        placeholder="Primary Humanity Loss..."
+        minvalue="0"
+      ></numberfield>
+    </div>
+    <div style="display: flex; flex-direction: row; width: 100%; gap: 8px">
+      <stringfield
+        width="100%"
+        field="secondaryDiceRoll"
+        label="Secondary Humanity Loss Dice Roll"
+        placeholder="Enter Secondary Dice Roll..."
+      ></stringfield>
+      <numberfield
+        width="100%"
+        field="secondaryHumanityLoss"
+        label="Secondary Humanity Loss"
+        placeholder="Secondary Humanity Loss..."
+        minvalue="0"
+      ></numberfield>
+    </div>
+  </box>
+
+  <!-- Vehicle Upgrade Properties -->
+  <box
+    field="vehicleUpgradeProperties"
+    hidden="true"
+    hidewhenidentified="false"
+  >
+    <div style="display: flex; flex-direction: row; width: 100%; gap: 8px">
+      <numberfield
+        width="100%"
+        field="armorSp"
+        label="Armor SP"
+        placeholder="Enter Armor SP..."
+        minvalue="0"
+      ></numberfield>
+      <numberfield
+        width="100%"
+        field="coverHp"
+        label="Cover HP"
+        placeholder="Enter Cover HP..."
+        minvalue="0"
+      ></numberfield>
+    </div>
+    <div style="display: flex; flex-direction: row; width: 100%; gap: 8px">
+      <numberfield
+        width="100%"
+        field="extraSeats"
+        label="Extra Seats"
+        placeholder="Enter Extra Seats..."
+        minvalue="0"
+      ></numberfield>
+      <numberfield
+        width="100%"
+        field="additionalSdp"
+        label="Additional SDP"
+        placeholder="Enter Additional SDP..."
+        minvalue="0"
+      ></numberfield>
+    </div>
   </box>
 
   <!-- Pack Properties -->
@@ -604,6 +1256,117 @@
 
     <numberfield placeholder="0" field="cash" label="Cash"></numberfield>
   </box>
+
+  <!-- Cyberware Properties -->
+  <box field="cyberwareProperties" hidden="true" hidewhenidentified="false">
+    <div style="display: flex; flex-direction: row; width: 100%; gap: 8px">
+      <dropdown
+        width="100%"
+        field="cyberwareInstallSlot"
+        label="Cyberware Install Slot"
+        placeholder="Select Install Slot..."
+        options='[{"label": "Foundational", "value": "foundational"}, {"label": "Fashionware", "value": "fashionware"}, 
+        {"label": "Neuralware", "value": "neuralware"}, {"label": "Chipware", "value": "chipware"}, {"label": "Cyberoptics", "value": "cyberoptics"}, 
+        {"label": "Cyberaudio", "value": "cyberaudio"}, {"label": "Cyberfingers", "value": "cyberfingers"}, 
+        {"label": "Internal Body Cyberware", "value": "internal body cyberware"}, 
+        {"label": "External Body Cyberware", "value": "external body cyberware"},
+        {"label": "Cyberarms", "value": "cyberarms"}, {"label": "Cyberlegs", "value": "cyberlegs"},
+        {"label": "Borgware", "value": "borgware"}]'
+      ></dropdown>
+      <dropdown
+        width="100%"
+        field="foundationalSlot"
+        label="Foundational Slot"
+        placeholder="Select Slot..."
+        options='[{"label": "Neural Link", "value": "neural link"}, 
+        {"label": "Cyberaudio Suite", "value": "cyberaudio suite"}, 
+        {"label": "Right Cybereye", "value": "right cybereye"},
+        {"label": "Left Cybereye", "value": "left cybereye"}, 
+        {"label": "Right Cyberarm", "value": "right cyberarm"}, 
+        {"label": "Left Cyberarm", "value": "left cyberarm"}, 
+        {"label": "Right Hand", "value": "right hand"}, 
+        {"label": "Left Hand", "value": "left hand"}, 
+        {"label": "Right Cyberleg", "value": "right cyberleg"}, 
+        {"label": "Left Cyberleg", "value": "left cyberleg"}, 
+        {"label": "Right Foot", "value": "right foot"}, 
+        {"label": "Left Foot", "value": "left foot"}]'
+      ></dropdown>
+    </div>
+    <div style="display: flex; flex-direction: row; width: 100%; gap: 8px">
+      <dropdown
+        width="100%"
+        field="installLocation"
+        label="Install Location"
+        placeholder="Select Install Location..."
+        options='[{"label": "N/A", "value": "n/a"}, 
+        {"label": "Mall", "value": "mall"}, 
+        {"label": "Clinic", "value": "clinic"},
+        {"label": "Hospital", "value": "hospital"}]'
+      ></dropdown>
+      <numberfield
+        width="100%"
+        field="slots"
+        label="Slots Required"
+        placeholder="Enter Slots..."
+        minvalue="0"
+      ></numberfield>
+    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        gap: 8px;
+        align-items: center;
+      "
+    >
+      <stringfield
+        width="100%"
+        field="humanityLoss"
+        label="Humanity Loss"
+        placeholder="Enter Humanity Loss Roll..."
+      ></stringfield>
+      <checkbox
+        field="halfHumanityLoss"
+        width="200px"
+        label="Is Halved"
+        textalign="left"
+      ></checkbox>
+      <numberfield
+        width="100%"
+        field="baseHumanityLoss"
+        label="Base Humanity Loss"
+        placeholder="Enter Base HL..."
+        minvalue="0"
+      ></numberfield>
+    </div>
+  </box>
+
+  <div style="display: flex; flex-direction: column; width: 100%; gap: 4px">
+    <label
+      field="weaponAttachedLabel"
+      label="Attached Weapon"
+      hidden="true"
+      size="sm"
+      variant="bold"
+      textalign="center"
+    ></label>
+    <label
+      field="cyberwareWeaponLabel"
+      label="Linked Weapon"
+      hidden="true"
+      size="sm"
+      variant="bold"
+      textalign="center"
+    ></label>
+    <list
+      listtype="attachment_weapon_select_list"
+      field="weaponAttached"
+      variant="outline"
+      hidden="true"
+      allowadd="return isWeapon(value);"
+    ></list>
+  </div>
 
   <!-- Description -->
 

@@ -1,15 +1,26 @@
-<dropdown
+<numberfield
   width="100%"
-  field="equipEffect"
-  textalign="center"
-  size="md"
-  label="Effect"
-  description="Effect applied when equipped"
-  placeholder="Select Effect if Applicable..."
-  optionsquery='{"type": "effects", "query": {}}'
-  hidewhenidentified="false"
->
-</dropdown>
+  field="maxSlots"
+  label="Max Attachment Slots"
+  placeholder="3"
+  minvalue="0"
+  hidden="true"
+></numberfield>
+
+<div style="margin-top: 4px">
+  <dropdown
+    width="100%"
+    field="equipEffect"
+    textalign="center"
+    size="md"
+    label="Effect"
+    description="Effect applied when equipped"
+    placeholder="Select Effect if Applicable..."
+    optionsquery='{"type": "effects", "query": {}}'
+    hidewhenidentified="false"
+  >
+  </dropdown>
+</div>
 
 <div style="margin-top: 4px">
   <label label="Modifiers" size="md" variant="bold" textalign="center"></label>
