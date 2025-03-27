@@ -1,0 +1,208 @@
+<script>
+  function onLoad() {
+    // On initial load of inventory, make sure filterList is not null
+    if (
+      record?.data?.filterList === undefined ||
+      record?.data?.filterList === null
+    ) {
+      api.setValue("data.filterList", "");
+    }
+  }
+
+  function onDropItem(recordLink) {
+    const item = recordLink?.value;
+
+    const isDrug = item?.data?.type === "drug";
+    const isAmmo = item?.data?.type === "ammo";
+    const isAmmoWithValues =
+      isAmmo &&
+      ((item?.data?.effects && item?.data?.effects.length > 0) ||
+        item?.data?.healing ||
+        item?.data?.useDamage);
+    const isConsumable = item?.data?.consumable || false;
+
+    const hasUseBtn = item?.data?.hasUseBtn || false;
+
+    // Add the item and set the attunement hidden field to visible if requires attunement
+    const itemToAdd = {
+      ...item,
+      icon: "IconBox",
+      data: {
+        ...item?.data,
+        // Track old ID for count tracking
+        fromId: item._id,
+        // Default count to 1
+        count: 1,
+      },
+      fields: {
+        ...item?.fields,
+        useBtn: {
+          hidden: !isConsumable && !hasUseBtn && !isAmmoWithValues && !isDrug,
+        },
+
+        // TODO add other fields here as necessary for the Actions List
+      },
+    };
+
+    // Determine if we are adding the item or adding count to an existing item
+    const items = record?.data?.inventory || [];
+    const index = items.findIndex((i) => i.data?.fromId === item._id);
+
+    // If the item is an item pack, we're adding a list of items
+    if (item.data?.type === "pack") {
+      // Get the total weight of all items in the pack
+      const itemsInPack = item.data?.items || [];
+      const valuesToSet = {};
+      // Add any currency in pack to character
+      valuesToSet["data.cash"] =
+        (record?.data?.cash || 0) + (item.data?.cash || 0);
+      const itemsToAdd = itemsInPack
+        .map((item) => {
+          // If this is existing item, get the current count
+          const thisIndex = items.findIndex((i) => i.data?.fromId === item._id);
+          const existingItem = thisIndex !== -1 ? items[thisIndex] : undefined;
+          const itemCount = parseFloat(item?.data?.count || "0");
+          const isConsumable = item.data?.consumable || false;
+          const isAmmo = item.data?.type === "ammo";
+          const isAmmoWithValues =
+            isAmmo &&
+            ((item.data?.effects && item.data?.effects.length > 0) ||
+              item.data?.healing ||
+              item.data?.useDamage);
+
+          let curCount = parseFloat(existingItem?.data?.count || "0");
+          if (!existingItem) {
+            return {
+              ...item,
+              icon: "IconBox",
+              data: {
+                ...item.data,
+                fromId: item._id,
+                count: itemCount,
+              },
+              fields: {
+                ...item?.fields,
+                useBtn: {
+                  hidden:
+                    !isConsumable && !hasUseBtn && !isAmmoWithValues && !isDrug,
+                },
+                // TODO add other fields here as necessary for the Actions List
+              },
+            };
+          } else {
+            valuesToSet[`data.inventory.${thisIndex}.data.count`] =
+              curCount + itemCount;
+          }
+        })
+        .filter((i) => i);
+      api.addValues(`data.inventory`, itemsToAdd, (record) => {
+        if (Object.keys(valuesToSet).length > 0) {
+          api.setValues(valuesToSet);
+        }
+      });
+    } else {
+      const existingItem = index !== -1 ? items[index] : undefined;
+      if (existingItem) {
+        // Add count to existing item
+        const count = parseFloat(existingItem.data?.count || "0");
+        // Update the value
+        api.setValue(`data.inventory.${index}.data.count`, count + 1);
+      } else {
+        // Add the item to the list
+        api.addValue(`data.inventory`, itemToAdd);
+      }
+    }
+  }
+
+  function onDrop(type, recordLink) {
+    if (type === "items") {
+      onDropItem(recordLink);
+    }
+  }
+
+  function onItemDeleted() {
+    // Fetch the character record again to get latest data
+    const valuesToSet = {};
+
+    // Get the current ac due to armor and set it on the
+    // record
+    const bestEquippedArmor = getBestEquippedArmor();
+
+    // TODO update armor
+
+    if (Object.keys(valuesToSet).length > 0) {
+      api.setValues(valuesToSet);
+    }
+  }
+</script>
+
+<div>
+  <label variant="bold" textalign="center" label="Inventory"></label>
+</div>
+
+<div style="display: flex; flex-direction: row; gap: 4px">
+  <dropdown
+    field="filterList"
+    label="Filter Inventory"
+    onload="onLoad()"
+    size="xs"
+    defaultvalue=""
+    options='[{"label": "All", "value": ""}, {"label": "Agent App", "value": "agent app"}, {"label": "Ammo", "value": "ammo"}, {"label": "Armor", "value": "armor"}, {"label": "Black ICE", "value": "black ice"}, {"label": "Cyberdeck", "value": "cyberdeck"}, {"label": "Cyberware", "value": "cyberware"}, {"label": "Demon", "value": "demon"}, {"label": "Drone", "value": "drone"}, {"label": "Drug", "value": "drug"}, {"label": "Fashion", "value": "fashion"}, {"label": "Gear", "value": "gear"}, {"label": "Item Pack", "value": "pack"}, {"label": "Melee Weapon", "value": "melee weapon"}, {"label": "Program or Hardware", "value": "program or hardware"}, {"label": "Ranged Weapon", "value": "ranged weapon"}, {"label": "Vehicle", "value": "vehicle"}, {"label": "Vehicle Upgrade", "value": "vehicle upgrade"}, {"label": "Weapon Attachment", "value": "weapon attachment"}]'
+  ></dropdown>
+  <div
+    style="
+      margin-left: auto;
+      display: flex;
+      flex-direction: row;
+      gap: 4px;
+      align-items: flex-end;
+    "
+  >
+    <numberfield
+      width="100px"
+      size="xs"
+      placeholder="0"
+      field="cash"
+      label="Cash"
+    ></numberfield>
+    <label variant="bold" size="xs" textalign="left" label="eb"></label>
+  </div>
+</div>
+
+<div style="display: flex; flex-direction: row; margin-top: 8px">
+  <div style="margin-left: 34px">
+    <label variant="bold" size="xs" textalign="left" label="Count"></label>
+  </div>
+  <div style="margin-left: 30px">
+    <label variant="bold" size="xs" textalign="left" label="Item"></label>
+  </div>
+  <div style="margin-left: auto">
+    <label
+      variant="bold"
+      size="xs"
+      textalign="left"
+      label="Location / Equipped"
+    ></label>
+  </div>
+</div>
+
+<div style="display: flex; flex-direction: column; flex-grow: 1">
+  <list
+    listtype="inventory_list"
+    radius="none"
+    variant="striped"
+    field="inventory"
+    onchange="onItemDeleted();"
+  >
+  </list>
+</div>
+
+<div style="margin-top: 8px">
+  <stringfield
+    field="fashion"
+    label="Fashion"
+    multiline="true"
+    placeholder="Describe your character's fashion..."
+  >
+  </stringfield>
+</div>

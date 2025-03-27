@@ -1116,3 +1116,14 @@ function getEffectsAndModifiersForToken(
 
   return results;
 }
+
+function updateAttributes(item, valuesToSet) {
+  // TODO update attributes as necessary
+  // TODO update modifiers to allow adjusting stats
+  return;
+}
+
+function getBestEquippedArmor() {
+  // TODO get the best equipped armor
+  return {};
+}
