@@ -23,6 +23,12 @@
 
     const hasUseBtn = item?.data?.hasUseBtn || false;
 
+    let unitCount = 1;
+    // If ammo, get the unit count
+    if (item.data?.type === "ammo") {
+      unitCount = item.data?.rounds || 1;
+    }
+
     // Add the item and set the attunement hidden field to visible if requires attunement
     const itemToAdd = {
       ...item,
@@ -32,7 +38,7 @@
         // Track old ID for count tracking
         fromId: item._id,
         // Default count to 1
-        count: 1,
+        count: unitCount,
       },
       fields: {
         ...item?.fields,
@@ -61,7 +67,7 @@
           // If this is existing item, get the current count
           const thisIndex = items.findIndex((i) => i.data?.fromId === item._id);
           const existingItem = thisIndex !== -1 ? items[thisIndex] : undefined;
-          const itemCount = parseFloat(item?.data?.count || "0");
+          let itemCount = parseFloat(item?.data?.count || "0");
           const isConsumable = item.data?.consumable || false;
           const isAmmo = item.data?.type === "ammo";
           const isAmmoWithValues =
@@ -69,6 +75,10 @@
             ((item.data?.effects && item.data?.effects.length > 0) ||
               item.data?.healing ||
               item.data?.useDamage);
+          // If ammo, multiply the unit count by the item count
+          if (isAmmo) {
+            itemCount = itemCount * (item.data?.rounds || 1);
+          }
 
           let curCount = parseFloat(existingItem?.data?.count || "0");
           if (!existingItem) {
@@ -105,8 +115,13 @@
       if (existingItem) {
         // Add count to existing item
         const count = parseFloat(existingItem.data?.count || "0");
+        let unitCount = 1;
+        // If ammo, get the unit count
+        if (existingItem.data?.type === "ammo") {
+          unitCount = existingItem.data?.rounds || 1;
+        }
         // Update the value
-        api.setValue(`data.inventory.${index}.data.count`, count + 1);
+        api.setValue(`data.inventory.${index}.data.count`, count + unitCount);
       } else {
         // Add the item to the list
         api.addValue(`data.inventory`, itemToAdd);

@@ -6,6 +6,22 @@
   function reload() {
     //todo
   }
+
+  function ammoOptions() {
+    // Get a list of equipped ammo
+    const equippedAmmo = record.data?.inventory?.filter(
+      (item) => item.data.carried === "equipped" && item.data.type === "ammo"
+    );
+
+    if (equippedAmmo.length > 0) {
+      return equippedAmmo.map((ammo) => ({
+        value: JSON.stringify({ _id: ammo._id, name: ammo.name }),
+        label: ammo.name,
+      }));
+    } else {
+      return [{ value: "none", label: "None" }];
+    }
+  }
 </script>
 
 <div style="display: flex; flex-direction: column">
@@ -64,6 +80,26 @@
         label="Reload"
         onclick="reload()"
       ></button>
+    </div>
+
+    <!-- Ammo List and Ammo Buttons -->
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        align-items: flex-start;
+        width: fit-content;
+      "
+    >
+      <dropdown
+        field="ammo"
+        width="125px"
+        size="xs"
+        placeholder="Select Ammo..."
+        optionsFunction="return ammoOptions();"
+      ></dropdown>
+      <!-- Buttons TODO -->
     </div>
   </div>
 </div>
