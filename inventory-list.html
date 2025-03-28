@@ -8,6 +8,8 @@
 
     const isDrug = api.getValue(`${itemDataPath}.data.type`) === "drug";
     const isAmmo = api.getValue(`${itemDataPath}.data.type`) === "ammo";
+    const isCyberware =
+      api.getValue(`${itemDataPath}.data.type`) === "cyberware";
     const isAmmoWithValues =
       isAmmo &&
       ((api.getValue(`${itemDataPath}.data.effects`) &&
@@ -54,7 +56,12 @@
       useBtn: {
         hidden: !isConsumable && !hasUseBtn && !isAmmoWithValues && !isDrug,
       },
-
+      generalWeaponProperties: {
+        hidden: isCyberware,
+      },
+      cyberwareWeaponProperties: {
+        hidden: !isCyberware,
+      },
       // TODO add other fields here as necessary for the Actions List
     };
 

@@ -20,6 +20,7 @@
         item?.data?.healing ||
         item?.data?.useDamage);
     const isConsumable = item?.data?.consumable || false;
+    const isCyberware = item?.data?.type === "cyberware";
 
     const hasUseBtn = item?.data?.hasUseBtn || false;
 
@@ -45,7 +46,13 @@
         useBtn: {
           hidden: !isConsumable && !hasUseBtn && !isAmmoWithValues && !isDrug,
         },
-
+        // If it's cyberware, we show the cyberware list and not the generalWeaponProperties section (on attacks)
+        generalWeaponProperties: {
+          hidden: isCyberware,
+        },
+        cyberwareWeaponProperties: {
+          hidden: !isCyberware,
+        },
         // TODO add other fields here as necessary for the Actions List
       },
     };
@@ -70,6 +77,7 @@
           let itemCount = parseFloat(item?.data?.count || "0");
           const isConsumable = item.data?.consumable || false;
           const isAmmo = item.data?.type === "ammo";
+          const isCyberware = item?.data?.type === "cyberware";
           const isAmmoWithValues =
             isAmmo &&
             ((item.data?.effects && item.data?.effects.length > 0) ||
@@ -95,6 +103,12 @@
                 useBtn: {
                   hidden:
                     !isConsumable && !hasUseBtn && !isAmmoWithValues && !isDrug,
+                },
+                generalWeaponProperties: {
+                  hidden: isCyberware,
+                },
+                cyberwareWeaponProperties: {
+                  hidden: !isCyberware,
                 },
                 // TODO add other fields here as necessary for the Actions List
               },

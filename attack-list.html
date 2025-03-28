@@ -11,6 +11,19 @@
     //todo
   }
 
+  function getCyberwareWeaponFilters() {
+    // Cyberware weapons are not carried, so we need to cancel that filter out
+    const filters = [
+      {
+        field: "carried",
+        operation: "not_equals",
+        value: "carried",
+        isOr: true,
+      },
+    ];
+    return filters;
+  }
+
   function ammoOptions() {
     // Get a list of equipped ammo
     const equippedAmmo = record.data?.inventory?.filter(
@@ -53,7 +66,7 @@
   }
 </script>
 
-<div style="display: flex; flex-direction: column">
+<box field="generalWeaponProperties" hidden="false">
   <!-- Main row for icon, name, buttons -->
   <div
     style="display: flex; flex-direction: row; gap: 4px; align-items: center"
@@ -160,7 +173,7 @@
       ></button>
       <div style="display: flex; flex-direction: row; gap: 4px; width: 100px">
         <numberfield
-          field="ammountCount"
+          field="ammoCount"
           size="xs"
           label="Ammo Remaining"
           width="60%"
@@ -180,7 +193,17 @@
       </div>
     </div>
   </div>
-</div>
+</box>
+
+<!-- Nested Attack List for Cyberware Weapon - shown if this a cyberware attack -->
+<box field="cyberwareWeaponProperties" hidden="true">
+  <list
+    field="weaponAttached"
+    listtype="attack_list"
+    variant="standard"
+    getfilters="return getCyberwareWeaponFilters();"
+  ></list>
+</box>
 
 <!-- TODO button with popover panel for shot by range -->
 
