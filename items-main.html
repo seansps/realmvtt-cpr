@@ -1,142 +1,188 @@
 <script>
   function showHideValues(typeStr) {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const item = api.getValue(nearestParentDataPath) || record;
+
     // If this is an nested item, just return. (Like a weapon attachment)
-    if (dataPath.includes(".attachments")) {
-      return;
+    let pathToFields = "fields";
+    if (nearestParentDataPath !== "") {
+      pathToFields = `${nearestParentDataPath}.fields`;
+    }
+    let pathToData = "data";
+    if (nearestParentDataPath !== "") {
+      pathToData = `${nearestParentDataPath}.data`;
     }
 
     const valuesToSet = {
-      "fields.weaponProperties.hidden": true,
-      "fields.dvProperties.hidden": true,
-      "fields.packProperties.hidden": true,
-      "fields.rangedWeaponProperties.hidden": true,
-      "fields.weaponType.hidden": true,
-      "fields.ammoType.hidden": true,
-      "fields.magazine.hidden": true,
-      "fields.weaponAttachmentProperties.hidden": true,
-      "fields.attachmentsProperties.hidden": true,
-      "fields.maxSlots.hidden": true,
-      "fields.ammoProperties.hidden": true,
-      "fields.armorProperties.hidden": true,
-      "fields.blackICEProperties.hidden": true,
-      "fields.demonProperties.hidden": true,
-      "fields.droneProperties.hidden": true,
-      "fields.programProperties.hidden": true,
-      "fields.vehicleProperties.hidden": true,
-      "fields.cyberdeckProperties.hidden": true,
-      "fields.cyberwareProperties.hidden": true,
-      "fields.weaponAttachedLabel.hidden": true,
-      "fields.weaponAttached.hidden": true,
-      "fields.cyberwareWeaponLabel.hidden": true,
-      "fields.vehicleUpgradeProperties.hidden": true,
-      "fields.drugProperties.hidden": true,
-      "fields.consumableProperties.hidden":
-        record.data?.consumable || record.data?.hasUseBtn ? false : true,
+      [`${pathToFields}.weaponProperties.hidden`]: true,
+      [`${pathToFields}.dvProperties.hidden`]: true,
+      [`${pathToFields}.packProperties.hidden`]: true,
+      [`${pathToFields}.rangedWeaponProperties.hidden`]: true,
+      [`${pathToFields}.weaponType.hidden`]: true,
+      [`${pathToFields}.ammoType.hidden`]: true,
+      [`${pathToFields}.magazine.hidden`]: true,
+      [`${pathToFields}.weaponAttachmentProperties.hidden`]: true,
+      [`${pathToFields}.attachmentsProperties.hidden`]: true,
+      [`${pathToFields}.maxSlots.hidden`]: true,
+      [`${pathToFields}.ammoProperties.hidden`]: true,
+      [`${pathToFields}.armorProperties.hidden`]: true,
+      [`${pathToFields}.blackICEProperties.hidden`]: true,
+      [`${pathToFields}.demonProperties.hidden`]: true,
+      [`${pathToFields}.droneProperties.hidden`]: true,
+      [`${pathToFields}.programProperties.hidden`]: true,
+      [`${pathToFields}.vehicleProperties.hidden`]: true,
+      [`${pathToFields}.cyberdeckProperties.hidden`]: true,
+      [`${pathToFields}.cyberwareProperties.hidden`]: true,
+      [`${pathToFields}.weaponAttachedLabel.hidden`]: true,
+      [`${pathToFields}.weaponAttached.hidden`]: true,
+      [`${pathToFields}.cyberwareWeaponLabel.hidden`]: true,
+      [`${pathToFields}.vehicleUpgradeProperties.hidden`]: true,
+      [`${pathToFields}.drugProperties.hidden`]: true,
+      [`${pathToFields}.consumableProperties.hidden`]:
+        item?.data?.consumable || item?.data?.hasUseBtn ? false : true,
+      // The below fields are only displayed on the attack list
+      [`${pathToFields}.generalWeaponProperties.hidden`]: true,
+      [`${pathToFields}.cyberwareWeaponProperties.hidden`]: true,
+      [`${pathToFields}.autoFireBtn.hidden`]: true,
+      [`${pathToFields}.suppressiveFireBtn.hidden`]: true,
+      [`${pathToFields}.attackByRangeBtn.hidden`]: true,
+      [`${pathToFields}.reloadBtn.hidden`]: true,
+      [`${pathToFields}.ammo.hidden`]: true,
+      [`${pathToFields}.useSpecialBtn.hidden`]: true,
+      [`${pathToFields}.ammoCount.hidden`]: true,
     };
 
     if (typeStr === "agent app") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
     } else if (typeStr === "ammo") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = true;
-      valuesToSet["fields.ammoProperties.hidden"] = false;
-      valuesToSet["fields.consumableProperties.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = true;
+      valuesToSet[`${pathToFields}.ammoProperties.hidden`] = false;
+      valuesToSet[`${pathToFields}.consumableProperties.hidden`] = false;
     } else if (typeStr === "armor") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = false;
-      valuesToSet["fields.armorProperties.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
+      valuesToSet[`${pathToFields}.armorProperties.hidden`] = false;
     } else if (typeStr === "black ice") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = false;
-      valuesToSet["fields.blackICEProperties.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
+      valuesToSet[`${pathToFields}.blackICEProperties.hidden`] = false;
     } else if (typeStr === "cyberdeck") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = true;
-      valuesToSet["fields.cyberdeckProperties.hidden"] = false;
-      valuesToSet["fields.maxSlots.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = true;
+      valuesToSet[`${pathToFields}.cyberdeckProperties.hidden`] = false;
+      valuesToSet[`${pathToFields}.maxSlots.hidden`] = false;
     } else if (typeStr === "cyberware") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = true;
-      valuesToSet["fields.cyberwareProperties.hidden"] = false;
-      valuesToSet["fields.cyberwareWeaponLabel.hidden"] = false;
-      valuesToSet["fields.weaponAttached.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = true;
+      valuesToSet[`${pathToFields}.cyberwareProperties.hidden`] = false;
+      valuesToSet[`${pathToFields}.cyberwareWeaponLabel.hidden`] = false;
+      valuesToSet[`${pathToFields}.weaponAttached.hidden`] = false;
+      valuesToSet[`${pathToFields}.cyberwareWeaponProperties.hidden`] = false;
     } else if (typeStr === "demon") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = false;
-      valuesToSet["fields.demonProperties.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
+      valuesToSet[`${pathToFields}.demonProperties.hidden`] = false;
     } else if (typeStr === "drone") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = false;
-      valuesToSet["fields.droneProperties.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
+      valuesToSet[`${pathToFields}.droneProperties.hidden`] = false;
     } else if (typeStr === "drug") {
-      valuesToSet["fields.drugProperties.hidden"] = false;
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = true;
-      valuesToSet["fields.consumableProperties.hidden"] = false;
+      valuesToSet[`${pathToFields}.drugProperties.hidden`] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = true;
+      valuesToSet[`${pathToFields}.consumableProperties.hidden`] = false;
     } else if (typeStr === "fashion") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = true;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = true;
     } else if (typeStr === "gear") {
-      valuesToSet["fields.consumable.hidden"] = false;
-      valuesToSet["fields.hasUseBtn.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = false;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
     } else if (typeStr === "melee weapon") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = false;
-      valuesToSet["fields.weaponProperties.hidden"] = false;
-      valuesToSet["fields.weaponType.hidden"] = false;
-      valuesToSet["fields.attachmentsProperties.hidden"] = false;
-      valuesToSet["fields.maxSlots.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
+      valuesToSet[`${pathToFields}.weaponProperties.hidden`] = false;
+      valuesToSet[`${pathToFields}.weaponType.hidden`] = false;
+      valuesToSet[`${pathToFields}.attachmentsProperties.hidden`] = false;
+      valuesToSet[`${pathToFields}.maxSlots.hidden`] = false;
+      valuesToSet[`${pathToFields}.generalWeaponProperties.hidden`] = false;
       // Defaults for melee weapons
-      valuesToSet["data.weaponSkill"] = "brawling";
-      valuesToSet["data.rof"] = "1";
-      valuesToSet["data.handsRequired"] = "1";
-      valuesToSet["data.quality"] = "average";
-      valuesToSet["data.exotic"] = "false";
-      valuesToSet["data.concealable"] = "false";
+      valuesToSet[`${pathToData}.weaponSkill`] = "brawling";
+      valuesToSet[`${pathToData}.rof`] = "1";
+      valuesToSet[`${pathToData}.handsRequired`] = "1";
+      valuesToSet[`${pathToData}.quality`] = "average";
+      valuesToSet[`${pathToData}.exotic`] = "false";
+      valuesToSet[`${pathToData}.concealable`] = "false";
     } else if (typeStr === "program or hardware") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = false;
-      valuesToSet["fields.programProperties.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
+      valuesToSet[`${pathToFields}.programProperties.hidden`] = false;
     } else if (typeStr === "ranged weapon") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = false;
-      valuesToSet["fields.weaponProperties.hidden"] = false;
-      valuesToSet["fields.rangedWeaponProperties.hidden"] = false;
-      valuesToSet["fields.ammoType.hidden"] = false;
-      valuesToSet["fields.magazine.hidden"] = false;
-      valuesToSet["fields.dvProperties.hidden"] = false;
-      valuesToSet["fields.attachmentsProperties.hidden"] = false;
-      valuesToSet["fields.maxSlots.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
+      valuesToSet[`${pathToFields}.weaponProperties.hidden`] = false;
+      valuesToSet[`${pathToFields}.rangedWeaponProperties.hidden`] = false;
+      valuesToSet[`${pathToFields}.ammoType.hidden`] = false;
+      valuesToSet[`${pathToFields}.magazine.hidden`] = false;
+      valuesToSet[`${pathToFields}.dvProperties.hidden`] = false;
+      valuesToSet[`${pathToFields}.attachmentsProperties.hidden`] = false;
+      valuesToSet[`${pathToFields}.maxSlots.hidden`] = false;
+      valuesToSet[`${pathToFields}.generalWeaponProperties.hidden`] = false;
+      valuesToSet[`${pathToFields}.attackByRangeBtn.hidden`] = false;
+      valuesToSet[`${pathToFields}.reloadBtn.hidden`] = false;
+      valuesToSet[`${pathToFields}.ammo.hidden`] = false;
+      valuesToSet[`${pathToFields}.ammoCount.hidden`] = false;
       // Defaults for ranged weapons
-      valuesToSet["data.weaponSkill"] = "archery";
-      valuesToSet["data.rof"] = "1";
-      valuesToSet["data.handsRequired"] = "1";
-      valuesToSet["data.quality"] = "average";
-      valuesToSet["data.exotic"] = "false";
-      valuesToSet["data.concealable"] = "false";
+      valuesToSet[`${pathToData}.weaponSkill`] = "archery";
+      valuesToSet[`${pathToData}.rof`] = "1";
+      valuesToSet[`${pathToData}.handsRequired`] = "1";
+      valuesToSet[`${pathToData}.quality`] = "average";
+      valuesToSet[`${pathToData}.exotic`] = "false";
+      valuesToSet[`${pathToData}.concealable`] = "false";
     } else if (typeStr === "pack") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = true;
-      valuesToSet["fields.packProperties.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = true;
+      valuesToSet[`${pathToFields}.packProperties.hidden`] = false;
     } else if (typeStr === "vehicle") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = false;
-      valuesToSet["fields.vehicleProperties.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
+      valuesToSet[`${pathToFields}.vehicleProperties.hidden`] = false;
     } else if (typeStr === "vehicle upgrade") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = true;
-      valuesToSet["fields.vehicleUpgradeProperties.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = true;
+      valuesToSet[`${pathToFields}.vehicleUpgradeProperties.hidden`] = false;
     } else if (typeStr === "weapon attachment") {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = false;
-      valuesToSet["fields.weaponAttachmentProperties.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
+      valuesToSet[`${pathToFields}.weaponAttachmentProperties.hidden`] = false;
     } else {
-      valuesToSet["fields.consumable.hidden"] = true;
-      valuesToSet["fields.hasUseBtn.hidden"] = true;
+      valuesToSet[`${pathToFields}.consumable.hidden`] = true;
+      valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = true;
     }
 
     api.setValues(valuesToSet);
+  }
+
+  function showHideAttachments() {
+    // The attack list will hide this field there, if there are none.
+    // But we need to show it here for editing, always
+    const dataPathToWeapon = dataPath.replace(/[.]?data.attachments/, "");
+    const weapon = api.getValue(dataPathToWeapon);
+
+    const isWeapon =
+      weapon?.data?.type === "ranged weapon" ||
+      weapon?.data?.type === "melee weapon";
+
+    const showingAttachments = weapon?.fields?.attachments?.hidden !== true;
+
+    const dot = dataPathToWeapon !== "" ? "." : "";
+
+    if (isWeapon && !showingAttachments) {
+      api.setValues({
+        [`${dataPathToWeapon}${dot}fields.attachments.hidden`]: false,
+      });
+    }
   }
 
   function isAttachment(value) {
@@ -222,31 +268,49 @@
   }
 
   function showHideUseValues(value) {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+
+    // If this is an nested item, just return. (Like a weapon attachment)
+    let pathToFields = "fields";
+    if (nearestParentDataPath !== "") {
+      pathToFields = `${nearestParentDataPath}.fields`;
+    }
+
     const valuesToSet = {};
 
     if (value) {
-      valuesToSet["fields.consumableProperties.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumableProperties.hidden`] = false;
     } else if (!record.data?.consumable) {
-      valuesToSet["fields.consumableProperties.hidden"] = true;
+      valuesToSet[`${pathToFields}.consumableProperties.hidden`] = true;
     }
 
     api.setValues(valuesToSet);
   }
 
   function showHideConsumableValues(value) {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+
+    // If this is an nested item, just return. (Like a weapon attachment)
+    let pathToFields = "fields";
+    if (nearestParentDataPath !== "") {
+      pathToFields = `${nearestParentDataPath}.fields`;
+    }
+
     const valuesToSet = {};
 
     if (value) {
-      valuesToSet["fields.consumableProperties.hidden"] = false;
+      valuesToSet[`${pathToFields}.consumableProperties.hidden`] = false;
     } else if (!record.data?.hasUseBtn) {
-      valuesToSet["fields.consumableProperties.hidden"] = true;
+      valuesToSet[`${pathToFields}.consumableProperties.hidden`] = true;
     }
 
     api.setValues(valuesToSet);
   }
 
   function getWeaponSkillOptions() {
-    const itemType = record.data?.type;
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const item = api.getValue(nearestParentDataPath) || record;
+    const itemType = item?.data?.type;
     if (itemType === "melee weapon") {
       return [
         { label: "Brawling", value: "brawling" },
@@ -269,47 +333,90 @@
   }
 
   function onAutofireChange(value) {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+
+    // If this is an nested item, just return. (Like a weapon attachment)
+    let pathToFields = "fields";
+    if (nearestParentDataPath !== "") {
+      pathToFields = `${nearestParentDataPath}.fields`;
+    }
+
     if (value) {
-      api.setValues({ "fields.afDvProperties.hidden": false });
+      api.setValues({
+        [`${pathToFields}.afDvProperties.hidden`]: false,
+        [`${pathToFields}.autoFireBtn.hidden`]: false,
+      });
     } else {
-      api.setValues({ "fields.afDvProperties.hidden": true });
+      api.setValues({
+        [`${pathToFields}.afDvProperties.hidden`]: true,
+        [`${pathToFields}.autoFireBtn.hidden`]: true,
+      });
+    }
+  }
+
+  function onSuppressiveFireChange(value) {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+
+    // If this is an nested item, just return. (Like a weapon attachment)
+    let pathToFields = "fields";
+    if (nearestParentDataPath !== "") {
+      pathToFields = `${nearestParentDataPath}.fields`;
+    }
+
+    if (value) {
+      api.setValues({
+        [`${pathToFields}.suppressiveFireBtn.hidden`]: false,
+      });
+    } else {
+      api.setValues({
+        [`${pathToFields}.suppressiveFireBtn.hidden`]: true,
+      });
     }
   }
 
   function onCostChange(value) {
+    const dataPathToItem = dataPath.replace(/[.]?data.cost/, "");
+    const item = api.getValue(dataPathToItem) || record;
+
+    const dataPathToPriceCategory = dataPath.replace(
+      "data.cost",
+      "data.priceCategory"
+    );
+    const dataPathToType = dataPath.replace("data.cost", "data.type");
+
     const valuesToSet = {
-      "data.priceCategory": "cheap",
+      [dataPathToPriceCategory]: "cheap",
     };
 
     // Convert value to a number to ensure proper comparisons
     const numValue = parseFloat(value.replace(/[a-zA-Z,]/g, "")) || 0;
 
     if (numValue >= 10000) {
-      valuesToSet["data.priceCategory"] = "super luxury";
+      valuesToSet[dataPathToPriceCategory] = "super luxury";
     } else if (numValue >= 5000) {
-      valuesToSet["data.priceCategory"] = "luxury";
+      valuesToSet[dataPathToPriceCategory] = "luxury";
     } else if (numValue >= 1000) {
-      valuesToSet["data.priceCategory"] = "very expensive";
+      valuesToSet[dataPathToPriceCategory] = "very expensive";
     } else if (numValue >= 500) {
-      valuesToSet["data.priceCategory"] = "expensive";
+      valuesToSet[dataPathToPriceCategory] = "expensive";
     } else if (numValue >= 100) {
-      valuesToSet["data.priceCategory"] = "premium";
+      valuesToSet[dataPathToPriceCategory] = "premium";
     } else if (numValue >= 50) {
-      valuesToSet["data.priceCategory"] = "costly";
+      valuesToSet[dataPathToPriceCategory] = "costly";
     } else if (numValue >= 20) {
-      valuesToSet["data.priceCategory"] = "everyday";
+      valuesToSet[dataPathToPriceCategory] = "everyday";
     } else if (numValue >= 10) {
-      valuesToSet["data.priceCategory"] = "cheap";
+      valuesToSet[dataPathToPriceCategory] = "cheap";
     } else if (numValue <= 5) {
-      valuesToSet["data.priceCategory"] = "dirt cheap";
+      valuesToSet[dataPathToPriceCategory] = "dirt cheap";
     } else {
       // For values between 5 and 10
-      valuesToSet["data.priceCategory"] = "cheap";
+      valuesToSet[dataPathToPriceCategory] = "cheap";
     }
 
     // Ensure there is a defined type, for the purpose of filtering
-    if (!record.data?.type) {
-      valuesToSet["data.type"] = "gear";
+    if (!item.data?.type) {
+      valuesToSet[dataPathToType] = "gear";
     }
 
     // Apply the changes to the data model
@@ -414,19 +521,30 @@
   }
 
   function onAttachmentsChange() {
-    const attachments = record.data?.attachments;
-    // Make sure all attachemetns are of type "weapon attachment"
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const item = api.getValue(nearestParentDataPath) || record;
+
+    // If this is an nested item, just return. (Like a weapon attachment)
+    let pathToFields = "fields";
+    if (nearestParentDataPath !== "") {
+      pathToFields = `${nearestParentDataPath}.fields`;
+    }
+    let pathToData = "data";
+    if (nearestParentDataPath !== "") {
+      pathToData = `${nearestParentDataPath}.data`;
+    }
+
+    const attachments = value || [];
+
+    // Make sure all attachments are of type "weapon attachment"
     const valuesToSet = {};
     attachments.forEach((attachment, index) => {
       if (attachment.data?.type !== "weapon attachment") {
-        valuesToSet[`data.attachments.${index}.data.type`] =
-          "weapon attachment";
+        valuesToSet[`${pathToData}.type`] = "weapon attachment";
         valuesToSet[
-          `data.attachments.${index}.fields.weaponAttachmentProperties.hidden`
+          `${pathToFields}.weaponAttachmentProperties.hidden`
         ] = false;
-        valuesToSet[
-          `data.attachments.${index}.fields.hasUseBtn.hidden`
-        ] = false;
+        valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
       }
     });
 
@@ -437,7 +555,7 @@
     });
 
     const maxSlots = record.data?.maxSlots || 3;
-    valuesToSet["data.slotsUsed"] = Math.min(slotsUsed, maxSlots);
+    valuesToSet[`${pathToData}.slotsUsed`] = Math.min(slotsUsed, maxSlots);
 
     if (Object.keys(valuesToSet).length > 0) {
       api.setValues(valuesToSet);
@@ -480,6 +598,7 @@
           field="cost"
           label="Cost"
           placeholder="Enter cost..."
+          updateonblur="true"
           onchange="onCostChange(value);"
           hidewhenidentified="false"
         ></stringfield>
@@ -489,7 +608,7 @@
           label="Price Category"
           placeholder="Select Category..."
           hidewhenidentified="false"
-          options='[{"label": "Dirt Cheap", "value": "dirt cheap"}, {"label": "Cheap", "value": "cheap"}, {"label": "Everyday", "value": "everyday"}, {"label": "Costly", "value": "costly"}, {"label": "Expensive", "value": "expensive"}, {"label": "Very Expensive", "value": "very expensive"}, {"label": "Luxury", "value": "luxury"}, {"label": "Super Luxury ", "value": "super luxury "}]'
+          options='[{"label": "Dirt Cheap", "value": "dirt cheap"}, {"label": "Cheap", "value": "cheap"}, {"label": "Everyday", "value": "everyday"}, {"label": "Costly", "value": "costly"}, {"label": "Premium", "value": "premium"}, {"label": "Expensive", "value": "expensive"}, {"label": "Very Expensive", "value": "very expensive"}, {"label": "Luxury", "value": "luxury"}, {"label": "Super Luxury", "value": "super luxury"}]'
         >
         </dropdown>
       </div>
@@ -647,6 +766,7 @@
         field="suppressiveFire"
         label="Suppressive Fire"
         textalign="left"
+        onchange="onSuppressiveFireChange(value);"
         size="sm"
       ></checkbox>
       <checkbox
@@ -701,6 +821,7 @@
         variant="outline-striped"
         allowadd="return isAttachment(value);"
         onchange="onAttachmentsChange();"
+        onload="showHideAttachments()"
       ></list>
     </div>
   </box>

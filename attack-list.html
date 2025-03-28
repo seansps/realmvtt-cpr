@@ -1,6 +1,7 @@
 <script>
-  function rollAttack(type) {
+  function rollAttack(type, range = "auto") {
     //todo
+    // If range is auto, then we look up range of token to target, else we use the range passed in
   }
 
   function rollDamage() {
@@ -9,6 +10,59 @@
 
   function reload() {
     //todo
+  }
+
+  function showHideAttachments() {
+    const dataPathToWeapon = dataPath.replace(/[.]?data.attachments/, "");
+    const weapon = api.getValue(dataPathToWeapon);
+
+    const showingAttachments = weapon?.fields?.attachments?.hidden !== true;
+    const attachments = weapon?.data?.attachments || [];
+    // If we're showing attachments list and we no have attachments, then hide it
+    const showAttachments = attachments.length > 0;
+
+    const dot = dataPathToWeapon !== "" ? "." : "";
+
+    if (showingAttachments && !showAttachments) {
+      api.setValues({
+        [`${dataPathToWeapon}${dot}fields.attachments.hidden`]: true,
+      });
+    } else if (!showingAttachments && showAttachments) {
+      api.setValues({
+        [`${dataPathToWeapon}${dot}fields.attachments.hidden`]: false,
+      });
+    }
+  }
+
+  function onChangeAmmo(value) {
+    const weaponDataPath = dataPath.replace(".data.ammo", "");
+    const weapon = api.getValue(weaponDataPath);
+
+    // Get the Ammo item
+    const selectedAmmo = value;
+    if (selectedAmmo) {
+      const ammoId = JSON.parse(selectedAmmo)?._id;
+      if (ammoId) {
+        let ammoIndex = -1;
+        const ammo = record.data.inventory.find((item, index) => {
+          if (item._id === ammoId) {
+            ammoIndex = index;
+            return true;
+          }
+          return false;
+        });
+        if (ammo) {
+          // Found the ammo
+          const hasUseSpecial =
+            ammo?.data?.damage ||
+            (ammo?.data?.effects || []).length > 0 ||
+            ammo?.data?.healing;
+          api.setValues({
+            [`${weaponDataPath}.fields.useSpecialBtn.hidden`]: !hasUseSpecial,
+          });
+        }
+      }
+    }
   }
 
   function getCyberwareWeaponFilters() {
@@ -69,12 +123,17 @@
 <box field="generalWeaponProperties" hidden="false">
   <!-- Main row for icon, name, buttons -->
   <div
-    style="display: flex; flex-direction: row; gap: 4px; align-items: center"
+    style="
+      display: flex;
+      flex-direction: row;
+      gap: 4px;
+      align-items: flex-start;
+    "
   >
     <div style="width: 64px; height: 64px; min-width: 64px; min-height: 64px">
       <portrait width="64px" height="64px" field="portrait"></portrait>
     </div>
-    <div style="width: 100%">
+    <div style="width: 100%; align-self: center">
       <namefield
         field="namefield"
         variant="standard"
@@ -84,7 +143,15 @@
 
     <!-- Buttons for Attacks, to be Shown/Hidden based on Weapon type -->
     <div style="display: flex; flex-direction: column; gap: 4px">
-      <div style="display: flex; flex-direction: row; gap: 4px">
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 2px;
+          justify-content: center;
+          width: 95px;
+        "
+      >
         <!-- Autofire  -->
         <iconbutton
           size="md"
@@ -114,14 +181,183 @@
         ></iconbutton>
       </div>
       <!-- Reload -->
-      <button
-        size="xs"
-        hidden="false"
-        field="reloadBtn"
-        variant="default"
-        label="Reload"
-        onclick="reload()"
-      ></button>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 2px;
+          align-items: center;
+          width: 98px;
+        "
+      >
+        <popover>
+          <popover.target>
+            <iconbutton
+              size="md"
+              hidden="false"
+              field="attackByRangeBtn"
+              variant="default"
+              options='[{"icon": "IconRulerMeasure", "label": "Attack by Range", "value": "attackByRange"}]'
+            ></iconbutton>
+          </popover.target>
+          <popover.dropdown>
+            <div
+              style="display: flex; flex-direction: column; max-width: 510px"
+            >
+              <box field="dvProperties">
+                <!-- Here we show attack by range buttons -->
+                <label
+                  variant="bold"
+                  label="Single Shot by Range"
+                  size="xs"
+                ></label>
+                <div
+                  style="
+                    display: flex;
+                    flex-direction: row;
+                    gap: 2px;
+                    flex-wrap: wrap;
+                    justify-content: flex-start;
+                  "
+                >
+                  <button
+                    size="xs"
+                    variant="default"
+                    label="0 to 6 m/yds"
+                    field="singleShot0to6Btn"
+                    width="125px"
+                    onclick="rollAttack('single', '0to6')"
+                  ></button>
+                  <button
+                    size="xs"
+                    variant="default"
+                    label="7 to 12 m/yds"
+                    field="singleShot7to12Btn"
+                    width="125px"
+                    onclick="rollAttack('single', '7to12')"
+                  ></button>
+                  <button
+                    size="xs"
+                    variant="default"
+                    label="13 to 25 m/yds"
+                    field="singleShot13to25Btn"
+                    width="125px"
+                    onclick="rollAttack('single', '13to25')"
+                  ></button>
+                  <button
+                    size="xs"
+                    variant="default"
+                    label="26 to 50 m/yds"
+                    field="singleShot26to50Btn"
+                    width="125px"
+                    onclick="rollAttack('single', '26to50')"
+                  ></button>
+                  <button
+                    size="xs"
+                    variant="default"
+                    label="51 to 100 m/yds"
+                    field="singleShot51to100Btn"
+                    width="125px"
+                    onclick="rollAttack('single', '51to100')"
+                  ></button>
+                  <button
+                    size="xs"
+                    variant="default"
+                    label="101 to 200 m/yds"
+                    field="singleShot101to200Btn"
+                    width="125px"
+                    onclick="rollAttack('single', '101to200')"
+                  ></button>
+                  <button
+                    size="xs"
+                    variant="default"
+                    label="201 to 400 m/yds"
+                    field="singleShot201to400Btn"
+                    width="125px"
+                    onclick="rollAttack('single', '201to400')"
+                  ></button>
+                  <button
+                    size="xs"
+                    variant="default"
+                    label="401 to 800 m/yds"
+                    field="singleShot401to800Btn"
+                    width="125px"
+                    onclick="rollAttack('single', '401to800')"
+                  ></button>
+                </div>
+              </box>
+              <box field="afDvProperties">
+                <!-- Here we show attack by range buttons -->
+                <div style="margin-top: 4px">
+                  <label
+                    variant="bold"
+                    label="Autofire by Range"
+                    size="xs"
+                  ></label>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    flex-direction: row;
+                    gap: 2px;
+                    flex-wrap: wrap;
+                    justify-content: flex-start;
+                  "
+                >
+                  <button
+                    size="xs"
+                    variant="default"
+                    label="0 to 6 m/yds"
+                    field="autofire0to6Btn"
+                    width="125px"
+                    onclick="rollAttack('autofire', '0to6')"
+                  ></button>
+                  <button
+                    size="xs"
+                    variant="default"
+                    label="7 to 12 m/yds"
+                    field="autofire7to12Btn"
+                    width="125px"
+                    onclick="rollAttack('autofire', '7to12')"
+                  ></button>
+                  <button
+                    size="xs"
+                    variant="default"
+                    label="13 to 25 m/yds"
+                    field="autofire13to25Btn"
+                    width="125px"
+                    onclick="rollAttack('autofire', '13to25')"
+                  ></button>
+                  <button
+                    size="xs"
+                    variant="default"
+                    label="26 to 50 m/yds"
+                    field="autofire26to50Btn"
+                    width="125px"
+                    onclick="rollAttack('autofire', '26to50')"
+                  ></button>
+                  <button
+                    size="xs"
+                    variant="default"
+                    label="51 to 100 m/yds"
+                    field="autofire51to100Btn"
+                    width="125px"
+                    onclick="rollAttack('autofire', '51to100')"
+                  ></button>
+                </div>
+              </box>
+            </div>
+          </popover.dropdown>
+        </popover>
+        <button
+          size="xs"
+          hidden="false"
+          field="reloadBtn"
+          variant="default"
+          label="Reload"
+          onclick="reload()"
+        ></button>
+      </div>
     </div>
 
     <!-- Ammo List and Ammo Buttons -->
@@ -131,7 +367,7 @@
         flex-direction: column;
         gap: 2px;
         align-items: flex-start;
-        width: fit-content;
+        min-width: 125px;
       "
     >
       <dropdown
@@ -140,11 +376,11 @@
         size="xs"
         placeholder="Select Ammo..."
         optionsFunction="return ammoOptions();"
+        onchange="onChangeAmmo(value);"
       ></dropdown>
       <button
         size="xs"
         width="125px"
-        hidden="false"
         field="useSpecialBtn"
         variant="default"
         label="Use Special"
@@ -171,7 +407,9 @@
         color="primary"
         onclick="rollDamage();"
       ></button>
-      <div style="display: flex; flex-direction: row; gap: 4px; width: 100px">
+      <div
+        style="display: flex; flex-direction: row; gap: 4px; min-width: 100px"
+      >
         <numberfield
           field="ammoCount"
           size="xs"
@@ -180,16 +418,18 @@
           variant="tooltip"
           placeholder="0"
         ></numberfield>
-        <numberfield
-          field="rof"
-          size="xs"
-          width="40%"
-          variant="tooltip"
-          label="Rate of Fire"
-          placeholder="0"
-          hidecontrols="true"
-          editable="false"
-        ></numberfield>
+        <div style="margin-left: auto; width: 40%">
+          <numberfield
+            field="rof"
+            size="xs"
+            width="100%"
+            variant="tooltip"
+            label="Rate of Fire"
+            placeholder="0"
+            hidecontrols="true"
+            editable="false"
+          ></numberfield>
+        </div>
       </div>
     </div>
   </div>
@@ -205,6 +445,13 @@
   ></list>
 </box>
 
-<!-- TODO button with popover panel for shot by range -->
+<list
+  onload="showHideAttachments()"
+  field="attachments"
+  listtype="attack_attachment_list"
+  hidden="true"
+></list>
 
-<!-- TODO - ATTACHMENTS LIST -->
+<div style="margin-top: 2px">
+  <divider field="attackDivider"></divider>
+</div>

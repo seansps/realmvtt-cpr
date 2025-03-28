@@ -11,6 +11,11 @@ function generateUuid() {
   });
 }
 
+const getNearestParentDataPath = (dataPath) => {
+  const parts = dataPath.split(".data");
+  return parts.length > 1 ? parts.slice(0, -1).join(".data") : "";
+};
+
 function capitalize(string) {
   if (!string || typeof string !== "string") return "";
   return string.charAt(0).toUpperCase() + string.slice(1);

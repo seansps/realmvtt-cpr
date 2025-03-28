@@ -1,0 +1,30 @@
+<script>
+  function getWeaponAttachmentFilters() {
+    // Attached weapons are not carried, so we need to cancel that filter out
+    const filters = [
+      {
+        field: "carried",
+        operation: "not_equals",
+        value: "carried",
+        isOr: true,
+      },
+    ];
+    return filters;
+  }
+</script>
+
+<div style="display: flex; flex-direction: row; align-items: center">
+  <iconbutton
+    variant="outline"
+    field="attachmentsIcon"
+    color="default"
+    options='[{"icon": "IconCornerDownRight", "label": "Attachments", "value": "asttachments"}]'
+  ></iconbutton>
+
+  <list
+    field="weaponAttached"
+    listtype="attack_list"
+    variant="standard"
+    getfilters="return getWeaponAttachmentFilters();"
+  ></list>
+</div>
