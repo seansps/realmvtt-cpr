@@ -43,6 +43,7 @@
       // The below fields are only displayed on the attack list
       [`${pathToFields}.generalWeaponProperties.hidden`]: true,
       [`${pathToFields}.cyberwareWeaponProperties.hidden`]: true,
+      [`${pathToFields}.attackDividerBox.hidden`]: false,
       [`${pathToFields}.autoFireBtn.hidden`]: true,
       [`${pathToFields}.suppressiveFireBtn.hidden`]: true,
       [`${pathToFields}.attackByRangeBtn.hidden`]: true,
@@ -80,6 +81,7 @@
       valuesToSet[`${pathToFields}.cyberwareWeaponLabel.hidden`] = false;
       valuesToSet[`${pathToFields}.weaponAttached.hidden`] = false;
       valuesToSet[`${pathToFields}.cyberwareWeaponProperties.hidden`] = false;
+      valuesToSet[`${pathToFields}.attackDividerBox.hidden`] = true;
     } else if (typeStr === "demon") {
       valuesToSet[`${pathToFields}.consumable.hidden`] = true;
       valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;

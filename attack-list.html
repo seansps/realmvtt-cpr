@@ -13,8 +13,13 @@
   }
 
   function showHideAttachments() {
-    const dataPathToWeapon = dataPath.replace(/[.]?data.attachments/, "");
+    const dataPathToWeapon = getNearestParentDataPath(dataPath);
     const weapon = api.getValue(dataPathToWeapon);
+
+    let pathToAttachmentFields = "fields";
+    if (dataPathToWeapon !== "") {
+      pathToAttachmentFields = `${dataPathToWeapon}.fields`;
+    }
 
     const showingAttachments = weapon?.fields?.attachments?.hidden !== true;
     const attachments = weapon?.data?.attachments || [];
@@ -25,11 +30,22 @@
 
     if (showingAttachments && !showAttachments) {
       api.setValues({
-        [`${dataPathToWeapon}${dot}fields.attachments.hidden`]: true,
+        [`${pathToAttachmentFields}.attachments.hidden`]: true,
       });
     } else if (!showingAttachments && showAttachments) {
       api.setValues({
-        [`${dataPathToWeapon}${dot}fields.attachments.hidden`]: false,
+        [`${pathToAttachmentFields}.attachments.hidden`]: false,
+      });
+    }
+
+    // Hide the attack divider box if this is an attachment
+    const isAttachment = dataPath.match(/\.data\.attachments\.\d+/) !== null;
+    const isShowingAttackDivider =
+      weapon?.fields?.attackDividerBox?.hidden !== true;
+    if (isAttachment && isShowingAttackDivider) {
+      api.setValues({
+        [`${pathToAttachmentFields}.attackDividerBox.hidden`]: true,
+        [`${pathToAttachmentFields}.attackDividerBox.hidden`]: true,
       });
     }
   }
@@ -439,6 +455,7 @@
 <box field="cyberwareWeaponProperties" hidden="true">
   <list
     field="weaponAttached"
+    hidden="true"
     listtype="attack_list"
     variant="standard"
     getfilters="return getCyberwareWeaponFilters();"
@@ -452,6 +469,8 @@
   hidden="true"
 ></list>
 
-<div style="margin-top: 2px">
-  <divider field="attackDivider"></divider>
-</div>
+<box field="attackDividerBox" hidden="false">
+  <div style="margin-top: 2px">
+    <divider field="attackDivider"></divider>
+  </div>
+</box>
