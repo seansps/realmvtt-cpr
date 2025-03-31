@@ -45,7 +45,7 @@
       stat = "curLuck";
     }
 
-    const statValue = api.getValue(`data.${stat}`) || 0;
+    const statValue = api.getValue(`data.total${capitalize(stat)}`) || 0;
 
     api.setValues({
       [`${pathToSkill}.data.base`]: val + statValue,
@@ -68,7 +68,7 @@
     }
 
     // Get the numeric value of the stat from the character sheet
-    const statValue = api.getValue(`data.${statName}`) || 0;
+    const statValue = api.getValue(`data.total${capitalize(statName)}`) || 0;
 
     api.setValues({
       [`${pathToSkill}.data.base`]: lvl + statValue,

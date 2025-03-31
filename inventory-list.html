@@ -38,7 +38,7 @@
     const valuesToSet = {};
 
     // Update attributes as per modifiers
-    updateAttributes(item, valuesToSet);
+    updateAttributes(valuesToSet);
 
     // Get the current ac due to armor and set it on the
     // record
@@ -55,6 +55,8 @@
         hidden: !isConsumable && !hasUseBtn && !isAmmoWithValues && !isDrug,
       },
     };
+
+    console.log(valuesToSet);
 
     if (Object.keys(valuesToSet).length > 0) {
       api.setValues(valuesToSet);

@@ -1,9 +1,49 @@
+<script>
+  function onChangeModifierType() {
+    const valuesToHide = [];
+    const valuesToShow = [];
+
+    if (value === "statBonus") {
+      valuesToHide.push("field");
+      valuesToHide.push("value");
+      valuesToHide.push("valueType");
+      valuesToHide.push("active");
+      valuesToHide.push("itemOnly");
+      valuesToShow.push("stat");
+      valuesToShow.push("statBonus");
+      valuesToShow.push("statSet");
+      valuesToShow.push("statMaximum");
+      valuesToShow.push("noDerivedAttributes");
+    } else {
+      valuesToShow.push("field");
+      valuesToShow.push("value");
+      valuesToShow.push("valueType");
+      valuesToShow.push("active");
+      valuesToShow.push("itemOnly");
+      valuesToHide.push("stat");
+      valuesToHide.push("statBonus");
+      valuesToHide.push("statSet");
+      valuesToHide.push("statMaximum");
+      valuesToHide.push("noDerivedAttributes");
+    }
+
+    if (valuesToHide.length > 0) {
+      api.setHidden(valuesToHide, true, () => {
+        if (valuesToShow.length > 0) {
+          api.setHidden(valuesToShow, false);
+        }
+      });
+    }
+  }
+</script>
+
 <div style="display: flex; flex-direction: row; gap: 4px">
   <dropdown
     width="50%"
     size="xs"
     field="type"
     placeholder="Select Modifier Type"
+    onchange="onChangeModifierType();"
     label="Modifier Type"
     options='[{"label": "Skill Check Bonus", "value": "skillBonus"},
     {"label": "Skill Check Penalty", "value": "skillPenalty"},
@@ -16,7 +56,11 @@
     {"label": "Damage Bonus", "value": "damageBonus"},
     {"label": "Damage Penalty", "value": "damagePenalty"},
     {"label": "Healing Bonus", "value": "healingBonus"},
-    {"label": "Healing Penalty", "value": "healingPenalty"}]'
+    {"label": "Healing Penalty", "value": "healingPenalty"},
+    {"label": "STAT Bonus", "value": "statBonus"},
+    {"label": "Applies Body Armor SP", "value": "bodySp"},
+    {"label": "Applies Head Armor SP", "value": "headSp"},
+    {"label": "Applies Shield HP", "value": "shieldSp"}]'
   >
   </dropdown>
 
@@ -26,6 +70,7 @@
     field="field"
     label="Field"
     placeholder="Enter Field, if Applicable"
+    hidden="false"
   ></stringfield>
 </div>
 
@@ -36,29 +81,86 @@
     gap: 4px;
     align-items: center;
     margin-top: 4px;
+    flex-wrap: wrap;
   "
 >
   <dropdown
-    width="35%"
+    width="30%"
     size="xs"
     field="valueType"
     placeholder="Select Value Type"
     label="Value Type"
+    hidden="false"
     options='[{"label": "Number", "value": "number"}, 
     {"label": "String", "value": "string"}, {"label": "From Field", "value": "field"}]'
   >
   </dropdown>
 
   <stringfield
-    width="35%"
+    width="30%"
     size="xs"
     field="value"
     label="Value"
     placeholder="Enter Value"
+    hidden="false"
   ></stringfield>
 
-  <div style="display: flex; flex-direction: column; gap: 4px">
+  <dropdown
+    width="30%"
+    size="xs"
+    field="stat"
+    placeholder="Select STAT"
+    label="STAT"
+    hidden="true"
+    options='[{"label": "INT", "value": "int"}, 
+  {"label": "REF", "value": "ref"}, {"label": "DEX", "value": "dex"}, {"label": "TECH", "value": "tech"},
+  {"label": "COOL", "value": "cool"}, {"label": "WILL", "value": "dex"}, {"label": "LUCK", "value": "luck"},
+  {"label": "MOVE", "value": "move"}, {"label": "BODY", "value": "body"}, {"label": "EMP", "value": "emp"}]'
+  ></dropdown>
+
+  <numberfield
+    width="30%"
+    size="xs"
+    field="statBonus"
+    hidden="true"
+    label="STAT Bonus"
+    placeholder="Enter bonus..."
+  ></numberfield>
+
+  <numberfield
+    width="30%"
+    size="xs"
+    field="statSet"
+    label="Set STAT To"
+    hidden="true"
+    placeholder="Or, enter value..."
+  ></numberfield>
+
+  <numberfield
+    width="30%"
+    size="xs"
+    field="statMaximum"
+    hidden="true"
+    label="Maximum"
+    placeholder="Optional max..."
+  ></numberfield>
+
+  <div
+    style="
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-self: flex-end;
+    "
+  >
     <checkbox size="xs" field="active" label="Active by Default"></checkbox>
+    <checkbox
+      size="xs"
+      width="175px"
+      field="noDerivedAttributes"
+      hidden="true"
+      label="Does not Affect Derived Attributes"
+    ></checkbox>
     <checkbox
       size="xs"
       width="175px"

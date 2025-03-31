@@ -311,7 +311,7 @@
 </script>
 
 <div style="display: flex; margin-top: 4px; flex-direction: row">
-  <!-- STATs Column -->
+  <!-- STATs Column: Hide total values if unlocked, Show base values if locked -->
   <div style="display: flex; flex-direction: column; margin-right: 4px">
     <div
       style="
@@ -328,11 +328,24 @@
         width="88px"
         hidecontrols="true"
         field="int"
+        hideonlocked="true"
         label="INT"
         textalign="center"
         minvalue="0"
         onchange="onUpdateStat(value, 'int')"
         onload="onLoad()"
+      ></numberfield>
+
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="88px"
+        hidecontrols="true"
+        field="totalInt"
+        hideonlocked="false"
+        label="INT"
+        textalign="center"
+        minvalue="0"
       ></numberfield>
 
       <!-- REF -->
@@ -341,11 +354,24 @@
         size="xs"
         width="88px"
         hidecontrols="true"
+        hideonlocked="true"
         field="ref"
         label="REF"
         textalign="center"
         minvalue="0"
         onchange="onUpdateStat(value, 'ref')"
+      ></numberfield>
+
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="88px"
+        hidecontrols="true"
+        hideonlocked="false"
+        field="totalRef"
+        label="REF"
+        textalign="center"
+        minvalue="0"
       ></numberfield>
 
       <!-- DEX -->
@@ -354,11 +380,24 @@
         size="xs"
         width="88px"
         hidecontrols="true"
+        hideonlocked="true"
         field="dex"
         label="DEX"
         textalign="center"
         minvalue="0"
         onchange="onUpdateStat(value, 'dex')"
+      ></numberfield>
+
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="88px"
+        hidecontrols="true"
+        hideonlocked="false"
+        field="totalDex"
+        label="DEX"
+        textalign="center"
+        minvalue="0"
       ></numberfield>
 
       <!-- TECH -->
@@ -367,11 +406,24 @@
         size="xs"
         width="88px"
         hidecontrols="true"
+        hideonlocked="true"
         field="tech"
         label="TECH"
         textalign="center"
         minvalue="0"
         onchange="onUpdateStat(value, 'tech')"
+      ></numberfield>
+
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="88px"
+        hidecontrols="true"
+        hideonlocked="false"
+        field="totalTech"
+        label="TECH"
+        textalign="center"
+        minvalue="0"
       ></numberfield>
 
       <!-- COOL -->
@@ -380,11 +432,24 @@
         size="xs"
         width="88px"
         hidecontrols="true"
+        hideonlocked="true"
         field="cool"
         label="COOL"
         textalign="center"
         minvalue="0"
         onchange="onUpdateStat(value, 'cool')"
+      ></numberfield>
+
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="88px"
+        hidecontrols="true"
+        hideonlocked="false"
+        field="totalCool"
+        label="COOL"
+        textalign="center"
+        minvalue="0"
       ></numberfield>
 
       <!-- WILL -->
@@ -393,11 +458,24 @@
         size="xs"
         width="88px"
         hidecontrols="true"
+        hideonlocked="true"
         field="will"
         label="WILL"
         textalign="center"
         minvalue="0"
         onchange="onUpdateStat(value, 'will')"
+      ></numberfield>
+
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="88px"
+        hidecontrols="true"
+        hideonlocked="false"
+        field="totalWill"
+        label="WILL"
+        textalign="center"
+        minvalue="0"
       ></numberfield>
 
       <!-- LUCK -->
@@ -434,11 +512,24 @@
             size="xs"
             width="40px"
             field="luck"
+            hideonlocked="true"
             label="MAX"
             hidecontrols="true"
             textalign="center"
             minvalue="0"
             onchange="onUpdateStat(value, 'luck')"
+          ></numberfield>
+
+          <numberfield
+            placeholder="0"
+            size="xs"
+            width="40px"
+            field="totalLuck"
+            hideonlocked="false"
+            label="MAX"
+            hidecontrols="true"
+            textalign="center"
+            minvalue="0"
           ></numberfield>
         </div>
 
@@ -502,11 +593,24 @@
         size="xs"
         width="88px"
         field="move"
+        hideonlocked="true"
         label="MOVE"
         hidecontrols="true"
         textalign="center"
         minvalue="0"
         onchange="onUpdateStat(value, 'move')"
+      ></numberfield>
+
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="88px"
+        field="totalMove"
+        hideonlocked="false"
+        label="MOVE"
+        hidecontrols="true"
+        textalign="center"
+        minvalue="0"
       ></numberfield>
 
       <!-- BODY -->
@@ -515,11 +619,24 @@
         size="xs"
         width="88px"
         field="body"
+        hideonlocked="true"
         label="BODY"
         hidecontrols="true"
         textalign="center"
         minvalue="0"
         onchange="onUpdateStat(value, 'body')"
+      ></numberfield>
+
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="88px"
+        field="totalBody"
+        hideonlocked="false"
+        label="BODY"
+        hidecontrols="true"
+        textalign="center"
+        minvalue="0"
       ></numberfield>
 
       <!-- EMP -->
@@ -538,11 +655,25 @@
           label="EMP"
           width="40px"
           field="curEmp"
+          hideonlocked="true"
           hidecontrols="true"
           textalign="center"
           maxvaluefield="emp"
           minvalue="0"
           onchange="onUpdateStat(value, 'curEmp')"
+        ></numberfield>
+
+        <numberfield
+          placeholder="0"
+          size="xs"
+          label="EMP"
+          width="40px"
+          field="totalCurEmp"
+          hideonlocked="false"
+          hidecontrols="true"
+          textalign="center"
+          maxvaluefield="emp"
+          minvalue="0"
         ></numberfield>
 
         <div style="height: 30px; display: flex; align-items: center">
@@ -555,11 +686,24 @@
           size="xs"
           width="40px"
           field="emp"
+          hideonlocked="true"
           label="MAX"
           hidecontrols="true"
           textalign="center"
           minvalue="0"
           onchange="onUpdateStat(value, 'emp')"
+        ></numberfield>
+
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="40px"
+          field="totalEmp"
+          hideonlocked="false"
+          label="MAX"
+          hidecontrols="true"
+          textalign="center"
+          minvalue="0"
         ></numberfield>
       </div>
     </div>

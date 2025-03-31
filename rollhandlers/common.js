@@ -791,20 +791,73 @@ function setStatsAndSkills(record, value, stat, moreValuesToSet = null) {
   // The stat we'll use when checking for skill changes
   let statToCheck = stat;
 
-  // Store the base stat value
+  // Store the base stat value and totalStat
   valuesToSet[`data.${stat}`] = val;
+  valuesToSet[`data.total${capitalize(stat)}`] = val;
+
+  // Body / Will / and EMP have derived attributes that could be affected or not affected by modifiers
+  // So we track the value used to calculate the derived attributes
+  let trackActual = false;
+  if (
+    stat === "body" ||
+    stat === "will" ||
+    stat === "emp" ||
+    stat === "curEmp"
+  ) {
+    trackActual = true;
+  }
+
+  if (trackActual) {
+    valuesToSet[`data.actual${capitalize(stat)}`] = val;
+  }
+
+  // Get all modifiers for this stat and set totalStat
+  const modifiers = getEffectsAndModifiersForToken(record, ["statBonus"], stat);
+
+  const sortedModifiers = [...modifiers].sort((a, b) =>
+    a.isSet ? -1 : b.isSet ? 1 : 0
+  );
+  // Apply modifiers to totalStat
+  sortedModifiers.forEach((modifier) => {
+    let maxValue = modifier.max || Infinity;
+    // Apply modifiers obeying max value if it was defined
+    if (
+      modifier.isSet &&
+      valuesToSet[`data.total${capitalize(modifier.field)}`] < modifier.value
+    ) {
+      valuesToSet[`data.total${capitalize(modifier.field)}`] = modifier.value;
+      if (trackActual && !modifier.noDerivedAttributes) {
+        valuesToSet[`data.actual${capitalize(modifier.field)}`] =
+          valuesToSet[`data.total${capitalize(modifier.field)}`];
+      }
+    } else {
+      if (valuesToSet[`data.total${capitalize(modifier.field)}`] < maxValue) {
+        valuesToSet[`data.total${capitalize(modifier.field)}`] = Math.min(
+          valuesToSet[`data.total${capitalize(modifier.field)}`] +
+            modifier.value,
+          modifier.max
+        );
+        if (trackActual && !modifier.noDerivedAttributes) {
+          valuesToSet[`data.actual${capitalize(modifier.field)}`] =
+            valuesToSet[`data.total${capitalize(modifier.field)}`];
+        }
+      }
+    }
+  });
+
+  // TODO add handling for when modifiers do not adjust derivied attributes below
 
   // Handle hitpoints calculation when body or will changes
   if (stat === "body" || stat === "will") {
     // Get the current values of body and will
     let bodyValue =
       stat === "body"
-        ? val
-        : moreValuesToSet?.["data.body"] || record.data.body;
+        ? valuesToSet[`data.actualBody`]
+        : moreValuesToSet?.["data.actualBody"] || record.data.actualBody;
     let willValue =
       stat === "will"
-        ? val
-        : moreValuesToSet?.["data.will"] || record.data.will;
+        ? valuesToSet[`data.actualWill`]
+        : moreValuesToSet?.["data.actualWill"] || record.data.actualWill;
 
     // Calculate hitpoints using the formula: 10 + (5 * (average of BODY and WILL, rounded up))
     const average = Math.ceil((bodyValue + willValue) / 2);
@@ -818,16 +871,16 @@ function setStatsAndSkills(record, value, stat, moreValuesToSet = null) {
 
     // Set deathSave equal to body when body changes if deathSave is not already set
     if (stat === "body") {
-      valuesToSet["data.deathSave"] = val;
+      valuesToSet["data.deathSave"] = valuesToSet["data.actualBody"];
     }
   }
 
   // If the stat was emp, we set maxHumanity
   if (stat === "emp") {
-    valuesToSet["data.humanity"] = val * 10;
+    valuesToSet["data.humanity"] = valuesToSet["data.actualEmp"] * 10;
     // Only set curHumanity if it's not already set
     if (record?.data?.curHumanity === undefined) {
-      valuesToSet["data.curHumanity"] = val * 10;
+      valuesToSet["data.curHumanity"] = valuesToSet["data.actualEmp"] * 10;
     }
     // We change skills only based on curEmp, not maxEmp
     statToCheck = "n/a";
@@ -880,7 +933,7 @@ function setStatsAndSkills(record, value, stat, moreValuesToSet = null) {
           if (skill.data?.stat === statToCheck && !skill.data?.hasSubskills) {
             // Set the Base to LVL + value
             const lvl = skill.data?.lvl || 0;
-            const base = lvl + val;
+            const base = lvl + valuesToSet[`data.total${capitalize(stat)}`];
             valuesToSet[
               `data.${field}.${groupIndex}.data.skills.${skillIndex}.data.base`
             ] = base;
@@ -890,7 +943,7 @@ function setStatsAndSkills(record, value, stat, moreValuesToSet = null) {
             if (subSkill.data?.stat === statToCheck) {
               // Set the Base to LVL + value
               const lvl = subSkill.data?.lvl || 0;
-              const base = lvl + val;
+              const base = lvl + valuesToSet[`data.total${capitalize(stat)}`];
               valuesToSet[
                 `data.${field}.${groupIndex}.data.skills.${skillIndex}.data.subSkills.${subSkillIndex}.data.base`
               ] = base;
@@ -901,7 +954,6 @@ function setStatsAndSkills(record, value, stat, moreValuesToSet = null) {
     });
   }
 
-  // Apply all the changes
   // Apply all the changes
   if (Object.keys(valuesToSet).length > 0) {
     if (moreValuesToSet) {
@@ -1036,29 +1088,40 @@ function getEffectsAndModifiersForToken(
   const equippedItems = items.filter(
     (item) =>
       item.data?.carried === "equipped" &&
-      (!item.data?.type === "cyberware" || item.data?.active === "true")
+      (item.data?.type !== "cyberware" || item.data?.active === "true")
   );
+
   [...features, ...equippedItems].forEach((feature) => {
     const modifiers = feature.data?.modifiers || [];
     modifiers.forEach((modifier) => {
       const ruleType = modifier.data?.type || "";
       const isPenalty = ruleType.toLowerCase().includes("penalty");
       let value = modifier.data?.value || "";
-      if (modifier.data?.valueType === "number") {
-        value = parseInt(modifier.data?.value, 10);
+      let valueType = modifier.data?.valueType || "number";
+      let field = modifier.data?.field || "";
+      if (ruleType === "statBonus") {
+        valueType = "number";
+        field = modifier.data?.stat || "int";
+        value = modifier.data?.statBonus || 0;
+        if (modifier.data?.statSet) {
+          value = modifier.data?.statSet;
+        }
+      }
+      if (valueType === "number") {
+        value = parseInt(value || "0", 10);
         if (isNaN(value)) {
           value = 0;
         }
         if (isPenalty && value > 0) {
           value = -value;
         }
-      } else if (modifier.data?.valueType === "field") {
+      } else if (valueType === "field") {
         const fieldToUse = modifier.data?.value || "";
         if (fieldToUse) {
           value = target?.data?.[fieldToUse] || "";
         }
       } else if (
-        modifier.data?.valueType === "string" &&
+        valueType === "string" &&
         !value.trim().startsWith("-") &&
         isPenalty
       ) {
@@ -1079,11 +1142,14 @@ function getEffectsAndModifiersForToken(
           value: value,
           active: modifier.data?.active === true,
           modifierType: ruleType,
-          field: modifier.data?.field || "",
-          valueType: modifier.data?.valueType,
+          field: field,
+          valueType: valueType,
           itemId: itemOnly ? feature?._id : undefined,
           isPenalty: isPenalty,
           isEffect: false,
+          max: modifier.data?.statMaximum || undefined,
+          isSet: ruleType === "statBonus" && modifier.data?.statSet,
+          noDerivedAttributes: modifier.data?.noDerivedAttributes || false,
         });
       }
     });
@@ -1122,10 +1188,62 @@ function getEffectsAndModifiersForToken(
   return results;
 }
 
-function updateAttributes(item, valuesToSet) {
-  // TODO update attributes as necessary
-  // TODO update modifiers to allow adjusting stats
-  return;
+function updateAttributes(valuesToSet) {
+  // Get all STAT modifiers and update stats as needed
+  // First lookup the base values before any modifiers were applied
+  const baseAttributes = {
+    int: record?.data?.int || 0,
+    ref: record?.data?.ref || 0,
+    dex: record?.data?.dex || 0,
+    tech: record?.data?.tech || 0,
+    cool: record?.data?.cool || 0,
+    luck: record?.data?.luck || 0,
+    curLuck: record?.data?.curLuck || 0,
+    will: record?.data?.will || 0,
+    move: record?.data?.move || 0,
+    body: record?.data?.body || 0,
+    emp: record?.data?.emp || 0,
+    curEmp: record?.data?.curEmp || 0,
+  };
+
+  // Ensure total attributes are set (base + modifiers)
+  valuesToSet["data.totalInt"] = baseAttributes.int;
+  valuesToSet["data.totalRef"] = baseAttributes.ref;
+  valuesToSet["data.totalDex"] = baseAttributes.dex;
+  valuesToSet["data.totalTech"] = baseAttributes.tech;
+  valuesToSet["data.totalCool"] = baseAttributes.cool;
+  valuesToSet["data.totalLuck"] = baseAttributes.luck;
+  valuesToSet["data.totalWill"] = baseAttributes.will;
+  valuesToSet["data.totalMove"] = baseAttributes.move;
+  valuesToSet["data.totalBody"] = baseAttributes.body;
+  valuesToSet["data.totalEmp"] = baseAttributes.emp;
+  valuesToSet["data.totalCurEmp"] = baseAttributes.curEmp;
+
+  // Body / Will / and EMP have derived attributes that could be affected or not affected by modifiers
+  // So we track the value used to calculate the derived attributes
+  valuesToSet["data.actualBody"] = baseAttributes.body;
+  valuesToSet["data.actualWill"] = baseAttributes.will;
+  valuesToSet["data.actualEmp"] = baseAttributes.emp;
+  valuesToSet["data.actualCurEmp"] = baseAttributes.curEmp;
+
+  // Update all stats and skills with modifiers now applied
+  [
+    "int",
+    "ref",
+    "dex",
+    "tech",
+    "cool",
+    "will",
+    "luck",
+    "move",
+    "body",
+    "emp",
+  ].forEach((stat) => {
+    let value = valuesToSet[`data.total${capitalize(stat)}`];
+    setStatsAndSkills(record, value, stat, valuesToSet);
+  });
+
+  api.setValues(valuesToSet);
 }
 
 function getBestEquippedArmor() {
