@@ -7,6 +7,13 @@ let coverDestroyed = false;
 let shieldDamaged = false;
 let shieldDestroyed = false;
 
+// Assume damage from this script is targetting the body armor
+let targetLocation = "body";
+let armorProtected = false;
+let armorAblated = false;
+// We ablate the armor by 1 (assume no penetrating ammo in this script)
+let ablationAmount = 1;
+
 const valuesToSet = {};
 
 // Ignore negative damage as that is what healing is for
@@ -26,6 +33,11 @@ if (damage > 0) {
     }
   }
 
+  const equippedArmor = getBestEquippedArmor(record);
+
+  const shield = equippedArmor["shield"]?.[0];
+  const bodyArmor = equippedArmor[targetLocation]?.[0];
+
   // If damage is greater than 0, check shield HP next if shield is up
   const shieldUp = record.data?.shieldDown === "shieldUp";
   const shieldHp = parseInt(record.data?.shieldHP || "0", 10);
@@ -33,8 +45,21 @@ if (damage > 0) {
     const oldShieldHp = shieldHp;
     const newShieldHp = Math.max(oldShieldHp - damage, 0);
     valuesToSet["data.shieldHP"] = newShieldHp;
+
     // Also set it on the item that represents the shield
-    // TODO
+    if (shield) {
+      // Find the index directly by searching through the inventory array
+      const inventoryArray = record?.data?.inventory || [];
+      const armorItemIndex = inventoryArray.findIndex(
+        (item) => item._id === shield._id
+      );
+
+      if (armorItemIndex !== -1) {
+        valuesToSet[`data.inventory.${armorItemIndex}.data.curSp`] =
+          newShieldHp;
+      }
+    }
+
     shieldDamaged = true;
     damage = 0;
     if (newShieldHp === 0) {
@@ -42,7 +67,35 @@ if (damage > 0) {
     }
   }
 
-  // TODO determine if armor needs to be ablated and update SP on sheet and armor item
+  // Ablate armor if needed
+  let ablationAmount = 1;
+  let bodyArmorSp = parseInt(record.data?.bodyArmorSP || "0", 10);
+  if (damage > 0 && bodyArmorSp > 0) {
+    // We only get damaged if the damage is greater than the armor's SP
+    if (damage > bodyArmorSp) {
+      armorAblated = true;
+      const newBodyArmorSp = Math.max(0, bodyArmorSp - ablationAmount);
+      valuesToSet["data.bodyArmorSP"] = newBodyArmorSp;
+      // Also set it on the item that represents the armor
+      if (bodyArmor) {
+        // Find the index directly by searching through the inventory array
+        const inventoryArray = record?.data?.inventory || [];
+        const armorItemIndex = inventoryArray.findIndex(
+          (item) => item._id === bodyArmor._id
+        );
+
+        if (armorItemIndex !== -1) {
+          valuesToSet[`data.inventory.${armorItemIndex}.data.curSp`] =
+            newBodyArmorSp;
+        }
+      }
+      // Reduct damage by armor sp
+      damage = damage - bodyArmorSp;
+    } else {
+      damage = 0;
+      armorProtected = true;
+    }
+  }
 
   var curhp = parseInt(record.data?.curhp, "0", 10);
   curhp -= damage;
@@ -75,7 +128,23 @@ if (value > 0 && token) {
     } else {
       api.floatText(token, `Shield Damaged by ${value}`, "#0000FF");
     }
+  } else if (armorProtected) {
+    api.floatText(
+      token,
+      `${capitalize(targetLocation)} Armor Prevented Damage`,
+      "#0000FF"
+    );
   } else {
-    api.floatText(token, `-${value}`, "#FF0000");
+    if (armorAblated) {
+      api.floatText(
+        token,
+        `-${damage}\n${capitalize(
+          targetLocation
+        )} Armor Ablated by ${ablationAmount}`,
+        "#FF0000"
+      );
+    } else {
+      api.floatText(token, `-${damage}`, "#FF0000");
+    }
   }
 }

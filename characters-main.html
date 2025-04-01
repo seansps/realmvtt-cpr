@@ -282,10 +282,6 @@
     }, 500);
   }
 
-  function onShieldToggle(value) {
-    console.log(value);
-  }
-
   function onRest() {
     const valuesToSet = {
       // TODO recover up to BODY hp + any modifiers for healing
@@ -995,7 +991,6 @@
                 color="secondary"
                 variant="light"
                 options='[{"icon": "IconShieldDown", "label": "Shield Down", "value": "shieldDown"}, {"icon": "IconShieldCheckFilled", "label": "Shield Up", "value": "shieldUp"}]'
-                onchange="onShieldToggle(value)"
               ></iconbutton>
             </div>
           </td>
