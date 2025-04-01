@@ -9,10 +9,25 @@
       valuesToHide.push("valueType");
       valuesToHide.push("active");
       valuesToHide.push("itemOnly");
+      valuesToHide.push("statPenalty");
+      valuesToHide.push("statMinimum");
       valuesToShow.push("stat");
       valuesToShow.push("statBonus");
       valuesToShow.push("statSet");
       valuesToShow.push("statMaximum");
+      valuesToShow.push("noDerivedAttributes");
+    } else if (value === "statPenalty") {
+      valuesToHide.push("field");
+      valuesToHide.push("value");
+      valuesToHide.push("valueType");
+      valuesToHide.push("active");
+      valuesToHide.push("itemOnly");
+      valuesToHide.push("statBonus");
+      valuesToHide.push("statMaximum");
+      valuesToShow.push("stat");
+      valuesToShow.push("statPenalty");
+      valuesToShow.push("statSet");
+      valuesToShow.push("statMinimum");
       valuesToShow.push("noDerivedAttributes");
     } else {
       valuesToShow.push("field");
@@ -22,8 +37,10 @@
       valuesToShow.push("itemOnly");
       valuesToHide.push("stat");
       valuesToHide.push("statBonus");
+      valuesToHide.push("statPenalty");
       valuesToHide.push("statSet");
       valuesToHide.push("statMaximum");
+      valuesToHide.push("statMinimum");
       valuesToHide.push("noDerivedAttributes");
     }
 
@@ -58,6 +75,7 @@
     {"label": "Healing Bonus", "value": "healingBonus"},
     {"label": "Healing Penalty", "value": "healingPenalty"},
     {"label": "STAT Bonus", "value": "statBonus"},
+    {"label": "STAT Penalty", "value": "statPenalty"},
     {"label": "Applies Body Armor SP", "value": "bodySp"},
     {"label": "Applies Head Armor SP", "value": "headSp"},
     {"label": "Applies Shield HP", "value": "shieldSp"}]'
@@ -130,6 +148,15 @@
   <numberfield
     width="30%"
     size="xs"
+    field="statPenalty"
+    hidden="true"
+    label="STAT Penalty"
+    placeholder="Enter penalty..."
+  ></numberfield>
+
+  <numberfield
+    width="30%"
+    size="xs"
     field="statSet"
     label="Set STAT To"
     hidden="true"
@@ -143,6 +170,15 @@
     hidden="true"
     label="Maximum"
     placeholder="Optional max..."
+  ></numberfield>
+
+  <numberfield
+    width="30%"
+    size="xs"
+    field="statMinimum"
+    hidden="true"
+    label="Minimum"
+    placeholder="Optional min..."
   ></numberfield>
 
   <div
@@ -164,6 +200,7 @@
     <checkbox
       size="xs"
       width="175px"
+      hidden="true"
       field="itemOnly"
       label="Only Applies To This Item"
     ></checkbox>

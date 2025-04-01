@@ -818,18 +818,30 @@ function setStatsAndSkills(
   }
 
   // Get all modifiers for this stat and set totalStat
-  const modifiers = getEffectsAndModifiersForToken(record, ["statBonus"], stat);
+  const modifiers = getEffectsAndModifiersForToken(
+    record,
+    ["statBonus", "statPenalty"],
+    stat
+  );
 
   const sortedModifiers = [...modifiers].sort((a, b) =>
     a.isSet ? -1 : b.isSet ? 1 : 0
   );
+
   // Apply modifiers to totalStat
   sortedModifiers.forEach((modifier) => {
     let maxValue = modifier.max || Infinity;
+    let minValue = modifier.min || -Infinity;
+
     // Apply modifiers obeying max value if it was defined
     if (
-      modifier.isSet &&
-      valuesToSet[`data.total${capitalize(modifier.field)}`] < modifier.value
+      (modifier.isSet &&
+        modifier.modifierType === "statBonus" &&
+        valuesToSet[`data.total${capitalize(modifier.field)}`] <
+          modifier.value) ||
+      (modifier.isSet &&
+        modifier.modifierType === "statPenalty" &&
+        valuesToSet[`data.total${capitalize(modifier.field)}`] > modifier.value)
     ) {
       valuesToSet[`data.total${capitalize(modifier.field)}`] = modifier.value;
       if (trackActual && !modifier.noDerivedAttributes) {
@@ -837,16 +849,17 @@ function setStatsAndSkills(
           valuesToSet[`data.total${capitalize(modifier.field)}`];
       }
     } else {
-      if (valuesToSet[`data.total${capitalize(modifier.field)}`] < maxValue) {
-        valuesToSet[`data.total${capitalize(modifier.field)}`] = Math.min(
-          valuesToSet[`data.total${capitalize(modifier.field)}`] +
-            modifier.value,
-          modifier.max
-        );
-        if (trackActual && !modifier.noDerivedAttributes) {
-          valuesToSet[`data.actual${capitalize(modifier.field)}`] =
-            valuesToSet[`data.total${capitalize(modifier.field)}`];
-        }
+      // Apply the modifier and then constrain to min/max range
+      const newValue =
+        valuesToSet[`data.total${capitalize(modifier.field)}`] + modifier.value;
+      valuesToSet[`data.total${capitalize(modifier.field)}`] = Math.min(
+        Math.max(newValue, minValue),
+        maxValue
+      );
+
+      if (trackActual && !modifier.noDerivedAttributes) {
+        valuesToSet[`data.actual${capitalize(modifier.field)}`] =
+          valuesToSet[`data.total${capitalize(modifier.field)}`];
       }
     }
   });
@@ -1109,69 +1122,81 @@ function getEffectsAndModifiersForToken(
       (item.data?.type !== "cyberware" || item.data?.active === "true")
   );
 
-  [...features, ...equippedItems].forEach((feature) => {
-    const modifiers = feature.data?.modifiers || [];
-    modifiers.forEach((modifier) => {
-      const ruleType = modifier.data?.type || "";
-      const isPenalty = ruleType.toLowerCase().includes("penalty");
-      let value = modifier.data?.value || "";
-      let valueType = modifier.data?.valueType || "number";
-      let field = modifier.data?.field || "";
-      if (ruleType === "statBonus") {
-        valueType = "number";
-        field = modifier.data?.stat || "int";
-        value = modifier.data?.statBonus || 0;
-        if (modifier.data?.statSet) {
-          value = modifier.data?.statSet;
-        }
-      }
-      if (valueType === "number") {
-        value = parseInt(value || "0", 10);
-        if (isNaN(value)) {
-          value = 0;
-        }
-        if (isPenalty && value > 0) {
-          value = -value;
-        }
-      } else if (valueType === "field") {
-        const fieldToUse = modifier.data?.value || "";
-        if (fieldToUse) {
-          value = target?.data?.[fieldToUse] || "";
-        }
-      } else if (
-        valueType === "string" &&
-        !value.trim().startsWith("-") &&
-        isPenalty
-      ) {
-        value = "-" + value;
-      }
+  const criticalInjuries = target?.data?.criticalInjuries || [];
+  const addictions = target?.data?.addictions || [];
 
-      // Check for strings that require replacements
-      if (modifier.data?.valueType === "string") {
-        value = checkForReplacements(value, {}, target);
-      }
+  [...features, ...criticalInjuries, ...addictions, ...equippedItems].forEach(
+    (feature) => {
+      const modifiers = feature.data?.modifiers || [];
+      modifiers.forEach((modifier) => {
+        const ruleType = modifier.data?.type || "";
+        const isPenalty = ruleType.toLowerCase().includes("penalty");
+        let value = modifier.data?.value || "";
+        let valueType = modifier.data?.valueType || "number";
+        let field = modifier.data?.field || "";
+        if (ruleType === "statBonus" || ruleType === "statPenalty") {
+          valueType = "number";
+          field = modifier.data?.stat || "int";
+          value = modifier.data?.statBonus || 0;
+          if (modifier.data?.statSet) {
+            value = modifier.data?.statSet;
+          }
+          if (ruleType === "statPenalty") {
+            value = modifier.data?.statPenalty || 0;
+            if (value > 0) value = -value;
+          }
+        }
+        if (valueType === "number") {
+          value = parseInt(value || "0", 10);
+          if (isNaN(value)) {
+            value = 0;
+          }
+          if (isPenalty && value > 0) {
+            value = -value;
+          }
+        } else if (valueType === "field") {
+          const fieldToUse = modifier.data?.value || "";
+          if (fieldToUse) {
+            value = target?.data?.[fieldToUse] || "";
+          }
+        } else if (
+          valueType === "string" &&
+          !value.trim().startsWith("-") &&
+          isPenalty
+        ) {
+          value = "-" + value;
+        }
 
-      // Only relevant if it has a value
-      if (value !== 0) {
-        // Check if this only applies to equipped item and mark it with ID if so
-        const itemOnly = modifier.data?.itemOnly || false;
-        results.push({
-          name: feature?.name || "Feature",
-          value: value,
-          active: modifier.data?.active === true,
-          modifierType: ruleType,
-          field: field,
-          valueType: valueType,
-          itemId: itemOnly ? feature?._id : undefined,
-          isPenalty: isPenalty,
-          isEffect: false,
-          max: modifier.data?.statMaximum || undefined,
-          isSet: ruleType === "statBonus" && modifier.data?.statSet,
-          noDerivedAttributes: modifier.data?.noDerivedAttributes || false,
-        });
-      }
-    });
-  });
+        // Check for strings that require replacements
+        if (modifier.data?.valueType === "string") {
+          value = checkForReplacements(value, {}, target);
+        }
+
+        // Only relevant if it has a value
+        if (value !== 0) {
+          // Check if this only applies to equipped item and mark it with ID if so
+          const itemOnly = modifier.data?.itemOnly || false;
+          results.push({
+            name: feature?.name || "Feature",
+            value: value,
+            active: modifier.data?.active === true,
+            modifierType: ruleType,
+            field: field,
+            valueType: valueType,
+            itemId: itemOnly ? feature?._id : undefined,
+            isPenalty: isPenalty,
+            isEffect: false,
+            max: modifier.data?.statMaximum || undefined,
+            min: modifier.data?.statMinimum || undefined,
+            isSet:
+              (ruleType === "statBonus" || ruleType === "statPenalty") &&
+              modifier.data?.statSet !== undefined,
+            noDerivedAttributes: modifier.data?.noDerivedAttributes || false,
+          });
+        }
+      });
+    }
+  );
 
   // Add nextRoll modifier if it exists
   const nextRoll = target?.data?.nextRoll || 0;

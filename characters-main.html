@@ -147,6 +147,29 @@
     // After adding the condition, add the effects to the character sequentially
     const addEffects = (newRecord) => {
       record = newRecord;
+
+      // First update attributes based on modifiers
+      const valuesToSet = {};
+      const bestEquippedArmor = getBestEquippedArmor(record);
+      // Update attributes as per modifiers
+      updateAttributes(valuesToSet, bestEquippedArmor.highestPenalty);
+      valuesToSet["data.headArmor"] = bestEquippedArmor.head[0]?.name || "";
+      valuesToSet["data.headArmorSP"] = bestEquippedArmor.head[0]?.curSp || 0;
+      valuesToSet["data.headArmorPenalty"] =
+        bestEquippedArmor.head[0]?.penalty || 0;
+      valuesToSet["data.bodyArmor"] = bestEquippedArmor.body[0]?.name || "";
+      valuesToSet["data.bodyArmorSP"] = bestEquippedArmor.body[0]?.curSp || 0;
+      valuesToSet["data.bodyArmorPenalty"] =
+        bestEquippedArmor.body[0]?.penalty || 0;
+      valuesToSet["data.shield"] = bestEquippedArmor.shield[0]?.name || "";
+      valuesToSet["data.shieldHP"] = bestEquippedArmor.shield[0]?.curSp || 0;
+      valuesToSet["data.shieldPenalty"] =
+        bestEquippedArmor.shield[0]?.penalty || 0;
+
+      if (Object.keys(valuesToSet).length > 0) {
+        api.setValues(valuesToSet);
+      }
+
       const effects = conditionObj.data?.effects || [];
       const recordId = record._id;
 
@@ -212,6 +235,29 @@
 
     const deletedEffects = deletedItem.data?.effects || [];
     const recordId = record._id;
+
+    // Update attributes based on modifiers
+    // First update attributes based on modifiers
+    const valuesToSet = {};
+    const bestEquippedArmor = getBestEquippedArmor(record);
+    // Update attributes as per modifiers
+    updateAttributes(valuesToSet, bestEquippedArmor.highestPenalty);
+    valuesToSet["data.headArmor"] = bestEquippedArmor.head[0]?.name || "";
+    valuesToSet["data.headArmorSP"] = bestEquippedArmor.head[0]?.curSp || 0;
+    valuesToSet["data.headArmorPenalty"] =
+      bestEquippedArmor.head[0]?.penalty || 0;
+    valuesToSet["data.bodyArmor"] = bestEquippedArmor.body[0]?.name || "";
+    valuesToSet["data.bodyArmorSP"] = bestEquippedArmor.body[0]?.curSp || 0;
+    valuesToSet["data.bodyArmorPenalty"] =
+      bestEquippedArmor.body[0]?.penalty || 0;
+    valuesToSet["data.shield"] = bestEquippedArmor.shield[0]?.name || "";
+    valuesToSet["data.shieldHP"] = bestEquippedArmor.shield[0]?.curSp || 0;
+    valuesToSet["data.shieldPenalty"] =
+      bestEquippedArmor.shield[0]?.penalty || 0;
+
+    if (Object.keys(valuesToSet).length > 0) {
+      api.setValues(valuesToSet);
+    }
 
     // Process effects sequentially using a recursive approach
     function processEffectsSequentially(effects, index) {
