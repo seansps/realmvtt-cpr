@@ -13,8 +13,11 @@ const d10 = (roll?.dice || []).find(
 const metadata = data?.roll?.metadata;
 const modifiers = metadata?.modifiers || [];
 const recordId = metadata?.recordId || metadata?.priorRoll?.metadata?.recordId;
-const rollRecordType =
+let rollRecordType =
   metadata?.recordType || metadata?.priorRoll?.metadata?.recordType;
+if (rollRecordType === "npcs") {
+  rollRecordType = "tokens";
+}
 
 // If we used luck, we need to remove it from the token that rolled
 let usedLuck = false;

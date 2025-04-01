@@ -8,6 +8,7 @@ if (!token) {
 const roll = "1d10";
 
 // Get modifiers for initiative, which is REF
+// TODO use a different value here for Drones/Vehicles/Programs, etc. when added as NPCs later
 const modifiers = [];
 
 // Add ref
@@ -35,7 +36,7 @@ api.promptRollForToken(
   {
     rollName: "Initiative",
     tooltip: "Initiative Roll",
-    recordType: token.recordType,
+    recordType: token.recordType === "characters" ? "characters" : "tokens",
     group: (data?.tokens || []).map((token) => token?._id),
   },
   "initiative"

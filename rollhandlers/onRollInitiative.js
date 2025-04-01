@@ -6,6 +6,7 @@ const roll = "1d10";
 const modifiers = [];
 
 // Add ref
+// TODO use a different value here for Drones/Vehicles/Programs, etc. when added as NPCs later
 const ref = parseInt(token?.data?.totalRef || "0", 10);
 modifiers.push({
   name: "REF",
@@ -32,7 +33,7 @@ api.promptRollForToken(
   {
     rollName: "Initiative",
     tooltip: "Initiative Roll",
-    recordType: token.recordType,
+    recordType: token.recordType === "characters" ? "characters" : "tokens",
   },
   "initiative"
 );
