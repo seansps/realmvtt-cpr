@@ -1,6 +1,36 @@
 <script>
   function rollInitiative() {
-    //todo
+    const roll = "1d10";
+    // Get modifiers for initiative, which is REF
+    const modifiers = [];
+    const ref = parseInt(record?.data?.totalRef || "0", 10);
+    modifiers.push({
+      name: "REF",
+      value: ref,
+      active: true,
+    });
+
+    // Check effects for all initiative bonuses and penalties
+    const initiativeModifiers = getEffectsAndModifiersForToken(record, [
+      "initiativeBonus",
+      "initiativePenalty",
+    ]);
+    initiativeModifiers.forEach((modifier) => {
+      modifiers.push(modifier);
+    });
+
+    api.promptRollForToken(
+      record,
+      "Initiative",
+      roll,
+      modifiers,
+      {
+        rollName: "Initiative",
+        recordType: "characters",
+        tooltip: "Initiative Roll",
+      },
+      "initiative"
+    );
   }
 
   function throwObject() {
