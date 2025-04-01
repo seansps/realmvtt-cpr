@@ -33,12 +33,16 @@ if (damage > 0) {
     const oldShieldHp = shieldHp;
     const newShieldHp = Math.max(oldShieldHp - damage, 0);
     valuesToSet["data.shieldHP"] = newShieldHp;
+    // Also set it on the item that represents the shield
+    // TODO
     shieldDamaged = true;
     damage = 0;
     if (newShieldHp === 0) {
       shieldDestroyed = true;
     }
   }
+
+  // TODO determine if armor needs to be ablated and update SP on sheet and armor item
 
   var curhp = parseInt(record.data?.curhp, "0", 10);
   curhp -= damage;

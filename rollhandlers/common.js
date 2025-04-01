@@ -778,7 +778,13 @@ function getAllSkills() {
   ];
 }
 
-function setStatsAndSkills(record, value, stat, moreValuesToSet = null) {
+function setStatsAndSkills(
+  record,
+  value,
+  stat,
+  moreValuesToSet = null,
+  penalty = 0
+) {
   // Create an object to hold all the values we want to set
   const valuesToSet = {};
 
@@ -845,7 +851,19 @@ function setStatsAndSkills(record, value, stat, moreValuesToSet = null) {
     }
   });
 
-  // TODO add handling for when modifiers do not adjust derivied attributes below
+  // Apply penalty if set (minimum of 0)
+  if (penalty > 0) {
+    valuesToSet[`data.total${capitalize(stat)}`] = Math.max(
+      0,
+      valuesToSet[`data.total${capitalize(stat)}`] - penalty
+    );
+    if (trackActual) {
+      valuesToSet[`data.actual${capitalize(stat)}`] = Math.max(
+        0,
+        valuesToSet[`data.actual${capitalize(stat)}`] - penalty
+      );
+    }
+  }
 
   // Handle hitpoints calculation when body or will changes
   if (stat === "body" || stat === "will") {
@@ -1188,7 +1206,7 @@ function getEffectsAndModifiersForToken(
   return results;
 }
 
-function updateAttributes(valuesToSet) {
+function updateAttributes(valuesToSet, highestPenalty) {
   // Get all STAT modifiers and update stats as needed
   // First lookup the base values before any modifiers were applied
   const baseAttributes = {
@@ -1240,15 +1258,95 @@ function updateAttributes(valuesToSet) {
     "emp",
   ].forEach((stat) => {
     let value = valuesToSet[`data.total${capitalize(stat)}`];
-    setStatsAndSkills(record, value, stat, valuesToSet);
+    if (stat === "ref" || stat === "dex" || stat === "move") {
+      setStatsAndSkills(record, value, stat, valuesToSet, highestPenalty);
+    } else {
+      setStatsAndSkills(record, value, stat, valuesToSet);
+    }
   });
 
   api.setValues(valuesToSet);
 }
 
-function getBestEquippedArmor() {
-  // TODO get the best equipped armor
-  return {};
+function getBestEquippedArmor(record) {
+  // Return list of all equipped armor in order of SP/HP
+  const items = record?.data?.inventory || [];
+  const result = {
+    head: [],
+    body: [],
+    shield: [],
+    // This is what will be used as our actual penalty on REF/DEX/MOVE
+    highestPenalty: 0,
+  };
+
+  // First look at all items of type armor
+  const armor = items.filter(
+    (item) => item.data?.type === "armor" && item.data?.carried === "equipped"
+  );
+
+  armor.forEach((item) => {
+    const armorType = item.data?.armorLocation || "head";
+    const armorSp = parseInt(item.data?.sp || 0, 10);
+    const armorPenalty = parseInt(item.data?.penalty || 0, 10);
+
+    // Get current SP fallback to armorSp if not set
+    const currentSp = parseInt(item.data?.curSp || armorSp, 10);
+
+    if (armorPenalty > result.highestPenalty) {
+      result.highestPenalty = armorPenalty;
+    }
+
+    // Only add to result if armorType is valid
+    if (result[armorType]) {
+      result[armorType].push({
+        _id: item._id,
+        name: item.name,
+        sp: armorSp,
+        curSp: currentSp,
+        penalty: armorPenalty,
+      });
+    }
+  });
+
+  // Then look for all items that have a modifier of type bodySp, headSp, or shieldSp (and are not armor)
+  const otherItems = items.filter(
+    (item) =>
+      item.data?.type !== "armor" &&
+      item.data?.carried === "equipped" &&
+      (item.data?.type !== "cyberware" || item.data?.active === "true")
+  );
+
+  otherItems.forEach((item) => {
+    const modifiers = item.data?.modifiers || [];
+    modifiers.forEach((modifier) => {
+      const modifierType = modifier.data?.type || "";
+      if (
+        modifierType === "bodySp" ||
+        modifierType === "headSp" ||
+        modifierType === "shieldSp"
+      ) {
+        let armorType = modifierType.replace("Sp", "");
+        let armorSp = parseInt(modifier.data?.value || 0, 10);
+        let currentSp = parseInt(item.data?.curSp || armorSp, 10);
+
+        if (result[armorType]) {
+          result[armorType].push({
+            _id: item._id,
+            name: item.name,
+            sp: armorSp,
+            curSp: currentSp,
+            penalty: 0,
+          });
+        }
+      }
+    });
+  });
+
+  // Sort the results by curSp
+  result.head.sort((a, b) => b.curSp - a.curSp);
+  result.body.sort((a, b) => b.curSp - a.curSp);
+  result.shield.sort((a, b) => b.curSp - a.curSp);
+  return result;
 }
 
 function useItem(itemDataPath) {

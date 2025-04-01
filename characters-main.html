@@ -308,6 +308,58 @@
   function onRollDeathSave() {
     console.log("TODO onRollDeathSave");
   }
+
+  function onUpdateSp(field) {
+    const newSp = value;
+    // Update the SP on the item that represents the armor
+    const equippedArmor = getBestEquippedArmor(record);
+    const armor = equippedArmor[field]?.[0];
+    let valuesToSet = {};
+    if (armor) {
+      // Find the index directly by searching through the inventory array
+      const inventoryArray = record?.data?.inventory || [];
+      const armorItemIndex = inventoryArray.findIndex(
+        (item) => item._id === armor._id
+      );
+
+      if (armorItemIndex !== -1) {
+        valuesToSet[`data.inventory.${armorItemIndex}.data.curSp`] = newSp;
+      }
+    }
+
+    if (Object.keys(valuesToSet).length > 0) {
+      api.setValues(valuesToSet);
+    }
+  }
+
+  function onUpdatePenalty(field) {
+    // Update the penalty on the item that represents the armor and re-update attributes
+    const newPenalty = value;
+    // Update the SP on the item that represents the armor
+    const equippedArmor = getBestEquippedArmor(record);
+    const armor = equippedArmor[field]?.[0];
+    let valuesToSet = {};
+    if (armor) {
+      // Find the index directly by searching through the inventory array
+      const inventoryArray = record?.data?.inventory || [];
+      const armorItemIndex = inventoryArray.findIndex(
+        (item) => item._id === armor._id
+      );
+      if (armorItemIndex !== -1) {
+        valuesToSet[`data.inventory.${armorItemIndex}.data.penalty`] =
+          newPenalty;
+      }
+    }
+
+    if (Object.keys(valuesToSet).length > 0) {
+      api.setValues(valuesToSet, (record) => {
+        const bestEquippedArmor = getBestEquippedArmor(record);
+        // Update attributes as per modifiers
+        updateAttributes(valuesToSet, bestEquippedArmor.highestPenalty);
+        api.setValues(valuesToSet);
+      });
+    }
+  }
 </script>
 
 <div style="display: flex; margin-top: 4px; flex-direction: row">
@@ -878,6 +930,7 @@
               size="xs"
               width="70px"
               field="headArmorSP"
+              onchange="onUpdateSp('head')"
             ></numberfield>
           </td>
           <td>
@@ -887,6 +940,7 @@
               size="xs"
               width="70px"
               field="headArmorPenalty"
+              onchange="onUpdatePenalty('head')"
             ></numberfield>
           </td>
         </tr>
@@ -909,6 +963,7 @@
               size="xs"
               width="70px"
               field="bodyArmorSP"
+              onchange="onUpdateSp('body')"
             ></numberfield>
           </td>
           <td>
@@ -918,6 +973,7 @@
               size="xs"
               width="70px"
               field="bodyArmorPenalty"
+              onchange="onUpdatePenalty('body')"
             ></numberfield>
           </td>
         </tr>
@@ -950,6 +1006,7 @@
               size="xs"
               width="70px"
               field="shieldHP"
+              onchange="onUpdateSp('shield')"
             ></numberfield>
           </td>
           <td>
@@ -959,6 +1016,7 @@
               size="xs"
               width="70px"
               field="shieldPenalty"
+              onchange="onUpdatePenalty('shield')"
             ></numberfield>
           </td>
         </tr>

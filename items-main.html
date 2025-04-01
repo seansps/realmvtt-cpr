@@ -26,6 +26,7 @@
       [`${pathToFields}.maxSlots.hidden`]: true,
       [`${pathToFields}.ammoProperties.hidden`]: true,
       [`${pathToFields}.armorProperties.hidden`]: true,
+      [`${pathToFields}.curSp.hidden`]: true,
       [`${pathToFields}.blackICEProperties.hidden`]: true,
       [`${pathToFields}.demonProperties.hidden`]: true,
       [`${pathToFields}.droneProperties.hidden`]: true,
@@ -65,6 +66,7 @@
       valuesToSet[`${pathToFields}.consumable.hidden`] = true;
       valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
       valuesToSet[`${pathToFields}.armorProperties.hidden`] = false;
+      valuesToSet[`${pathToFields}.curSp.hidden`] = false;
     } else if (typeStr === "black ice") {
       valuesToSet[`${pathToFields}.consumable.hidden`] = true;
       valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
