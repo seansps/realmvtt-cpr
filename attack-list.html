@@ -86,24 +86,23 @@
 
     // TODO penalties for aimed shots
 
-    // TODO add function to get modifiers from attachments and check
-
     let modifiers = getEffectsAndModifiersForToken(
       record,
       ["attackBonus", "attackPenalty"],
-      "data.skills",
       isMelee ? "melee" : "ranged",
-      weapon._id
+      weapon._id,
+      weapon
     );
 
-    attackModifiers.push(...attackModifiers);
+    attackModifiers.push(...modifiers);
 
     if (attackSkill) {
       const skillModifiers = getEffectsAndModifiersForToken(
         record,
         ["skillBonus", "skillPenalty"],
         attackSkill.name || "New Skill",
-        weapon._id
+        weapon._id,
+        weapon
       );
       attackModifiers.push(...skillModifiers);
     }
@@ -181,13 +180,13 @@
       const ammoModifiers = getEffectsAndModifiersForToken(
         record,
         [ammoModifierType],
-        "all",
-        weapon._id
+        "",
+        weapon._id,
+        weapon
       );
-      attackModifiers.push(...ammoModifiers);
       ammoModifiers.forEach((modifier) => {
-        let value = parseInt(modifier.value, 10) || "0";
-        if (!isNaN(value)) {
+        let value = parseInt(modifier.value, 10) || 0;
+        if (isNaN(value) || modifier.active === false) {
           value = 0;
         }
         ammoPerShot += value;

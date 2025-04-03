@@ -1050,7 +1050,10 @@ function getEffectsAndModifiersForToken(
   target,
   types = [],
   field = "",
-  itemId = undefined
+  // If Item ID is provided, we only return modifiers for that item
+  itemId = undefined,
+  // If Weapon is provided, we also look for attachments on it
+  weapon = undefined
 ) {
   if (!target) {
     return [];
@@ -1172,78 +1175,102 @@ function getEffectsAndModifiersForToken(
   const criticalInjuries = target?.data?.criticalInjuries || [];
   const addictions = target?.data?.addictions || [];
 
-  [...features, ...criticalInjuries, ...addictions, ...equippedItems].forEach(
-    (feature) => {
-      const modifiers = feature.data?.modifiers || [];
-      modifiers.forEach((modifier) => {
-        const ruleType = modifier.data?.type || "";
-        const isPenalty = ruleType.toLowerCase().includes("penalty");
-        let value = modifier.data?.value || "";
-        let valueType = modifier.data?.valueType || "number";
-        let field = modifier.data?.field || "";
-        if (ruleType === "statBonus" || ruleType === "statPenalty") {
-          valueType = "number";
-          field = modifier.data?.stat || "int";
-          value = modifier.data?.statBonus || 0;
-          if (modifier.data?.statSet) {
-            value = modifier.data?.statSet;
-          }
-          if (ruleType === "statPenalty") {
-            value = modifier.data?.statPenalty || 0;
-            if (value > 0) value = -value;
-          }
-        }
-        if (valueType === "number") {
-          value = parseInt(value || "0", 10);
-          if (isNaN(value)) {
-            value = 0;
-          }
-          if (isPenalty && value > 0) {
-            value = -value;
-          }
-        } else if (valueType === "field") {
-          const fieldToUse = modifier.data?.value || "";
-          if (fieldToUse) {
-            value = target?.data?.[fieldToUse] || "";
-          }
-        } else if (
-          valueType === "string" &&
-          !value.trim().startsWith("-") &&
-          isPenalty
-        ) {
-          value = "-" + value;
-        }
+  const attachments = weapon ? weapon?.data?.attachments || [] : [];
+  // Filter attachments to only include attachments that are active
+  // Assume undefined/null means active
+  const activeAttachments = attachments
+    .filter(
+      (attachment) =>
+        attachment.data?.active === true ||
+        attachment.data?.active === undefined ||
+        attachment.data?.active === null
+    )
+    .map((attachment) => ({
+      ...attachment,
+      weaponId: weapon?._id,
+    }));
 
-        // Check for strings that require replacements
-        if (modifier.data?.valueType === "string") {
-          value = checkForReplacements(value, {}, target);
+  [
+    ...features,
+    ...criticalInjuries,
+    ...addictions,
+    ...equippedItems,
+    ...activeAttachments,
+  ].forEach((feature) => {
+    const modifiers = feature.data?.modifiers || [];
+    modifiers.forEach((modifier) => {
+      const ruleType = modifier.data?.type || "";
+      const isPenalty = ruleType.toLowerCase().includes("penalty");
+      let value = modifier.data?.value || "";
+      let valueType = modifier.data?.valueType || "number";
+      let field = modifier.data?.field || "";
+      if (ruleType === "statBonus" || ruleType === "statPenalty") {
+        valueType = "number";
+        field = modifier.data?.stat || "int";
+        value = modifier.data?.statBonus || 0;
+        if (modifier.data?.statSet) {
+          value = modifier.data?.statSet;
         }
+        if (ruleType === "statPenalty") {
+          value = modifier.data?.statPenalty || 0;
+          if (value > 0) value = -value;
+        }
+      }
+      if (valueType === "number") {
+        value = parseInt(value || "0", 10);
+        if (isNaN(value)) {
+          value = 0;
+        }
+        if (isPenalty && value > 0) {
+          value = -value;
+        }
+      } else if (valueType === "field") {
+        const fieldToUse = modifier.data?.value || "";
+        if (fieldToUse) {
+          value = target?.data?.[fieldToUse] || "";
+        }
+      } else if (
+        valueType === "string" &&
+        !value.trim().startsWith("-") &&
+        isPenalty
+      ) {
+        value = "-" + value;
+      }
 
-        // Only relevant if it has a value
-        if (value !== 0) {
-          // Check if this only applies to equipped item and mark it with ID if so
-          const itemOnly = modifier.data?.itemOnly || false;
-          results.push({
-            name: feature?.name || "Feature",
-            value: value,
-            active: modifier.data?.active === true,
-            modifierType: ruleType,
-            field: field,
-            valueType: valueType,
-            itemId: itemOnly ? feature?._id : undefined,
-            isPenalty: isPenalty,
-            isEffect: false,
-            max: modifier.data?.statMaximum || undefined,
-            min: modifier.data?.statMinimum || undefined,
-            isSet:
-              (ruleType === "statBonus" || ruleType === "statPenalty") &&
-              modifier.data?.statSet !== undefined,
-            noDerivedAttributes: modifier.data?.noDerivedAttributes || false,
-          });
+      // Check for strings that require replacements
+      if (modifier.data?.valueType === "string") {
+        value = checkForReplacements(value, {}, target);
+      }
+
+      // Only relevant if it has a value
+      if (value !== 0) {
+        // Check if this only applies to equipped item and mark it with ID if so
+        const itemOnly = modifier.data?.itemOnly || false;
+        let possibleItemId = itemOnly ? feature?._id : undefined;
+        // If this was from an attachment, we need to set the itemId to the weapon's id
+        if (itemOnly && feature.data?.type === "weapon attachment") {
+          possibleItemId = feature?.weaponId || "";
         }
-      });
-    }
-  );
+        results.push({
+          name: feature?.name || "Feature",
+          value: value,
+          active: modifier.data?.active === true,
+          modifierType: ruleType,
+          field: field,
+          valueType: valueType,
+          itemId: possibleItemId,
+          isPenalty: isPenalty,
+          isEffect: false,
+          max: modifier.data?.statMaximum || undefined,
+          min: modifier.data?.statMinimum || undefined,
+          isSet:
+            (ruleType === "statBonus" || ruleType === "statPenalty") &&
+            modifier.data?.statSet !== undefined,
+          noDerivedAttributes: modifier.data?.noDerivedAttributes || false,
+        });
+      }
+    });
+  });
 
   // Add nextRoll modifier if it exists
   const nextRoll = target?.data?.nextRoll || 0;
