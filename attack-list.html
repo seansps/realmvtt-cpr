@@ -1,7 +1,191 @@
 <script>
   function rollAttack(type, range = "auto") {
-    //todo
+    const weaponDataPath = getNearestParentDataPath(dataPath);
+    const weapon = api.getValue(weaponDataPath);
+
+    const isMelee = weapon.data?.type === "melee weapon";
+
+    let isShell = false;
+    // It's a shotgun shell if it's ranged with a isShell ammo
+    const ammo = weapon.data?.ammo;
+    if (ammo) {
+      const ammoObject = JSON.parse(ammo);
+      isShell = ammoObject?.isShell;
+    }
+
     // If range is auto, then we look up range of token to target, else we use the range passed in
+    let actualRange = 0;
+    let dvs = [];
+    if (range === "0to6") {
+      actualRange = 6;
+    } else if (range === "7to12") {
+      actualRange = 12;
+    } else if (range === "13to25") {
+      actualRange = 25;
+    } else if (range === "26to50") {
+      actualRange = 50;
+    } else if (range === "51to100") {
+      actualRange = 100;
+    } else if (range === "101to200") {
+      actualRange = 200;
+    } else if (range === "201to400") {
+      actualRange = 400;
+    } else if (range === "401to800") {
+      actualRange = 800;
+    } else {
+      actualRange = 0;
+    }
+    if (actualRange > 0) {
+      dvs.push({
+        dv: getDvForRange(weapon, actualRange, type),
+        targetName: "",
+      });
+    }
+    // Find the skill for the record by name. Use Autofire if type is autofire.
+    // (Suppresive Fire just produces macros for enemy's to roll Concentration)
+    let skillName = weapon.data?.weaponSkill;
+
+    if (type === "autofire" || type === "suppressive") {
+      skillName = "Autofire";
+    }
+
+    let attackSkill = null;
+    const skillGroups = [
+      ...(record.data?.skillGroups1 || []),
+      ...(record.data?.skillGroups2 || []),
+    ];
+    let attackSkillBase = 0;
+    skillGroups.forEach((group) => {
+      // We find the skill with the same name, or the Martial Arts skill with the highest base
+      const skill = (group.data?.skills || []).find(
+        (s) =>
+          s.name === skillName ||
+          (skillName === "Martial Arts" && group.name === "Martial Arts (x2)")
+      );
+      if (skill && skill.data?.base >= attackSkillBase) {
+        // We found the skill, so we can roll it
+        attackSkill = skill;
+        attackSkillBase = skill.data?.base;
+      }
+    });
+
+    let attackModifiers = [
+      {
+        name: skillName,
+        value: attackSkillBase || 0,
+        active: true,
+        valueType: "number",
+      },
+    ];
+
+    // TODO penalties for aimed shots
+
+    // TODO add function to get modifiers from attachments and check
+
+    let modifiers = getEffectsAndModifiersForToken(
+      record,
+      ["attackBonus", "attackPenalty"],
+      "data.skills",
+      isMelee ? "melee" : "ranged",
+      weapon._id
+    );
+
+    attackModifiers.push(...attackModifiers);
+
+    if (attackSkill) {
+      const skillModifiers = getEffectsAndModifiersForToken(
+        record,
+        ["skillBonus", "skillPenalty"],
+        attackSkill.name || "New Skill",
+        attackSkill._id
+      );
+      attackModifiers.push(...skillModifiers);
+    }
+
+    // Filter out any duplicate modifiers (same name, value, and valueType)
+    attackModifiers = attackModifiers.filter(
+      (modifier, index, self) =>
+        index ===
+        self.findIndex(
+          (t) =>
+            t.name === modifier.name &&
+            t.value === modifier.value &&
+            t.valueType === modifier.valueType &&
+            t.modifierType === modifier.modifierType
+        )
+    );
+
+    if (range === "auto" && !isMelee && type !== "suppressive" && !isShell) {
+      // Get targets, roll for each based on range to target (or just 1 if no targets)
+      const targets = api.getTargets(record);
+      if (targets.length > 0) {
+        targets.forEach((target) => {
+          const distance = target?.distance || 0;
+          const dv = getDvForRange(weapon, distance, type);
+          const targetName =
+            target?.token?.identified === false
+              ? target?.token?.record?.unidentifiedName
+              : target?.token?.record?.name;
+          dvs.push({
+            dv: dv,
+            targetName: targetName,
+          });
+        });
+      }
+    } else if (!isMelee && isShell) {
+      // Shotgun is always DV 13
+      dvs.push({
+        dv: 13,
+        targetName: "",
+      });
+    }
+
+    // TODO get damage modifiers from character, attachments, and ammo
+    // TODO set any other props needed in metadata for ammo that the damage macros need
+    const damageModifiers = [];
+
+    const attackMetadata = {
+      rollName: "Attack",
+      tooltip: `Attack with ${weapon.name}`,
+      weaponName: weapon.name,
+      isMelee: isMelee,
+      isSuppressive: type === "suppressive",
+      isAutofire: type === "autofire",
+      damageModifiers: damageModifiers,
+      dv: 0,
+      icon: isMelee ? "GiKatana" : "GiPistolGun",
+      targetName: "",
+    };
+
+    // TODO get ammo use per shot with modifiers
+    // TODO deduct ammo
+
+    // Now prompt for rolls
+    if (dvs.length > 0) {
+      dvs.forEach((dv) => {
+        // Attack with this DV set
+        api.promptRoll(
+          `Attack with ${weapon.name}`,
+          "1d10",
+          attackModifiers,
+          {
+            ...attackMetadata,
+            dv: dv.dv,
+            targetName: dv.targetName,
+          },
+          "attack"
+        );
+      });
+    } else {
+      // For melee / supressive fire we roll the attack here (or auto-range but couldn't get targets)
+      api.promptRoll(
+        `Attack with ${weapon.name}`,
+        "1d10",
+        attackModifiers,
+        attackMetadata,
+        "attack"
+      );
+    }
   }
 
   function rollDamage() {
@@ -102,7 +286,11 @@
 
     if (equippedAmmo.length > 0) {
       return equippedAmmo.map((ammo) => ({
-        value: JSON.stringify({ _id: ammo._id, name: ammo.name }),
+        value: JSON.stringify({
+          _id: ammo._id,
+          name: ammo.name,
+          isShell: ammo.data.isShell,
+        }),
         label: ammo.name,
       }));
     } else {
@@ -196,7 +384,7 @@
           field="suppressiveFireBtn"
           color="tertiary"
           options='[{"icon": "GiHeavyRain", "label": "Suppressive Fire", "value": "suppressiveFire"}]'
-          onclick="rollAttack('suppressiveFire')"
+          onclick="rollAttack('suppressive')"
         ></iconbutton>
       </div>
       <!-- Reload -->

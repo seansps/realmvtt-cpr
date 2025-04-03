@@ -778,6 +778,53 @@ function getAllSkills() {
   ];
 }
 
+function getDvForRange(item, range, attack) {
+  if (item.data?.type === "ranged weapon" && attack !== "suppresive") {
+    // We'll denote 99 as an impossible shot
+    let dv = 99;
+    if (range >= 401 && range <= 800 && attack !== "autofire") {
+      return item.data?.dv401to800 || 0;
+    } else if (range >= 201 && range <= 400 && attack !== "autofire") {
+      return item.data?.dv201to400 || 0;
+    } else if (range >= 101 && range <= 200) {
+      return item.data?.dv101to200 || 0;
+    } else if (range >= 51 && range <= 100) {
+      if (attack === "autofire") {
+        return item.data?.af51to100 || 0;
+      } else {
+        return item.data?.dv51to100 || 0;
+      }
+    } else if (range >= 26 && range <= 50) {
+      if (attack === "autofire") {
+        return item.data?.af26to50 || 0;
+      } else {
+        return item.data?.dv26to50 || 0;
+      }
+    } else if (range >= 13 && range <= 25) {
+      if (attack === "autofire") {
+        return item.data?.af13to25 || 0;
+      } else {
+        return item.data?.dv13to25 || 0;
+      }
+    } else if (range >= 7 && range <= 12) {
+      if (attack === "autofire") {
+        return item.data?.af7to12 || 0;
+      } else {
+        return item.data?.dv7to12 || 0;
+      }
+    } else if (range >= 0 && range <= 6) {
+      if (attack === "autofire") {
+        return item.data?.af0to6 || 0;
+      } else {
+        return item.data?.dv0to6 || 0;
+      }
+    }
+  }
+  // Melee Weapons are vs the Target's Dodge attempt, which is handled
+  // via a Macro.
+  return 0;
+}
+
 function setStatsAndSkills(
   record,
   value,
