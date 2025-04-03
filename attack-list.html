@@ -63,12 +63,30 @@
     let attackSkillBase = 0;
     skillGroups.forEach((group) => {
       // We find the skill with the same name, or the Martial Arts skill with the highest base
-      const skill = (group.data?.skills || []).find(
+      let skill = (group.data?.skills || []).find(
         (s) =>
           s.name === skillName ||
-          (skillName === "Martial Arts" && group.name === "Martial Arts (x2)")
+          (skillName === "Martial Arts" && s.name.includes("Martial Arts"))
       );
-      if (skill && skill.data?.base >= attackSkillBase) {
+      const subSkills = skill?.data?.subSkills || [];
+      // If it's a subskill, look there for highest skill
+      let highestSubSkill = 0;
+      let highestSubSkillName = "";
+
+      // Find the subskill with highest base value
+      subSkills.forEach((subSkill) => {
+        const base = subSkill.data?.base || 0;
+        if (base > highestSubSkill) {
+          highestSubSkill = base;
+          highestSubSkillName = subSkill.name || "";
+          attackSkill = subSkill;
+        }
+      });
+
+      if (highestSubSkill > 0) {
+        attackSkillBase = highestSubSkill;
+        skillName = highestSubSkillName;
+      } else if (skill && skill.data?.base >= attackSkillBase) {
         // We found the skill, so we can roll it
         attackSkill = skill;
         attackSkillBase = skill.data?.base;
@@ -150,6 +168,35 @@
     const damageModifiers = [];
     // TODO modifiers needed from ammo
 
+    let icon = "GiPistolGun";
+    if (weapon.data?.type === "ranged weapon") {
+      if (skillName === "Shoulder Arms") {
+        icon = "GiWinchesterRifle";
+      } else if (skillName === "Heavy Weapons") {
+        icon = "GiRocket";
+      } else if (skillName === "Autofire") {
+        icon = "GiThompsonM1";
+      } else if (skillName === "Archery") {
+        icon = "GiPocketBow";
+      } else if (skillName.includes("Pilot") || skillName.includes("Drive")) {
+        icon = "GiTurret";
+      }
+    } else if (weapon.data?.type === "melee weapon") {
+      icon = "GiKatana";
+      if (skillName === "Brawling") {
+        icon = "GiPunch";
+      } else if (
+        skillName === "Martial Arts (x2)" ||
+        skillName === "Judo" ||
+        skillName === "Aikido" ||
+        skillName === "Karate"
+      ) {
+        icon = "GiHighPunch";
+      } else if (skillName === "Taekwondo") {
+        icon = "GiHighKick";
+      }
+    }
+
     const attackMetadata = {
       rollName: "Attack",
       tooltip: `Attack with ${weapon.name}`,
@@ -162,7 +209,7 @@
       afMultiplierMax: weapon.data?.afMultiplierMax || 0,
       damageModifiers: damageModifiers,
       dv: 0,
-      icon: isMelee ? "GiKatana" : "GiPistolGun",
+      icon,
       targetName: "",
     };
 
