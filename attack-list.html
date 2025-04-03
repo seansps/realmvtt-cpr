@@ -1,5 +1,8 @@
 <script>
   function rollAttack(type, range = "auto") {
+    // Close the popover if it's open
+    api.closeOpenedPopovers();
+    // Get weapon path
     const weaponDataPath = getNearestParentDataPath(dataPath);
     const weapon = api.getValue(weaponDataPath);
 
@@ -8,8 +11,11 @@
     let isShell = false;
     // It's a shotgun shell if it's ranged with a isShell ammo
     const ammo = weapon.data?.ammo;
+    let ammoObject = {
+      _id: "",
+    };
     if (ammo) {
-      const ammoObject = JSON.parse(ammo);
+      ammoObject = JSON.parse(ammo);
       isShell = ammoObject?.isShell;
     }
 
@@ -97,7 +103,7 @@
         record,
         ["skillBonus", "skillPenalty"],
         attackSkill.name || "New Skill",
-        attackSkill._id
+        weapon._id
       );
       attackModifiers.push(...skillModifiers);
     }
@@ -143,6 +149,7 @@
     // TODO get damage modifiers from character, attachments, and ammo
     // TODO set any other props needed in metadata for ammo that the damage macros need
     const damageModifiers = [];
+    // TODO modifiers needed from ammo
 
     const attackMetadata = {
       rollName: "Attack",
@@ -151,14 +158,59 @@
       isMelee: isMelee,
       isSuppressive: type === "suppressive",
       isAutofire: type === "autofire",
+      weaponDamage: weapon.data?.damage || 0,
+      autofireDamage: weapon.data?.autofireDamage || 0,
+      afMultiplierMax: weapon.data?.afMultiplierMax || 0,
       damageModifiers: damageModifiers,
       dv: 0,
       icon: isMelee ? "GiKatana" : "GiPistolGun",
       targetName: "",
     };
 
-    // TODO get ammo use per shot with modifiers
-    // TODO deduct ammo
+    // Always true for Melee since it doesn't use ammo
+    let hasEnoughAmmo = true;
+
+    if (!isMelee) {
+      // Get the ammo amount modifiers and deduct ammo if we have enough
+      let ammoModifierType = "ammoPerShot";
+      let ammoPerShot = 1;
+      if (type === "autofire" || type === "suppressive") {
+        ammoModifierType = "ammoPerAutofireShot";
+        ammoPerShot = 10;
+      }
+      const ammoModifiers = getEffectsAndModifiersForToken(
+        record,
+        [ammoModifierType],
+        "all",
+        weapon._id
+      );
+      attackModifiers.push(...ammoModifiers);
+      ammoModifiers.forEach((modifier) => {
+        let value = parseInt(modifier.value, 10) || "0";
+        if (!isNaN(value)) {
+          value = 0;
+        }
+        ammoPerShot += value;
+      });
+
+      // Check if we have enough ammo in the weapon then deduct ammo
+      const count = parseInt(weapon.data?.ammoCount, 10) || 0;
+      if (count > 0 && count >= ammoPerShot) {
+        const newCount = count - ammoPerShot;
+        api.setValues({
+          [`${weaponDataPath}.data.ammoCount`]: newCount,
+        });
+      } else {
+        hasEnoughAmmo = false;
+      }
+    }
+
+    // If we don't have enough ammo, then we need to show a message
+    if (!hasEnoughAmmo) {
+      api.showNotification("You need to reload first!", "red", "Out of Ammo");
+      // No roll
+      return;
+    }
 
     // Now prompt for rolls
     if (dvs.length > 0) {
@@ -193,7 +245,68 @@
   }
 
   function reload() {
-    //todo
+    // Check if we have enough ammo then deduct ammo up to amount in magazine
+    const weaponDataPath = getNearestParentDataPath(dataPath);
+    const weapon = api.getValue(weaponDataPath);
+
+    if (weapon.data?.type === "melee weapon") {
+      return;
+    }
+
+    let magazineSize = weapon.data?.magazine || 0;
+    // Check all attachments for magazine size, get largest
+    const attachments = weapon.data?.attachments || [];
+    attachments.forEach((attachment) => {
+      if (
+        attachment.data?.attachmentType === "magazine" &&
+        attachment.data?.magazineSize > magazineSize &&
+        attachment.data?.active
+      ) {
+        magazineSize = attachment.data?.magazineSize;
+      }
+    });
+
+    const amountInWeapon = parseInt(weapon.data?.ammoCount, 10) || 0;
+    const amountToReload = magazineSize - amountInWeapon;
+
+    if (amountToReload <= 0) {
+      return; // Already full
+    }
+
+    const ammo = weapon.data?.ammo;
+    if (!ammo) {
+      api.showNotification(
+        "You need to select equipped ammo first!",
+        "red",
+        "No Ammo"
+      );
+      return;
+    }
+
+    const ammoObject = JSON.parse(ammo);
+
+    let hasEnoughAmmo = false;
+    const inventory = record.data?.inventory || [];
+    inventory.forEach((item, index) => {
+      if (item._id === ammoObject?._id) {
+        const count = parseInt(item.data?.count, 10) || 0;
+        if (count > 0) {
+          // Calculate how much we can actually reload
+          const amountToDeduct = Math.min(count, amountToReload);
+          const newCount = count - amountToDeduct;
+          api.setValues({
+            [`data.inventory.${index}.data.count`]: newCount,
+            [`${weaponDataPath}.data.ammoCount`]:
+              amountInWeapon + amountToDeduct,
+          });
+          hasEnoughAmmo = true;
+        }
+      }
+    });
+
+    if (!hasEnoughAmmo) {
+      api.showNotification("You are out of ammo!", "red", "Out of Ammo");
+    }
   }
 
   function showHideAttachments() {
