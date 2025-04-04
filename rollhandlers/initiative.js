@@ -71,6 +71,8 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
       total: metadata.priorRoll.total + roll.total,
       modifier: metadata.priorRoll.modifier,
     };
+    // Render the second d10 as green
+    roll.dice[1].customColor = "green";
   } else if (metadata.critFail) {
     tags.push({
       name: "Critical Failure",
