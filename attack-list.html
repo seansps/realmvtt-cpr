@@ -18,6 +18,11 @@
       ammoObject = JSON.parse(ammo);
       isShell = ammoObject?.isShell;
     }
+    let ammoItem = null;
+    if (ammoObject && weapon.data?.type === "ranged weapon") {
+      const inventory = record.data?.inventory || [];
+      ammoItem = inventory.find((item) => item._id === ammoObject._id);
+    }
 
     // If range is auto, then we look up range of token to target, else we use the range passed in
     let actualRange = 0;
@@ -102,14 +107,30 @@
       },
     ];
 
-    // TODO penalties for aimed shots
+    // Get penalties for aimed shots (does not work for autofire or suppressive fire)
+    let targetedLocation = record.data?.targetedLocation || "body";
+    if (type === "autofire" || type === "suppressive") {
+      targetedLocation = "body";
+    }
+    if (targetedLocation !== "body") {
+      attackModifiers.push({
+        name: `Aimed Shot: ${capitalize(targetedLocation)}`,
+        value: -8,
+        active: true,
+        valueType: "number",
+        modifierType: "attackPenalty",
+        isPenalty: true,
+      });
+    }
 
+    // Get modifiers from character, weapon, attachments, and ammo
     let modifiers = getEffectsAndModifiersForToken(
       record,
       ["attackBonus", "attackPenalty"],
       isMelee ? "melee" : "ranged",
       weapon._id,
-      weapon
+      weapon,
+      ammoItem
     );
 
     attackModifiers.push(...modifiers);
@@ -120,7 +141,8 @@
         ["skillBonus", "skillPenalty"],
         attackSkill.name || "New Skill",
         weapon._id,
-        weapon
+        weapon,
+        ammoItem
       );
       attackModifiers.push(...skillModifiers);
     }
@@ -166,7 +188,6 @@
     // TODO get damage modifiers from character, attachments, and ammo
     // TODO set any other props needed in metadata for ammo that the damage macros need
     const damageModifiers = [];
-    // TODO modifiers needed from ammo
 
     let icon = "GiPistolGun";
     if (weapon.data?.type === "ranged weapon") {
@@ -208,6 +229,7 @@
       autofireDamage: weapon.data?.autofireDamage || 0,
       afMultiplierMax: weapon.data?.afMultiplierMax || 0,
       damageModifiers: damageModifiers,
+      targetedLocation: targetedLocation,
       dv: 0,
       icon,
       targetName: "",

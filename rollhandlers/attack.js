@@ -90,6 +90,7 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
   let message = "";
 
   // TODO create macros for damage / suppressive fire / melee dodge, etc.
+  // TODO in damage macros / pass along targetedLocation in metadata
 
   // Report on the total, and accumulate modifiers
   tags.push({
@@ -116,6 +117,23 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
     tags.push({
       name: "Ranged",
       tooltip: `A ranged attack's DV is determined by the weapon's range.`,
+    });
+  }
+
+  if (metadata.targetedLocation === "head") {
+    tags.push({
+      name: `Head Shot`,
+      tooltip: `The attack was aimed at the Head.`,
+    });
+  } else if (metadata.targetedLocation === "hand") {
+    tags.push({
+      name: `Hand Shot`,
+      tooltip: `The attack was aimed at the Hand.`,
+    });
+  } else if (metadata.targetedLocation === "leg") {
+    tags.push({
+      name: `Leg Shot`,
+      tooltip: `The attack was aimed at the Leg.`,
     });
   }
 

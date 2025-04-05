@@ -1053,7 +1053,9 @@ function getEffectsAndModifiersForToken(
   // If Item ID is provided, we only return modifiers for that item
   itemId = undefined,
   // If Weapon is provided, we also look for attachments on it
-  weapon = undefined
+  weapon = undefined,
+  // If Ammo is provided, we also look for modifiers on it
+  ammoItem = undefined
 ) {
   if (!target) {
     return [];
@@ -1196,6 +1198,7 @@ function getEffectsAndModifiersForToken(
     ...addictions,
     ...equippedItems,
     ...activeAttachments,
+    ...(ammoItem ? [ammoItem] : []),
   ].forEach((feature) => {
     const modifiers = feature.data?.modifiers || [];
     modifiers.forEach((modifier) => {
