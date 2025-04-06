@@ -57,7 +57,7 @@
     let skillName = weapon.data?.weaponSkill;
 
     if (type === "autofire" || type === "suppressive") {
-      skillName = "Autofire";
+      skillName = "Autofire (x2)";
     }
 
     let attackSkill = null;
@@ -308,8 +308,18 @@
     }
   }
 
-  function rollDamage() {
-    //todo
+  function rollDamage(type = "single") {
+    const weaponDataPath = getNearestParentDataPath(dataPath);
+    const weapon = api.getValue(weaponDataPath);
+
+    let damage = weapon.data?.damage || "1d6";
+    if (type === "autofire") {
+      damage = weapon.data?.autofireDamage || "1d6";
+    }
+
+    api.promptRoll(`Damage with ${weapon.name}`, damage, [], {
+      ...attackMetadata,
+    });
   }
 
   function reload() {
@@ -787,14 +797,38 @@
         width: fit-content;
       "
     >
-      <button
-        size="xs"
-        width="100px"
-        label="Damage"
-        variant="light"
-        color="primary"
-        onclick="rollDamage();"
-      ></button>
+      <div
+        style="display: flex; flex-direction: row; gap: 4px; min-width: 105px"
+      >
+        <button
+          size="xs"
+          label="Damage"
+          field="singleDmgBtn"
+          width="100%"
+          variant="light"
+          hidden="false"
+          color="primary"
+          onclick="rollDamage('single');"
+        ></button>
+        <button
+          size="xs"
+          label="DMG"
+          field="singleDmgBtnWhenAf"
+          variant="light"
+          hidden="true"
+          color="primary"
+          onclick="rollDamage('single');"
+        ></button>
+        <button
+          size="xs"
+          field="afDmgBtn"
+          label="AF"
+          hidden="true"
+          variant="light"
+          color="secondary"
+          onclick="rollDamage('autofire');"
+        ></button>
+      </div>
       <div
         style="display: flex; flex-direction: row; gap: 4px; min-width: 100px"
       >

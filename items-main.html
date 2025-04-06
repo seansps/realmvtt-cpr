@@ -349,11 +349,17 @@
       api.setValues({
         [`${pathToFields}.afDvProperties.hidden`]: false,
         [`${pathToFields}.autoFireBtn.hidden`]: false,
+        [`${pathToFields}.singleDmgBtn.hidden`]: true,
+        [`${pathToFields}.singleDmgBtnWhenAf.hidden`]: false,
+        [`${pathToFields}.afDmgBtn.hidden`]: false,
       });
     } else {
       api.setValues({
         [`${pathToFields}.afDvProperties.hidden`]: true,
         [`${pathToFields}.autoFireBtn.hidden`]: true,
+        [`${pathToFields}.singleDmgBtn.hidden`]: false,
+        [`${pathToFields}.singleDmgBtnWhenAf.hidden`]: true,
+        [`${pathToFields}.afDmgBtn.hidden`]: true,
       });
     }
   }

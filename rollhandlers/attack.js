@@ -18,6 +18,14 @@ const tooltip = metadata?.tooltip;
 const icon = metadata?.icon;
 const targetName = metadata?.targetName;
 
+// Get the record ID and type
+const recordId = metadata?.recordId || metadata?.priorRoll?.metadata?.recordId;
+let rollRecordType =
+  metadata?.recordType || metadata?.priorRoll?.metadata?.recordType;
+if (rollRecordType === "npcs") {
+  rollRecordType = "tokens";
+}
+
 // If we used luck, we need to remove it from the token that rolled
 let usedLuck = false;
 if (modifiers.find((m) => m.name === "Luck Used")) {
@@ -89,9 +97,6 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
 
   let message = "";
 
-  // TODO create macros for damage / suppressive fire / melee dodge, etc.
-  // TODO in damage macros / pass along targetedLocation in metadata
-
   // Report on the total, and accumulate modifiers
   tags.push({
     name: attackName,
@@ -137,10 +142,14 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
     });
   }
 
+  let beatDvBy = 1;
+  let afMultiplierMax = metadata?.afMultiplierMax || 3;
+
   if (dv !== undefined && dv !== null && dv > 0) {
     // Success or failure if DV was defined
     // In Cyberpunk RED, you need to roll higher than the DV to succeed
     if (roll.total > dv) {
+      beatDvBy = roll.total - dv;
       message = `[center]${icon ? `:${icon}:` : ""} ${weaponName} ${
         targetName ? ` :IconTargetArrow: ${targetName}` : ""
       }[/center]\n\n**[center][color=green]Hit[/color] [gm](vs DV ${dv})[/gm][/center]**`;
@@ -154,6 +163,19 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
       targetName ? ` :IconTargetArrow: ${targetName}` : ""
     }[/center]`;
   }
+
+  if (metadata.isAutofire) {
+    // Store the multiplier for when we roll damage
+    const afMultiplier = Math.min(beatDvBy, afMultiplierMax);
+    api.getRecord(rollRecordType, recordId, (updatedRecord) => {
+      api.setValuesOnRecord(updatedRecord, {
+        "data.afMultiplier": afMultiplier,
+      });
+    });
+  }
+
+  // TODO create macros for damage / suppressive fire / melee dodge, etc.
+  // TODO in damage macros / pass along targetedLocation in metadata
 
   api.sendMessage(message, roll, [], tags);
 }

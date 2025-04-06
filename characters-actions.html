@@ -66,7 +66,15 @@
   ></label>
 </div>
 
-<div style="width: 100%; display: flex; flex-direction: row; gap: 4px">
+<div
+  style="
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    align-items: flex-end;
+  "
+>
   <!-- Targeted Location and Throw Object Column -->
   <div style="width: 100%; display: flex; flex-direction: column">
     <div
@@ -91,7 +99,7 @@
     </div>
   </div>
   <!-- Initiative Button -->
-  <div style="width: 100%; display: flex; justify-content: flex-end">
+  <div style="display: flex; justify-content: flex-end">
     <button
       field="rollInitBtn"
       size="xs"
@@ -169,6 +177,16 @@
       onclick="throwObject();"
       icon="GiGrenade"
     ></button>
+
+    <div style="margin-left: auto">
+      <numberfield
+        field="afMultiplier"
+        width="145px"
+        label="Current Autofire Multiplier"
+        placeholder="Enter Multiplier..."
+        size="xs"
+      ></numberfield>
+    </div>
   </div>
 
   <div>
