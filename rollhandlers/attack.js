@@ -153,7 +153,11 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
   if (dv !== undefined && dv !== null && dv > 0) {
     // Success or failure if DV was defined
     // In Cyberpunk RED, you need to roll higher than the DV to succeed
-    if (roll.total > dv) {
+    if (dv >= 99) {
+      message = `[center]${icon ? `:${icon}:` : ""} ${weaponName} ${
+        targetName ? ` :IconTargetArrow: ${targetName}` : ""
+      }[/center]\n\n**[center][color=red]IMPOSSIBLE SHOT[/color] (Out of Range)[/center]**`;
+    } else if (roll.total > dv) {
       beatDvBy = roll.total - dv;
       message = `[center]${icon ? `:${icon}:` : ""} ${weaponName} ${
         targetName ? ` :IconTargetArrow: ${targetName}` : ""
@@ -179,7 +183,22 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
     });
   }
 
-  // TODO macro for suppressive fire
+  const suppressiveMacro = metadata.isSuppressive
+    ? `\n\n
+ \`\`\`Roll_Concentration
+  const selectedTokens = api.getSelectedOrDroppedToken();
+  selectedTokens.forEach(token => {
+    // Pass along the total of this roll as the DV for the evasion roll
+    const concentrationMetadata = {
+      vsSuppressive: true,
+      dv: ${roll.total},
+    };
+
+    performSkillRoll(token, "Concentration", concentrationMetadata);
+  });
+\`\`\`
+`
+    : "";
 
   // Show the dodge macro if the DV is 0 (indicating that the target is trying to dodge)
   const dodgeMacro =
@@ -216,5 +235,10 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
 `
       : "";
 
-  api.sendMessage(`${message}${dodgeMacro}${damageMacro}`, roll, [], tags);
+  api.sendMessage(
+    `${message}${dodgeMacro}${damageMacro}${suppressiveMacro}`,
+    roll,
+    [],
+    tags
+  );
 }

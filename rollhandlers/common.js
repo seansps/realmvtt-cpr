@@ -786,7 +786,7 @@ function getDvForRange(item, range, attack) {
       return item.data?.dv401to800 || 0;
     } else if (range >= 201 && range <= 400 && attack !== "autofire") {
       return item.data?.dv201to400 || 0;
-    } else if (range >= 101 && range <= 200) {
+    } else if (range >= 101 && range <= 200 && attack !== "autofire") {
       return item.data?.dv101to200 || 0;
     } else if (range >= 51 && range <= 100) {
       if (attack === "autofire") {
@@ -819,6 +819,7 @@ function getDvForRange(item, range, attack) {
         return item.data?.dv0to6 || 0;
       }
     }
+    return dv;
   }
   // Melee Weapons are vs the Target's Dodge attempt, which is handled
   // via a Macro.
@@ -1825,7 +1826,7 @@ function performAttackRoll(
       icon = "GiWinchesterRifle";
     } else if (skillName === "Heavy Weapons") {
       icon = "GiRocket";
-    } else if (skillName === "Autofire") {
+    } else if (skillName === "Autofire" || skillName === "Autofire (x2)") {
       icon = "GiThompsonM1";
     } else if (skillName === "Archery") {
       icon = "GiPocketBow";
