@@ -177,5 +177,24 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
   // TODO create macros for damage / suppressive fire / melee dodge, etc.
   // TODO in damage macros / pass along targetedLocation in metadata
 
-  api.sendMessage(message, roll, [], tags);
+  // Show the dodge macro if the DV is 0 (indicating that the target is trying to dodge)
+  const dodgeMacro =
+    dv === 0
+      ? `\n\n
+  \`\`\`Roll_Evasion
+  const selectedTokens = api.getSelectedOrDroppedToken();
+  selectedTokens.forEach(token => {
+    // Pass along the total of this roll as the DV for the evasion roll
+    const evasionMetadata = {
+      isDodge: true,
+      dv: ${roll.total},
+    };
+
+    performSkillRoll(token, "Evasion", evasionMetadata);
+  });
+\`\`\`
+`
+      : "";
+
+  api.sendMessage(`${message}${dodgeMacro}`, roll, [], tags);
 }
