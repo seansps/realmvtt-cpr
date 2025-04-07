@@ -1852,6 +1852,8 @@ function performAttackRoll(
     rollName: "Attack",
     tooltip: `Attack with ${weapon.name}`,
     weaponName: weapon.name,
+    weaponId: weapon._id,
+    weaponDataPath: weaponDataPath,
     isMelee: isMelee,
     isSuppressive: type === "suppressive",
     isAutofire: type === "autofire",
@@ -1938,7 +1940,7 @@ function performAttackRoll(
   }
 }
 
-function performDamageRoll(weapon, type = "single") {
+function performDamageRoll(record, weapon, type = "single") {
   const isMelee = weapon.data?.type === "melee weapon";
 
   let isShell = false;

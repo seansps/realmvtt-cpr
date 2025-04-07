@@ -14,6 +14,8 @@ const metadata = data?.roll?.metadata;
 const modifiers = metadata?.modifiers || [];
 const attackName = metadata?.rollName;
 const weaponName = metadata?.weaponName;
+const weaponId = metadata?.weaponId;
+const weaponDataPath = metadata?.weaponDataPath;
 const tooltip = metadata?.tooltip;
 const icon = metadata?.icon;
 const targetName = metadata?.targetName;
@@ -103,6 +105,8 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
     tooltip,
   });
 
+  let damageType = "single";
+
   if (metadata.isMelee) {
     tags.push({
       name: "Melee",
@@ -118,6 +122,7 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
       name: "Autofire",
       tooltip: `If you hit, roll 2d6 for damage, and multiply it by the amount you beat the DV to hit your target, up to a maximum denoted by the weapon's Autofire (3 for SMGS, 4 for Assault Rifles).`,
     });
+    damageType = "autofire";
   } else {
     tags.push({
       name: "Ranged",
@@ -174,12 +179,11 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
     });
   }
 
-  // TODO create macros for damage / suppressive fire / melee dodge, etc.
-  // TODO in damage macros / pass along targetedLocation in metadata
+  // TODO macro for suppressive fire
 
   // Show the dodge macro if the DV is 0 (indicating that the target is trying to dodge)
   const dodgeMacro =
-    dv === 0
+    dv === 0 && !metadata.isSuppressive
       ? `\n\n
   \`\`\`Roll_Evasion
   const selectedTokens = api.getSelectedOrDroppedToken();
@@ -196,5 +200,21 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
 `
       : "";
 
-  api.sendMessage(`${message}${dodgeMacro}`, roll, [], tags);
+  // Damage macro for chat
+  const damageMacro =
+    weaponId && weaponDataPath && !metadata.isSuppressive
+      ? `\n\n
+  \`\`\`Roll_Damage
+  // Get the record again and then get the weapon by ID
+  api.getRecord('${rollRecordType}', '${recordId}', (updatedRecord) => {
+    const weapon = (updatedRecord.data.inventory || []).find(w => w._id === '${weaponId}');
+    if (weapon) {
+      performDamageRoll(updatedRecord, weapon, '${damageType}');
+    }
+  });
+\`\`\`
+`
+      : "";
+
+  api.sendMessage(`${message}${dodgeMacro}${damageMacro}`, roll, [], tags);
 }

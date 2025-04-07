@@ -96,9 +96,9 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
     // Success or failure if DV was defined
     // In Cyberpunk RED, you need to roll higher than the DV to succeed
     if (roll.total > dv) {
-      message = "\n\n**[center][color=green]Success[/color][/center]**";
+      message = `\n\n**[center][color=green]Success[/color] (vs DV ${dv})[/center]**`;
     } else {
-      message = "\n\n**[center][color=red]Failure[/color][/center]**";
+      message = `\n\n**[center][color=red]Failure[/color] (vs DV ${dv})[/center]**`;
     }
   }
 

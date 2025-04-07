@@ -314,10 +314,14 @@ targets.forEach(target => {
             \`-\${damage}\\n\${ablationLocation.charAt(0).toUpperCase() + ablationLocation.slice(1)} Armor Ablated by \${${ablationAmount}}\`, 
             "#FF0000"
           );
-          message += \`Took \${damage} damage and armor was ablated.\\n\`;
+          message += \`Took \${damage} damage${
+            isHeadshot ? " due to headshot" : ""
+          } and armor was ablated.\\n\`;
         } else {
           api.floatText(target, \`-\${damage}\`, "#FF0000");
-          message += \`Took \${damage} damage.\\n\`;
+          message += \`Took \${damage} damage${
+            isHeadshot ? " due to headshot" : ""
+          }.\\n\`;
         }
       }
     } else {

@@ -13,7 +13,7 @@
     const weaponDataPath = getNearestParentDataPath(dataPath);
     const weapon = api.getValue(weaponDataPath);
 
-    performDamageRoll(weapon, type);
+    performDamageRoll(record, weapon, type);
   }
 
   function reload() {
