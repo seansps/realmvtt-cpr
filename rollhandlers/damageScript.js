@@ -68,27 +68,29 @@ if (damage > 0) {
   }
 
   // Ablate armor if needed
-  let ablationAmount = 1;
   let bodyArmorSp = parseInt(record.data?.bodyArmorSP || "0", 10);
   if (damage > 0 && bodyArmorSp > 0) {
     // We only get damaged if the damage is greater than the armor's SP
     if (damage > bodyArmorSp) {
       armorAblated = true;
       const newBodyArmorSp = Math.max(0, bodyArmorSp - ablationAmount);
-      valuesToSet["data.bodyArmorSP"] = newBodyArmorSp;
-      // Also set it on the item that represents the armor
-      if (bodyArmor) {
-        // Find the index directly by searching through the inventory array
-        const inventoryArray = record?.data?.inventory || [];
-        const armorItemIndex = inventoryArray.findIndex(
-          (item) => item._id === bodyArmor._id
-        );
-
-        if (armorItemIndex !== -1) {
+      valuesToSet[`data.${targetLocation}ArmorSP`] = newBodyArmorSp;
+      // Also set it on all armor equipped in the body location
+      const inventoryArray = record?.data?.inventory || [];
+      inventoryArray.forEach((item, armorItemIndex) => {
+        const isCyberArmor = checkIfCyberwareArmor(item, targetLocation);
+        if (
+          item.data?.carried === "equipped" &&
+          ((item.data?.type === "armor" &&
+            item.data?.armorLocation === targetLocation) ||
+            isCyberArmor)
+        ) {
+          const armorSp = parseInt(item.data?.sp || "0", 10) || 0;
+          const curSp = parseInt(item.data?.curSp || "0", 10) || armorSp;
           valuesToSet[`data.inventory.${armorItemIndex}.data.curSp`] =
-            newBodyArmorSp;
+            curSp - ablationAmount;
         }
-      }
+      });
       // Reduct damage by armor sp
       damage = damage - bodyArmorSp;
     } else {
@@ -107,14 +109,16 @@ if (damage > 0) {
   }
   valuesToSet["data.curhp"] = curhp;
 
-  api.setValues(valuesToSet);
+  if (Object.keys(valuesToSet).length > 0) {
+    api.setValues(valuesToSet);
+  }
 }
 
 // If damage > 0, float text
 const token = api.getToken();
 if (value > 0 && token) {
-  if (curhp <= 0 && token.recordType === "npcs") {
-    api.addEffect("Dead", token);
+  if (curhp <= 0) {
+    api.addEffect("Mortally Wounded", token);
   }
   if (coverDamaged) {
     if (coverDestroyed) {

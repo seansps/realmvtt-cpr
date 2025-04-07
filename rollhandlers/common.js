@@ -1370,6 +1370,21 @@ function updateAttributes(valuesToSet, highestPenalty) {
   api.setValues(valuesToSet);
 }
 
+// Checks for active cyberware armor
+function checkIfCyberwareArmor(item, location) {
+  if (item.data?.type === "cyberware" && item.data?.active === "true") {
+    const modifiers = item.data?.modifiers || [];
+    modifiers.forEach((modifier) => {
+      const modifierType = modifier.data?.type || "";
+      if (modifierType === `${location}Sp`) {
+        return true;
+      }
+    });
+  }
+
+  return false;
+}
+
 function getBestEquippedArmor(record) {
   // Return list of all equipped armor in order of SP/HP
   const items = record?.data?.inventory || [];
