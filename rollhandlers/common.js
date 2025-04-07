@@ -1565,3 +1565,77 @@ api.promptRoll('${escapedName} Damage', '${escapedDamage}', [], {}, 'damage')
     }
   }
 }
+
+function performDamageRoll(weapon, type = "single") {
+  const isMelee = weapon.data?.type === "melee weapon";
+
+  let isShell = false;
+  // It's a shotgun shell if it's ranged with a isShell ammo
+  const ammo = weapon.data?.ammo;
+  let ammoObject = {
+    _id: "",
+  };
+  if (ammo) {
+    ammoObject = JSON.parse(ammo);
+    isShell = ammoObject?.isShell;
+  }
+  let ammoItem = null;
+  if (ammoObject && weapon.data?.type === "ranged weapon") {
+    const inventory = record.data?.inventory || [];
+    ammoItem = inventory.find((item) => item._id === ammoObject._id);
+  }
+
+  // Autofire does damage based on the autofire damage of the weapon
+  let damage = weapon.data?.damage || "1d6";
+  if (type === "autofire") {
+    damage = weapon.data?.autofireDamage || "1d6";
+  }
+
+  // Shells do 3d6 damage
+  if (isShell) {
+    damage = "3d6";
+  }
+
+  let targetedLocation = record.data?.targetedLocation || "body";
+  if (type === "autofire" || type === "suppressive") {
+    targetedLocation = "body";
+  }
+
+  // With the exception of brawling, melee ignores half SP
+  let skillName = weapon.data?.weaponSkill;
+  let ignoreHalfSp = false;
+  if (isMelee && skillName !== "Brawling") {
+    ignoreHalfSp = true;
+  }
+
+  const damageMetadata = {
+    rollName: "Damage",
+    tooltip: `Damage with ${weapon.name}`,
+    weaponName: weapon.name,
+    isMelee: isMelee,
+    ignoreHalfSp: ignoreHalfSp,
+    isAutofire: type === "autofire",
+    afMultiplier: record.data?.afMultiplier || 1,
+    targetedLocation: targetedLocation,
+  };
+
+  let modifiers = getEffectsAndModifiersForToken(
+    record,
+    ["damageBonus", "damagePenalty"],
+    isMelee ? "melee" : "ranged",
+    weapon._id,
+    weapon,
+    ammoItem
+  );
+
+  // TODO look for other damage modifiers such as
+  // -- TODO -- ablation modifier and for that set ablationAmount on Metadata
+
+  api.promptRoll(
+    `Damage with ${weapon.name}`,
+    damage,
+    modifiers,
+    damageMetadata,
+    "damage"
+  );
+}

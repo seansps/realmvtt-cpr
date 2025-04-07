@@ -347,8 +347,16 @@ if (isGM) {
 \`\`\`
 `;
 
-const message = `
+const totalDamage = isAutofire
+  ? `${roll.total} * ${afMultiplier} = ${roll.total * afMultiplier}`
+  : `${roll.total}`;
+
+const message = isAutofire
+  ? `
+**[center]Autofire Damage: ${totalDamage}[/center]**
+${damageMacro}
+`
+  : `
 ${damageMacro}
 `;
-
 api.sendMessage(message, roll, [], tags);
