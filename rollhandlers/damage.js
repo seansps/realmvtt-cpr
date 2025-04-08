@@ -37,6 +37,11 @@ let targetLocation = roll.metadata?.targetedLocation || "body";
 let isHeadshot = targetLocation === "head";
 let isHand = targetLocation === "hand";
 let isLeg = targetLocation === "leg";
+let ignoresArmorUnder = roll.metadata?.ignoresArmorUnder || 0;
+
+// TODO handle these
+let nonLethal = roll.metadata?.nonLethal || false;
+let nonLethalGreaterThanOne = roll.metadata?.nonLethalGreaterThanOne || false;
 
 // TODO MACROS FOR ROLLING CRITICAL INJURIES IF TABLE EXISTS
 // AND APPLYING THEM TO THE TARGET IN THE CRITICAL INJURY ROLL HANDLER
@@ -56,7 +61,7 @@ if (isCritical) {
   });
 }
 
-if (isHalfSp) {
+if (isHalfSp && ignoresArmorUnder === 0) {
   tags.push({
     name: "Half SP",
     tooltip: "Half of Target's SP (rounded up) Ignored",
@@ -93,6 +98,34 @@ if (isHeadshot) {
     name: "Leg",
     tooltip:
       "Target suffers a Broken Leg Critical Injury if they have any legs left that aren't broken.",
+  });
+}
+
+if (ignoresArmorUnder > 0) {
+  tags.push({
+    name: `Ignores SP < ${ignoresArmorUnder}`,
+    tooltip: `Damage ignores armor SP if it is less than ${ignoresArmorUnder}.`,
+  });
+}
+
+if (nonLethal) {
+  tags.push({
+    name: "Non-Lethal",
+    tooltip: "Damage is non-lethal.",
+  });
+}
+
+if (nonLethalGreaterThanOne) {
+  tags.push({
+    name: "Non-Lethal",
+    tooltip: "Damage is non-lethal if at least 1 HP is left.",
+  });
+}
+
+if (ablationAmount > 1) {
+  tags.push({
+    name: `Armor Piercing`,
+    tooltip: `Damage ablates ${ablationAmount} SP from armor.`,
   });
 }
 
@@ -212,13 +245,20 @@ targets.forEach(target => {
       const armorField = \`data.\${ablationLocation}ArmorSP\`;
       oldValues[armorField] = parseInt(target.data[ablationLocation + "ArmorSP"] || "0", 10);
       let armorSp = oldValues[armorField];
+
+      // If we ignore armor under, set armorSp to 0
+      let armorIgnored = false;
+      if (${ignoresArmorUnder} > 0 && armorSp < ${ignoresArmorUnder} && armorSp > 0) {
+        armorSp = 0;
+        armorIgnored = true;
+      }
       
       // If Half SP is active, halve the armor (rounded up)
       if (${isHalfSp}) {
         armorSp = Math.ceil(armorSp / 2);
       }
       
-      if (damage > 0 && armorSp > 0) {
+      if (damage > 0 && (armorSp > 0 || armorIgnored)) {
         // We only get damaged if damage is greater than armor's SP
         if (damage > armorSp) {
           armorAblated = true;

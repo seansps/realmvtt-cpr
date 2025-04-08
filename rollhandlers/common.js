@@ -1053,7 +1053,7 @@ function getEffectsAndModifiersForToken(
   field = "",
   // If Item ID is provided, we only return modifiers for that item
   itemId = undefined,
-  // If Weapon is provided, we also look for attachments on it
+  // If Weapon is provided, we also look on it and attachments on it
   weapon = undefined,
   // If Ammo is provided, we also look for modifiers on it
   ammoItem = undefined
@@ -1199,6 +1199,7 @@ function getEffectsAndModifiersForToken(
     ...addictions,
     ...equippedItems,
     ...activeAttachments,
+    ...(weapon ? [weapon] : []),
     ...(ammoItem ? [ammoItem] : []),
   ].forEach((feature) => {
     const modifiers = feature.data?.modifiers || [];
@@ -1291,6 +1292,12 @@ function getEffectsAndModifiersForToken(
     });
   }
 
+  // Filter duplicates
+  results = results.filter(
+    (r, index, self) =>
+      index === self.findIndex((t) => JSON.stringify(t) === JSON.stringify(r))
+  );
+
   if (types && types.length > 0) {
     results = results.filter((r) => types.includes(r.modifierType));
   }
@@ -1303,7 +1310,10 @@ function getEffectsAndModifiersForToken(
 
   // Filter by itemId if provided
   results = results.filter(
-    (r) => r.itemId === itemId || r.itemId === undefined
+    (r) =>
+      r.itemId === itemId ||
+      r.itemId === undefined ||
+      (ammoItem && r.itemId === ammoItem._id)
   );
 
   return results;
@@ -1774,19 +1784,6 @@ function performAttackRoll(
     attackModifiers.push(...skillModifiers);
   }
 
-  // Filter out any duplicate modifiers (same name, value, and valueType)
-  attackModifiers = attackModifiers.filter(
-    (modifier, index, self) =>
-      index ===
-      self.findIndex(
-        (t) =>
-          t.name === modifier.name &&
-          t.value === modifier.value &&
-          t.valueType === modifier.valueType &&
-          t.modifierType === modifier.modifierType
-      )
-  );
-
   if (range === "auto" && !isMelee && type !== "suppressive" && !isShell) {
     // Get targets, roll for each based on range to target (or just 1 if no targets)
     const targets = api.getTargets(record);
@@ -1816,9 +1813,7 @@ function performAttackRoll(
     });
   }
 
-  // TODO get damage modifiers from character, attachments, and ammo
-  // TODO set any other props needed in metadata for ammo that the damage macros need
-  const damageModifiers = [];
+  // TODO SMART ammo modifiers
 
   let icon = "GiPistolGun";
   if (weapon.data?.type === "ranged weapon") {
@@ -1861,7 +1856,6 @@ function performAttackRoll(
     weaponDamage: weapon.data?.damage || 0,
     autofireDamage: weapon.data?.autofireDamage || 0,
     afMultiplierMax: weapon.data?.afMultiplierMax || 0,
-    damageModifiers: damageModifiers,
     targetedLocation: targetedLocation,
     dv: 0,
     icon,
@@ -1992,6 +1986,10 @@ function performDamageRoll(record, weapon, type = "single") {
     isAutofire: type === "autofire",
     afMultiplier: record.data?.afMultiplier || 1,
     targetedLocation: targetedLocation,
+    ablationAmount: 1,
+    ignoresArmorUnder: 0, // Default do not ignore armor
+    nonLethal: false,
+    nonLethalGreaterThanOne: false,
   };
 
   let modifiers = getEffectsAndModifiersForToken(
@@ -2003,8 +2001,57 @@ function performDamageRoll(record, weapon, type = "single") {
     ammoItem
   );
 
-  // TODO look for other damage modifiers such as
-  // -- TODO -- ablation modifier and for that set ablationAmount on Metadata
+  let ablationModifiers = getEffectsAndModifiersForToken(
+    record,
+    ["armorAblationBonus"],
+    isMelee ? "melee" : "ranged",
+    weapon._id,
+    weapon,
+    ammoItem
+  );
+  if (ablationModifiers.length > 0) {
+    ablationModifiers.forEach((modifier) => {
+      if (modifier.active === true) {
+        damageMetadata.ablationAmount += parseInt(modifier.value, 10) || 0;
+      }
+    });
+  }
+
+  const ignoresArmorUnderModifiers = getEffectsAndModifiersForToken(
+    record,
+    ["ignoresArmorUnder"],
+    isMelee ? "melee" : "ranged",
+    weapon._id,
+    weapon,
+    ammoItem
+  );
+  if (ignoresArmorUnderModifiers.length > 0) {
+    ignoresArmorUnderModifiers.forEach((modifier) => {
+      if (modifier.active === true) {
+        damageMetadata.ignoresArmorUnder = parseInt(modifier.value, 10) || 0;
+      }
+    });
+  }
+
+  const nonLethalModifiers = getEffectsAndModifiersForToken(
+    record,
+    ["nonLethal", "nonLethalGreaterThanOne"],
+    isMelee ? "melee" : "ranged",
+    weapon._id,
+    weapon,
+    ammoItem
+  );
+  if (nonLethalModifiers.length > 0) {
+    nonLethalModifiers.forEach((modifier) => {
+      if (modifier.active === true) {
+        damageMetadata.nonLethal = true;
+        if (modifier.modifierType === "nonLethalGreaterThanOne") {
+          // This indicates that it's only non-lethal if HP > 1
+          damageMetadata.nonLethalGreaterThanOne = true;
+        }
+      }
+    });
+  }
 
   api.promptRoll(
     `Damage with ${weapon.name}`,

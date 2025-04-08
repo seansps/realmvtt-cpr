@@ -226,7 +226,9 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
   \`\`\`Roll_Damage
   // Get the record again and then get the weapon by ID
   api.getRecord('${rollRecordType}', '${recordId}', (updatedRecord) => {
-    const weapon = (updatedRecord.data.inventory || []).find(w => w._id === '${weaponId}');
+    // First check direct inventory items
+    let weapon = api.getValueOnRecord(updatedRecord, '${weaponDataPath}')
+    
     if (weapon) {
       performDamageRoll(updatedRecord, weapon, '${damageType}');
     }
