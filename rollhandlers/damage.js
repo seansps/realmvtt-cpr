@@ -1,5 +1,7 @@
 // Set up the roll so we can re-color d6s
 let noCriticalInjuries = data?.roll?.metadata?.noCriticalInjuries || false;
+// NPC Types that can't get injuries
+const NO_INJURIES = ["program", "black ice", "vehicle", "drone", "defenses"];
 
 let roll = {
   ...data.roll,
@@ -51,6 +53,10 @@ let noArmorAblation =
   roll.metadata?.noArmorAblation !== undefined
     ? roll.metadata?.noArmorAblation
     : false;
+
+// Names of critical injury tables per location (could be changed later)
+let headInjuries = "Critical Injuries to the Head";
+let bodyInjuries = "Critical Injuries to the Body";
 
 // TODO MACROS FOR ROLLING CRITICAL INJURIES IF TABLE EXISTS AND IF CRITICAL
 // AND APPLYING THEM TO THE TARGET IN THE CRITICAL INJURY ROLL HANDLER
@@ -438,3 +444,41 @@ ${damageMacro}
 ${damageMacro}
 `;
 api.sendMessage(message, roll, [], tags);
+
+// If we need to roll a critical injury, prompt once for each target
+// First get targets
+if (record && isCritical && !noCriticalInjuries) {
+  const targets = api.getTargets(record);
+  const tokens = targets.map((target) => target.token);
+  const tableName = targetLocation === "head" ? headInjuries : bodyInjuries;
+  const criticalInjuryMetadata = {
+    tableName: tableName,
+    deductHP: 5,
+    tokenId: null,
+  };
+  if (tokens.length > 0) {
+    tokens.forEach((token) => {
+      if (!NO_INJURIES.includes(token.data?.type || "")) {
+        api.promptRoll(
+          "Critical Injury to the " + capitalize(targetLocation),
+          "2d6",
+          [],
+          {
+            ...criticalInjuryMetadata,
+            tokenId: token._id,
+          },
+          "criticalInjury"
+        );
+      }
+    });
+  } else {
+    // Roll without target IDs
+    api.promptRoll(
+      "Critical Injury to the " + capitalize(targetLocation),
+      "2d6",
+      [],
+      criticalInjuryMetadata,
+      "criticalInjury"
+    );
+  }
+}

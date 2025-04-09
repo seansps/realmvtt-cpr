@@ -127,102 +127,12 @@
     if (type === "role") {
       // TODO role add
     } else if (type === "conditions") {
-      onDropCondition(type, recordLink);
+      onDropCondition(recordLink);
     }
   }
 
-  function onDropCondition(type, recordLink) {
-    // Check if already has a background
-    const criticalInjuries = record?.data?.criticalInjuries || [];
-    const addictions = record?.data?.addictions || [];
-
-    const conditionObj = {
-      ...recordLink.value,
-    };
-
-    const conditionType = conditionObj.data?.type || "critical_injury";
-
-    const fieldsToSet = {};
-
-    // After adding the condition, add the effects to the character sequentially
-    const addEffects = (newRecord) => {
-      record = newRecord;
-
-      // First update attributes based on modifiers
-      const valuesToSet = {};
-      const bestEquippedArmor = getBestEquippedArmor(record);
-      // Update attributes as per modifiers
-      updateAttributes(valuesToSet, bestEquippedArmor.highestPenalty);
-      valuesToSet["data.headArmor"] = bestEquippedArmor.head[0]?.name || "";
-      valuesToSet["data.headArmorSP"] = bestEquippedArmor.head[0]?.curSp || 0;
-      valuesToSet["data.headArmorPenalty"] =
-        bestEquippedArmor.head[0]?.penalty || 0;
-      valuesToSet["data.bodyArmor"] = bestEquippedArmor.body[0]?.name || "";
-      valuesToSet["data.bodyArmorSP"] = bestEquippedArmor.body[0]?.curSp || 0;
-      valuesToSet["data.bodyArmorPenalty"] =
-        bestEquippedArmor.body[0]?.penalty || 0;
-      valuesToSet["data.shield"] = bestEquippedArmor.shield[0]?.name || "";
-      valuesToSet["data.shieldHP"] = bestEquippedArmor.shield[0]?.curSp || 0;
-      valuesToSet["data.shieldPenalty"] =
-        bestEquippedArmor.shield[0]?.penalty || 0;
-
-      if (Object.keys(valuesToSet).length > 0) {
-        api.setValues(valuesToSet);
-      }
-
-      const effects = conditionObj.data?.effects || [];
-      const recordId = record._id;
-
-      // Process effects sequentially using a recursive approach
-      function processEffectsSequentially(effects, index) {
-        // Base case: all effects processed
-        if (index >= effects.length) return;
-
-        // Re-query the record to get the latest data before each effect is processed
-        api.getRecord("characters", recordId, (recordUpdated) => {
-          record = recordUpdated;
-
-          // Process current effect
-          const effect = effects[index];
-          const effectObj = JSON.parse(effect);
-
-          // Add the effect and wait for completion before processing the next one
-          api.addEffectById(
-            effectObj._id,
-            recordUpdated,
-            undefined,
-            undefined,
-            () => {
-              // Process next effect (only after current addition is complete)
-              processEffectsSequentially(effects, index + 1);
-            }
-          );
-        });
-      }
-
-      // Start processing from the first effect
-      if (effects.length > 0) {
-        processEffectsSequentially(effects, 0);
-      }
-    };
-
-    // Add the background to the the backgrounds list if needed
-    if (conditionType === "critical_injury") {
-      api.addValue("data.criticalInjuries", conditionObj, addEffects);
-    } else if (conditionType === "addiction") {
-      api.addValue("data.addictions", conditionObj, addEffects);
-    } else if (conditionType === "cover") {
-      // For cover, we just reset the character's Cover HP
-      const coverHp = conditionObj.data?.coverHp || 0;
-      const coverName = conditionObj?.name || "Cover";
-      addEffects(record);
-      api.sendMessage(
-        `Taking Cover: ${coverName}. Cover HP set to ${coverHp}.`,
-        undefined,
-        [],
-        [{ tooltip: `Cover (${coverHp}): ${coverName}`, name: "Cover" }]
-      );
-    }
+  function onDropCondition(recordLink) {
+    addCondition(record, recordLink);
   }
 
   function onUpdateStat(value, stat) {

@@ -87,6 +87,24 @@ function checkForReplacements(value, replacements = {}, recordOverride = null) {
   return value;
 }
 
+function getResultFromTable(table, total) {
+  if (
+    !table ||
+    !table.rows ||
+    !Array.isArray(table.rows) ||
+    table.rows.length === 0
+  ) {
+    return null;
+  }
+
+  // Find the row where the total falls between minValue and maxValue (inclusive)
+  const matchingRow = table.rows.find(
+    (row) => total >= row.minValue && total <= row.maxValue
+  );
+
+  return matchingRow || null;
+}
+
 function evaluateMath(stringValue) {
   // Return 0 if no value provided
   if (!stringValue) return 0;
@@ -1327,7 +1345,8 @@ function getEffectsAndModifiersForToken(
   return results;
 }
 
-function updateAttributes(valuesToSet, highestPenalty) {
+// Updates all attributes on a record related to the valuesToSet and highestPenalty
+function updateAttributesOnRecord(record, valuesToSet, highestPenalty) {
   // Get all STAT modifiers and update stats as needed
   // First lookup the base values before any modifiers were applied
   const baseAttributes = {
@@ -1385,8 +1404,6 @@ function updateAttributes(valuesToSet, highestPenalty) {
       setStatsAndSkills(record, value, stat, valuesToSet);
     }
   });
-
-  api.setValues(valuesToSet);
 }
 
 // Checks for active cyberware armor
@@ -1402,6 +1419,11 @@ function checkIfCyberwareArmor(item, location) {
   }
 
   return false;
+}
+
+// Uses the context's record to update attributes
+function updateAttributes(valuesToSet, highestPenalty) {
+  return updateAttributesOnRecord(record, valuesToSet, highestPenalty);
 }
 
 function getBestEquippedArmor(record) {
@@ -2084,4 +2106,105 @@ function performDamageRoll(record, weapon, type = "single") {
     damageMetadata,
     "damage"
   );
+}
+
+// Add a condition (injury, addiciton, cover) to a record
+function addCondition(record, recordLink) {
+  const conditionObj = {
+    ...recordLink.value,
+  };
+
+  const recordType =
+    record.recordType === "characters" ? "characters" : "tokens";
+  const conditionType = conditionObj.data?.type || "critical_injury";
+  const recordId = record._id;
+
+  // After adding the condition, add the effects to the character sequentially
+  const addEffects = (newRecord) => {
+    // First update attributes based on modifiers
+    const valuesToSet = {};
+    const bestEquippedArmor = getBestEquippedArmor(newRecord);
+    // Update attributes as per modifiers
+    updateAttributesOnRecord(
+      newRecord,
+      valuesToSet,
+      bestEquippedArmor.highestPenalty
+    );
+    valuesToSet["data.headArmor"] = bestEquippedArmor.head[0]?.name || "";
+    valuesToSet["data.headArmorSP"] = bestEquippedArmor.head[0]?.curSp || 0;
+    valuesToSet["data.headArmorPenalty"] =
+      bestEquippedArmor.head[0]?.penalty || 0;
+    valuesToSet["data.bodyArmor"] = bestEquippedArmor.body[0]?.name || "";
+    valuesToSet["data.bodyArmorSP"] = bestEquippedArmor.body[0]?.curSp || 0;
+    valuesToSet["data.bodyArmorPenalty"] =
+      bestEquippedArmor.body[0]?.penalty || 0;
+    valuesToSet["data.shield"] = bestEquippedArmor.shield[0]?.name || "";
+    valuesToSet["data.shieldHP"] = bestEquippedArmor.shield[0]?.curSp || 0;
+    valuesToSet["data.shieldPenalty"] =
+      bestEquippedArmor.shield[0]?.penalty || 0;
+
+    if (Object.keys(valuesToSet).length > 0) {
+      api.setValuesOnRecord(newRecord, valuesToSet);
+    }
+
+    const effects = conditionObj.data?.effects || [];
+
+    // Process effects sequentially using a recursive approach
+    function processEffectsSequentially(effects, index) {
+      // Base case: all effects processed
+      if (index >= effects.length) return;
+
+      // Re-query the record to get the latest data before each effect is processed
+      api.getRecord(recordType, recordId, (recordUpdated) => {
+        // Process current effect
+        const effect = effects[index];
+        const effectObj = JSON.parse(effect);
+
+        // Add the effect and wait for completion before processing the next one
+        api.addEffectById(
+          effectObj._id,
+          recordUpdated,
+          undefined,
+          undefined,
+          () => {
+            // Process next effect (only after current addition is complete)
+            processEffectsSequentially(effects, index + 1);
+          }
+        );
+      });
+    }
+
+    // Start processing from the first effect
+    if (effects.length > 0) {
+      processEffectsSequentially(effects, 0);
+    }
+  };
+
+  // Add the background to the the backgrounds list if needed
+  if (conditionType === "critical_injury") {
+    api.addValuesToRecord(
+      record,
+      "data.criticalInjuries",
+      [conditionObj],
+      addEffects
+    );
+  } else if (conditionType === "addiction") {
+    api.addValuesToRecord(
+      record,
+      "data.addictions",
+      [conditionObj],
+      addEffects
+    );
+  } else if (conditionType === "cover") {
+    // For cover, we just reset the character's Cover HP
+    const coverHp = conditionObj.data?.coverHp || 0;
+    const coverName = conditionObj?.name || "Cover";
+    addEffects(record);
+    api.sendMessage(
+      `Taking Cover: ${coverName}. Cover HP set to ${coverHp}.`,
+      undefined,
+      [],
+      [{ tooltip: `Cover (${coverHp}): ${coverName}`, name: "Cover" }]
+    );
+  }
 }
