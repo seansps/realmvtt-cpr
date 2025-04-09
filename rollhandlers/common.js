@@ -1047,6 +1047,13 @@ function setStatsAndSkills(
   }
 }
 
+const MODIFIERS_WITHOUT_VALUE = [
+  "noArmorAblation",
+  "noCriticalInjuries",
+  "nonLethal",
+  "nonLethalGreaterThanOne",
+];
+
 function getEffectsAndModifiersForToken(
   target,
   types = [],
@@ -1095,8 +1102,9 @@ function getEffectsAndModifiersForToken(
         value = checkForReplacements(value, {}, target);
       }
       if (
-        value !== 0 &&
-        (rule.valueType === "number" || rule.valueType === "string")
+        MODIFIERS_WITHOUT_VALUE.includes(ruleType) ||
+        (value !== 0 &&
+          (rule.valueType === "number" || rule.valueType === "string"))
       ) {
         results.push({
           name: effect.name || "Effect",
@@ -1113,7 +1121,7 @@ function getEffectsAndModifiersForToken(
         if (isPenalty && value > 0) {
           value = -value;
         }
-        if (value !== 0) {
+        if (value !== 0 || MODIFIERS_WITHOUT_VALUE.includes(ruleType)) {
           results.push({
             name: effect.name || "Effect",
             value: value,
@@ -1145,7 +1153,7 @@ function getEffectsAndModifiersForToken(
         if (isPenalty && value > 0) {
           value = -value;
         }
-        if (value !== 0) {
+        if (value !== 0 || MODIFIERS_WITHOUT_VALUE.includes(ruleType)) {
           results.push({
             name: effect.name || "Effect",
             value: value,
@@ -1247,8 +1255,8 @@ function getEffectsAndModifiersForToken(
         value = checkForReplacements(value, {}, target);
       }
 
-      // Only relevant if it has a value
-      if (value !== 0) {
+      // Only relevant if it has a value or if it's a modifier that doesn't have a value
+      if (value !== 0 || MODIFIERS_WITHOUT_VALUE.includes(ruleType)) {
         // Check if this only applies to equipped item and mark it with ID if so
         const itemOnly = modifier.data?.itemOnly || false;
         let possibleItemId = itemOnly ? feature?._id : undefined;
@@ -1990,6 +1998,8 @@ function performDamageRoll(record, weapon, type = "single") {
     ignoresArmorUnder: 0, // Default do not ignore armor
     nonLethal: false,
     nonLethalGreaterThanOne: false,
+    noArmorAblation: false,
+    noCriticalInjuries: false,
   };
 
   let modifiers = getEffectsAndModifiersForToken(
@@ -2035,7 +2045,12 @@ function performDamageRoll(record, weapon, type = "single") {
 
   const nonLethalModifiers = getEffectsAndModifiersForToken(
     record,
-    ["nonLethal", "nonLethalGreaterThanOne"],
+    [
+      "nonLethal",
+      "nonLethalGreaterThanOne",
+      "noArmorAblation",
+      "noCriticalInjuries",
+    ],
     isMelee ? "melee" : "ranged",
     weapon._id,
     weapon,
@@ -2044,10 +2059,19 @@ function performDamageRoll(record, weapon, type = "single") {
   if (nonLethalModifiers.length > 0) {
     nonLethalModifiers.forEach((modifier) => {
       if (modifier.active === true) {
-        damageMetadata.nonLethal = true;
+        if (modifier.modifierType === "nonLethal") {
+          damageMetadata.nonLethal = true;
+        }
         if (modifier.modifierType === "nonLethalGreaterThanOne") {
           // This indicates that it's only non-lethal if HP > 1
           damageMetadata.nonLethalGreaterThanOne = true;
+          damageMetadata.nonLethal = true;
+        }
+        if (modifier.modifierType === "noArmorAblation") {
+          damageMetadata.noArmorAblation = true;
+        }
+        if (modifier.modifierType === "noCriticalInjuries") {
+          damageMetadata.noCriticalInjuries = true;
         }
       }
     });

@@ -1,4 +1,6 @@
 // Set up the roll so we can re-color d6s
+let noCriticalInjuries = data?.roll?.metadata?.noCriticalInjuries || false;
+
 let roll = {
   ...data.roll,
   dice: [...(data?.roll?.dice || [])],
@@ -14,7 +16,7 @@ const d6s = (roll?.dice || []).filter(
 let isCritical = false;
 
 // If there are 2 or more d6s, color them red
-if (d6s.length >= 2) {
+if (d6s.length >= 2 && !noCriticalInjuries) {
   isCritical = true;
   // "Damage" roll handlers use the types array
   roll.types = roll.types.map((die) => {
@@ -39,11 +41,18 @@ let isHand = targetLocation === "hand";
 let isLeg = targetLocation === "leg";
 let ignoresArmorUnder = roll.metadata?.ignoresArmorUnder || 0;
 
-// TODO handle these
-let nonLethal = roll.metadata?.nonLethal || false;
-let nonLethalGreaterThanOne = roll.metadata?.nonLethalGreaterThanOne || false;
+let nonLethal =
+  roll.metadata?.nonLethal !== undefined ? roll.metadata?.nonLethal : false;
+let nonLethalGreaterThanOne =
+  roll.metadata?.nonLethalGreaterThanOne !== undefined
+    ? roll.metadata?.nonLethalGreaterThanOne
+    : false;
+let noArmorAblation =
+  roll.metadata?.noArmorAblation !== undefined
+    ? roll.metadata?.noArmorAblation
+    : false;
 
-// TODO MACROS FOR ROLLING CRITICAL INJURIES IF TABLE EXISTS
+// TODO MACROS FOR ROLLING CRITICAL INJURIES IF TABLE EXISTS AND IF CRITICAL
 // AND APPLYING THEM TO THE TARGET IN THE CRITICAL INJURY ROLL HANDLER
 
 // Here we need to determine if it was a hit or miss and display in the chat.
@@ -108,24 +117,36 @@ if (ignoresArmorUnder > 0) {
   });
 }
 
-if (nonLethal) {
-  tags.push({
-    name: "Non-Lethal",
-    tooltip: "Damage is non-lethal.",
-  });
-}
-
-if (nonLethalGreaterThanOne) {
-  tags.push({
-    name: "Non-Lethal",
-    tooltip: "Damage is non-lethal if at least 1 HP is left.",
-  });
-}
-
-if (ablationAmount > 1) {
+if (ablationAmount > 1 && !noArmorAblation) {
   tags.push({
     name: `Armor Piercing`,
     tooltip: `Damage ablates ${ablationAmount} SP from armor.`,
+  });
+} else if (noArmorAblation) {
+  tags.push({
+    name: `No Ablation`,
+    tooltip: `Damage does not ablate armor.`,
+  });
+}
+
+if (nonLethal) {
+  let nonLethalMessage = "Damage is non-lethal";
+  if (nonLethalGreaterThanOne) {
+    nonLethalMessage += " if target has at least 1 HP left.";
+  } else {
+    nonLethalMessage += ".";
+  }
+  if (noCriticalInjuries) {
+    nonLethalMessage += " This damage does not inflict critical injuries.";
+  }
+  tags.push({
+    name: `Non-Lethal`,
+    tooltip: nonLethalMessage,
+  });
+} else if (noCriticalInjuries) {
+  tags.push({
+    name: `No Critical Injuries`,
+    tooltip: `Damage does not inflict critical injuries.`,
   });
 }
 
@@ -261,30 +282,33 @@ targets.forEach(target => {
       if (damage > 0 && (armorSp > 0 || armorIgnored)) {
         // We only get damaged if damage is greater than armor's SP
         if (damage > armorSp) {
-          armorAblated = true;
-          const newArmorSp = Math.max(0, oldValues[armorField] - ${ablationAmount});
-          valuesToSet[armorField] = newArmorSp;
+          // Only ablate armor if noArmorAblation is false
+          if (${!noArmorAblation}) {
+            armorAblated = true;
+            const newArmorSp = Math.max(0, oldValues[armorField] - ${ablationAmount});
+            valuesToSet[armorField] = newArmorSp;
           
-          // Ablate all armor items equipped in the target location
-          const inventoryArray = target.data?.inventory || [];
-          inventoryArray.forEach((item, armorItemIndex) => {
-            const isCyberArmor = checkIfCyberwareArmor(item, ablationLocation);
-            if (
-              item.data?.carried === "equipped" &&
-              ((item.data?.type === "armor" &&
-                item.data?.armorLocation === ablationLocation) ||
-                isCyberArmor)
-            ) {
-              const invPath = \`data.inventory.\${armorItemIndex}.data\`;
-              const armorSp = parseInt(item.data?.sp || "0", 10) || 0;
-              const curSp = parseInt(item.data?.curSp || "0", 10) || armorSp;
-              
-              oldValues[\`\${invPath}.curSp\`] = curSp;
-              valuesToSet[\`\${invPath}.curSp\`] = Math.max(0, curSp - ${ablationAmount});
-            }
-          });
+            // Ablate all armor items equipped in the target location
+            const inventoryArray = target.data?.inventory || [];
+            inventoryArray.forEach((item, armorItemIndex) => {
+              const isCyberArmor = checkIfCyberwareArmor(item, ablationLocation);
+              if (
+                item.data?.carried === "equipped" &&
+                ((item.data?.type === "armor" &&
+                  item.data?.armorLocation === ablationLocation) ||
+                  isCyberArmor)
+              ) {
+                const invPath = \`data.inventory.\${armorItemIndex}.data\`;
+                const armorSp = parseInt(item.data?.sp || "0", 10) || 0;
+                const curSp = parseInt(item.data?.curSp || "0", 10) || armorSp;
+                
+                oldValues[\`\${invPath}.curSp\`] = curSp;
+                valuesToSet[\`\${invPath}.curSp\`] = Math.max(0, curSp - ${ablationAmount});
+              }
+            });
+          }
           
-          // Reduce damage by armor SP
+          // Regardless, always reduce damage by armor SP
           damage = damage - armorSp;
           
           // If this is a headshot and damage gets through, multiply it by 2
@@ -302,6 +326,16 @@ targets.forEach(target => {
         curhp = Math.max(0, curhp - damage);
         valuesToSet["data.curhp"] = curhp;
       }
+
+      // Revert if nonlethal
+      if (curhp <= 0 && oldValues["data.curhp"] > 0 && ${nonLethal}) {
+        if ((${nonLethalGreaterThanOne} && oldValues["data.curhp"] > 1) ||
+          ${!nonLethalGreaterThanOne}) {
+          // We drop to 1 HP instead if nonlethal
+          curhp = 1;
+          valuesToSet["data.curhp"] = 1;
+        }
+      }
       
       // Apply changes to target
       if (Object.keys(valuesToSet).length > 0) {
@@ -313,7 +347,7 @@ targets.forEach(target => {
     let message = '';
     
     // Apply special location effects
-    if (${isLeg} && damage > 0) {
+    if (${isLeg} && damage > 0 && ${!noCriticalInjuries}) {
       // TODO -- ADD MACRO TO APPLY BROKEN LEG CRITICAL INJURY CONDITION
       message += \`Suffered a Broken Leg Critical Injury!\\n\`;
     } else if (${isHand} && damage > 0) {
