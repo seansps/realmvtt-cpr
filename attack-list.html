@@ -6,7 +6,7 @@
     const weaponDataPath = getNearestParentDataPath(dataPath);
     const weapon = api.getValue(weaponDataPath);
 
-    performAttackRoll(weapon, weaponDataPath, type, range);
+    performAttackRoll(record, weapon, weaponDataPath, type, range);
   }
 
   function rollDamage(type = "single") {
@@ -139,7 +139,7 @@
         if (ammo) {
           // Found the ammo
           const hasUseSpecial =
-            ammo?.data?.damage ||
+            ammo?.data?.useDamage ||
             (ammo?.data?.effects || []).length > 0 ||
             ammo?.data?.healing;
           api.setValues({
@@ -202,7 +202,7 @@
         });
         if (ammo) {
           // Found the ammo, now use it
-          useItem(`data.inventory.${ammoIndex}`);
+          useItem(record, `data.inventory.${ammoIndex}`);
         }
       }
     }

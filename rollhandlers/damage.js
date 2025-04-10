@@ -257,7 +257,9 @@ targets.forEach(target => {
         }
         
         shieldDamaged = true;
-        damage = 0;
+        if (!${isExplosive}) {
+          damage = 0;
+        }
         if (newShieldHp === 0) {
           shieldDestroyed = true;
         }
@@ -373,7 +375,8 @@ targets.forEach(target => {
           api.floatText(target, \`Cover Damaged by \${coverDamage}\`, "#0000FF");
           message += \`Cover was damaged by \${coverDamage}.\\n\`;
         }
-      } else if (shieldDamaged) {
+      } 
+      if (shieldDamaged) {
         if (shieldDestroyed) {
           api.floatText(target, \`Shield Destroyed\`, "#0000FF");
           message += \`Shield was destroyed!\\n\`;
@@ -381,10 +384,12 @@ targets.forEach(target => {
           api.floatText(target, \`Shield Damaged by \${shieldDamage}\`, "#0000FF");
           message += \`Shield was damaged by \${shieldDamage}.\\n\`;
         }
-      } else if (armorProtected) {
+      }
+      if (armorProtected) {
         api.floatText(target, \`\${ablationLocation.charAt(0).toUpperCase() + ablationLocation.slice(1)} Armor Prevented Damage\`, "#0000FF");
         message += \`Armor blocked the damage.\\n\`;
-      } else {
+      } 
+      else {
         if (armorAblated) {
           api.floatText(
             target, 

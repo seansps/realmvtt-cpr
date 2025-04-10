@@ -1247,21 +1247,35 @@
       optionsquery='{"type": "effects", "query": {}}'
     >
     </dropdown>
-    <div style="display: flex; flex-direction: row; width: 100%; gap: 8px">
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        gap: 8px;
+        align-items: flex-end;
+      "
+    >
       <stringfield
         width="50%"
         field="healing"
         label="Healing"
         description="Healing roll when used"
-        placeholder="Enter Healing if Applicable..."
+        placeholder="Healing if Applicable..."
       ></stringfield>
       <stringfield
         width="50%"
         field="useDamage"
         label="Damage"
         description="Damage roll when used"
-        placeholder="Enter Damage when used if Applicable..."
+        placeholder="Damage if Applicable..."
       ></stringfield>
+      <checkbox
+        field="isExplosive"
+        label="Explosive"
+        textalign="left"
+        size="sm"
+      ></checkbox>
     </div>
     <div style="display: flex; flex-direction: row; width: 100%; gap: 8px">
       <numberfield

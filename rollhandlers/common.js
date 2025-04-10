@@ -839,6 +839,20 @@ function getDvForRange(item, range, attack) {
     }
     return dv;
   }
+
+  // Throwing ammo
+  if (item.data?.type === "ammo") {
+    let dv = 99;
+    if (range >= 13 && range <= 25) {
+      dv = 15;
+    } else if (range >= 7 && range <= 12) {
+      dv = 15;
+    } else if (range >= 0 && range <= 6) {
+      dv = 16;
+    }
+    return dv;
+  }
+
   // Melee Weapons are vs the Target's Dodge attempt, which is handled
   // via a Macro.
   return 0;
@@ -1512,21 +1526,24 @@ function getBestEquippedArmor(record) {
   return result;
 }
 
-function useItem(itemDataPath) {
+function useItem(record, itemDataPath) {
   // Deduct count by 1, delete item if count is 0,
   // and output the description to Chat
   // Include macros to relevant fields
-  const itemName = api.getValue(`${itemDataPath}.name`);
-  const itemCount = api.getValue(`${itemDataPath}.data.count`);
+  const itemName = api.getValueOnRecord(record, `${itemDataPath}.name`);
+  const itemCount = api.getValueOnRecord(record, `${itemDataPath}.data.count`);
   const indexValue = parseInt(itemDataPath.split(".").pop());
-  const isConsumable = api.getValue(`${itemDataPath}.data.consumable`) || false;
+  const isConsumable =
+    api.getValueOnRecord(record, `${itemDataPath}.data.consumable`) || false;
 
   // Output the description to Chat
-  const description = api.getValue(`${itemDataPath}.data.description`) || "";
-  const effects = api.getValue(`${itemDataPath}.data.effects`) || [];
-  const healing = api.getValue(`${itemDataPath}.data.healing`);
-  const damage = api.getValue(`${itemDataPath}.data.useDamage`);
-  const portrait = api.getValue(`${itemDataPath}.portrait`);
+  const description =
+    api.getValueOnRecord(record, `${itemDataPath}.data.description`) || "";
+  const effects =
+    api.getValueOnRecord(record, `${itemDataPath}.data.effects`) || [];
+  const healing = api.getValueOnRecord(record, `${itemDataPath}.data.healing`);
+  const damage = api.getValueOnRecord(record, `${itemDataPath}.data.useDamage`);
+  const portrait = api.getValueOnRecord(record, `${itemDataPath}.portrait`);
   const itemIcon = portrait
     ? `![${itemName}](${assetUrl}${portrait}?width=40&height=40) `
     : "";
@@ -1540,7 +1557,10 @@ ${itemDescription}
 
   let recordLinks;
   // Add record links to conditions (for drug addictions) if any
-  const conditions = api.getValue(`${itemDataPath}.data.addictions`);
+  const conditions = api.getValueOnRecord(
+    record,
+    `${itemDataPath}.data.addictions`
+  );
   if (conditions) {
     const conditionName = JSON.parse(conditions)?.name || "";
     const conditionId = JSON.parse(conditions)?._id || "";
@@ -1585,16 +1605,22 @@ targets.forEach(target => {
     const escapedName = itemName.replace(/'/g, "\\'");
     const escapedHealing = healing.replace(/'/g, "\\'");
     const healingButton = `\`\`\`Roll_Healing
-api.promptRoll('${escapedName} Healing', '${escapedHealing}', [], {}, 'healing')
+api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
+  api.promptRollForToken(updatedRecord, '${escapedName} Healing', '${escapedHealing}', [], {}, 'healing')
+});
 \`\`\``;
     markdownDescription += `\n${healingButton}`;
   }
 
   if (damage) {
-    const escapedName = itemName.replace(/'/g, "\\'");
-    const escapedDamage = damage.replace(/'/g, "\\'");
     const damageButton = `\`\`\`Roll_Damage
-api.promptRoll('${escapedName} Damage', '${escapedDamage}', [], {}, 'damage')
+// Requery the record and get the weapon
+api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
+  const weapon = api.getValueOnRecord(updatedRecord, '${itemDataPath}')
+  if (weapon) {
+    performDamageRoll(updatedRecord, weapon, "single")
+  }
+});
 \`\`\``;
     markdownDescription += `\n${damageButton}`;
   }
@@ -1605,9 +1631,11 @@ api.promptRoll('${escapedName} Damage', '${escapedDamage}', [], {}, 'damage')
   if (isConsumable) {
     const count = parseFloat(itemCount || "0");
     if (count - 1 > 0) {
-      api.setValue(`${itemDataPath}.data.count`, count - 1);
+      api.setValuesOnRecord(record, {
+        [`${itemDataPath}.data.count`]: count - 1,
+      });
     } else if (!isNaN(indexValue)) {
-      api.removeValue(`data.inventory`, indexValue);
+      api.removeValueFromRecord(record, `data.inventory`, indexValue);
     }
   }
 }
@@ -1673,6 +1701,7 @@ function performSkillRoll(record, skillName, additionalMetadata = {}) {
 }
 
 function performAttackRoll(
+  record,
   weapon,
   weaponDataPath,
   type = "single",
@@ -1730,6 +1759,11 @@ function performAttackRoll(
 
   if (type === "autofire" || type === "suppressive") {
     skillName = "Autofire (x2)";
+  }
+
+  if (weapon.data?.type === "ammo") {
+    // Use Athletics skill for throwing
+    skillName = "Athletics";
   }
 
   let attackSkill = null;
@@ -1898,6 +1932,8 @@ function performAttackRoll(
     } else if (skillName === "Taekwondo") {
       icon = "GiHighKick";
     }
+  } else if (weapon.data?.type === "ammo") {
+    icon = "GiGrenade";
   }
 
   const attackMetadata = {
@@ -1947,12 +1983,23 @@ function performAttackRoll(
     });
 
     // Check if we have enough ammo in the weapon then deduct ammo
-    const count = parseInt(weapon.data?.ammoCount, 10) || 0;
+    let count = parseInt(weapon.data?.ammoCount, 10) || 0;
+    if (weapon.data?.type === "ammo") {
+      // Count is on the weapon if we're throwing ammo
+      count = weapon.data?.count || 0;
+    }
+
     if (count > 0 && count >= ammoPerShot) {
       const newCount = count - ammoPerShot;
-      api.setValues({
-        [`${weaponDataPath}.data.ammoCount`]: newCount,
-      });
+      if (weapon.data?.type === "ammo") {
+        api.setValues({
+          [`${weaponDataPath}.data.count`]: newCount,
+        });
+      } else {
+        api.setValues({
+          [`${weaponDataPath}.data.ammoCount`]: newCount,
+        });
+      }
     } else {
       hasEnoughAmmo = false;
     }
@@ -1960,7 +2007,15 @@ function performAttackRoll(
 
   // If we don't have enough ammo, then we need to show a message
   if (!hasEnoughAmmo) {
-    api.showNotification("You need to reload first!", "red", "Out of Ammo");
+    if (weapon.data?.type === "ammo") {
+      api.showNotification(
+        "You are out of this type of thrown ammo!",
+        "red",
+        "Out of Ammo"
+      );
+    } else {
+      api.showNotification("You need to reload first!", "red", "Out of Ammo");
+    }
     // No roll
     return;
   }
@@ -1993,6 +2048,28 @@ function performAttackRoll(
   }
 }
 
+function performThrowObject(record) {
+  // Get object and range
+  const throwAmmo = record.data?.throwAmmo;
+  let throwObject = null;
+  let throwDataPath = null;
+  if (throwAmmo) {
+    const throwAmmoObject = JSON.parse(throwAmmo);
+    // Find the matching item in the inventory
+    const inventory = record.data?.inventory || [];
+    inventory.forEach((item, index) => {
+      if (item._id === throwAmmoObject._id) {
+        throwObject = item;
+        throwDataPath = `data.inventory.${index}`;
+      }
+    });
+  }
+
+  const throwRange = record.data?.throwRange || "auto";
+
+  performAttackRoll(record, throwObject, throwDataPath, "single", throwRange);
+}
+
 function performDamageRoll(record, weapon, type = "single") {
   const isMelee = weapon.data?.type === "melee weapon";
 
@@ -2017,6 +2094,9 @@ function performDamageRoll(record, weapon, type = "single") {
   if (type === "autofire") {
     damage = weapon.data?.autofireDamage || "1d6";
   }
+  if (weapon.data?.type === "ammo") {
+    damage = weapon.data?.useDamage || "1d6";
+  }
 
   // Shells do 3d6 damage
   if (isShell) {
@@ -2026,6 +2106,15 @@ function performDamageRoll(record, weapon, type = "single") {
   let targetedLocation = record.data?.targetedLocation || "body";
   if (type === "autofire" || type === "suppressive") {
     targetedLocation = "body";
+  }
+
+  let isExplosive = false;
+  // Is explosive if this an item that is explosive or if ammo is explosive
+  if (weapon.data.type === "ammo" && weapon.data?.isExplosive) {
+    isExplosive = true;
+  }
+  if (ammoItem && ammoItem.data?.isExplosive) {
+    isExplosive = true;
   }
 
   // With the exception of brawling, melee ignores half SP
@@ -2050,6 +2139,7 @@ function performDamageRoll(record, weapon, type = "single") {
     nonLethalGreaterThanOne: false,
     noArmorAblation: false,
     noCriticalInjuries: false,
+    explosive: isExplosive,
   };
 
   let modifiers = getEffectsAndModifiersForToken(
@@ -2127,7 +2217,8 @@ function performDamageRoll(record, weapon, type = "single") {
     });
   }
 
-  api.promptRoll(
+  api.promptRollForToken(
+    record,
     `Damage with ${weapon.name}`,
     damage,
     modifiers,
