@@ -19,6 +19,10 @@ const weaponDataPath = metadata?.weaponDataPath;
 const tooltip = metadata?.tooltip;
 const icon = metadata?.icon;
 const targetName = metadata?.targetName;
+let smartAmmoValue = metadata?.smartAmmoValue;
+let smartBonus = metadata?.smartBonus || 10;
+let isSmartReroll = metadata?.isSmartReroll || false; // Don't show the smart ammo re-roll if this is true
+let showSmartAmmoReRoll = false;
 
 // Get the record ID and type
 const recordId = metadata?.recordId || metadata?.priorRoll?.metadata?.recordId;
@@ -147,6 +151,22 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
     });
   }
 
+  // Only on single shot
+  if (
+    smartAmmoValue &&
+    !isSmartReroll &&
+    !metadata.isAutofire &&
+    !metadata.isSuppressive &&
+    !metadata.isMelee
+  ) {
+    tags.push({
+      name: "Smart Ammo",
+      tooltip: `If the attack misses by ${smartAmmoValue} or less, re-roll the attack using 1d10 + 10 + Luck Used.`,
+    });
+  } else {
+    smartAmmoValue = 0;
+  }
+
   let beatDvBy = 1;
   let afMultiplierMax = metadata?.afMultiplierMax || 3;
 
@@ -166,11 +186,19 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
       message = `[center]${icon ? `:${icon}:` : ""} ${weaponName} ${
         targetName ? ` :IconTargetArrow: ${targetName}` : ""
       }[/center]\n\n**[center][color=red]MISS[/color] [gm](vs DV ${dv})[/gm][/center]**`;
+      if (smartAmmoValue && dv - roll.total <= smartAmmoValue) {
+        // Here we can check the DV and determine if we should show the smart ammo re-roll
+        showSmartAmmoReRoll = true;
+      }
     }
   } else {
     message = `[center]${icon ? `:${icon}:` : ""} ${weaponName} ${
       targetName ? ` :IconTargetArrow: ${targetName}` : ""
     }[/center]`;
+    if (smartAmmoValue) {
+      // Here we don't know the DV yet, so we need to show the smart ammo re-roll just in case
+      showSmartAmmoReRoll = true;
+    }
   }
 
   if (metadata.isAutofire) {
@@ -237,8 +265,29 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
 `
       : "";
 
+  // Smart Ammo Re-roll Macro
+  const smartAmmoReRollMacro = showSmartAmmoReRoll
+    ? `\n\n
+  \`\`\`Re-roll_With_Smart_Ammo
+const attackModifiers = [
+  {
+    name: 'Smart Ammo',
+    value: ${smartBonus},
+    isSmartReroll: true,
+    active: true,
+  }
+]
+const attackMetadata = JSON.parse('${JSON.stringify(metadata)}');
+// Get the record again and then prompt the roll
+api.getRecord('${rollRecordType}', '${recordId}', (updatedRecord) => {
+  api.promptRollForToken(updatedRecord, '${tooltip}', '1d10', attackModifiers, attackMetadata, 'attack');
+});
+\`\`\`
+`
+    : "";
+
   api.sendMessage(
-    `${message}${dodgeMacro}${damageMacro}${suppressiveMacro}`,
+    `${message}${dodgeMacro}${damageMacro}${suppressiveMacro}${smartAmmoReRollMacro}`,
     roll,
     [],
     tags

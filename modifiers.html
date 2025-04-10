@@ -6,6 +6,7 @@
     if (value === "statBonus") {
       valuesToHide.push("field");
       valuesToHide.push("value");
+      valuesToHide.push("smartBonus");
       valuesToHide.push("valueType");
       valuesToHide.push("active");
       valuesToHide.push("itemOnly");
@@ -20,6 +21,7 @@
       valuesToHide.push("field");
       valuesToHide.push("value");
       valuesToHide.push("valueType");
+      valuesToHide.push("smartBonus");
       valuesToHide.push("active");
       valuesToHide.push("itemOnly");
       valuesToHide.push("statBonus");
@@ -29,10 +31,25 @@
       valuesToShow.push("statSet");
       valuesToShow.push("statMinimum");
       valuesToShow.push("noDerivedAttributes");
+    } else if (value === "smartAmmo") {
+      valuesToShow.push("field");
+      valuesToShow.push("value");
+      valuesToShow.push("valueType");
+      valuesToShow.push("smartBonus");
+      valuesToShow.push("active");
+      valuesToShow.push("itemOnly");
+      valuesToHide.push("stat");
+      valuesToHide.push("statBonus");
+      valuesToHide.push("statPenalty");
+      valuesToHide.push("statSet");
+      valuesToHide.push("statMaximum");
+      valuesToHide.push("statMinimum");
+      valuesToHide.push("noDerivedAttributes");
     } else {
       valuesToShow.push("field");
       valuesToShow.push("value");
       valuesToShow.push("valueType");
+      valuesToHide.push("smartBonus");
       valuesToShow.push("active");
       valuesToShow.push("itemOnly");
       valuesToHide.push("stat");
@@ -81,6 +98,7 @@
     {"label": "Smart Ammo (if Miss by Value or Less)", "value": "smartAmmo"},
     {"label": "Healing Bonus", "value": "healingBonus"},
     {"label": "Healing Penalty", "value": "healingPenalty"},
+    {"label": "Heals Current SP", "value": "healCurrentSp"},
     {"label": "STAT Bonus", "value": "statBonus"},
     {"label": "STAT Penalty", "value": "statPenalty"},
     {"label": "Applies Body Armor SP", "value": "bodySp"},
@@ -131,6 +149,15 @@
     placeholder="Enter Value"
     hidden="false"
   ></stringfield>
+
+  <numberfield
+    width="30%"
+    size="xs"
+    field="smartBonus"
+    label="Smart Bonus"
+    placeholder="Enter Bonus"
+    hidden="true"
+  ></numberfield>
 
   <dropdown
     width="30%"

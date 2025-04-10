@@ -196,6 +196,11 @@
     }
   }
 
+  function useLuck() {
+    // Close the popover to trigger the onUseLuck function.
+    api.closeOpenedPopovers();
+  }
+
   function onUseLuck() {
     // First re-query the record, in case we're in the middle of updating
     // on blur of the useLuck field.
@@ -557,11 +562,6 @@
               size="sm"
               label="Enter the desired amount to use."
             ></label>
-            <label
-              variant="default"
-              size="sm"
-              label="Close the panel to confirm."
-            ></label>
             <div
               style="
                 display: flex;
@@ -581,6 +581,23 @@
                 updateonblur="true"
                 editable="true"
               ></numberfield>
+              <button
+                field="Use Luck"
+                size="xs"
+                color="primary"
+                variant="outline"
+                onclick="useLuck()"
+              ></button>
+            </div>
+            <div
+              style="
+                display: flex;
+                flex-direction: row;
+                gap: 4px;
+                align-items: flex-end;
+                margin-top: 4px;
+              "
+            >
               <button
                 field="Reset Luck"
                 size="xs"

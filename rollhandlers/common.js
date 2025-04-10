@@ -1301,6 +1301,8 @@ function getEffectsAndModifiersForToken(
             (ruleType === "statBonus" || ruleType === "statPenalty") &&
             modifier.data?.statSet !== undefined,
           noDerivedAttributes: modifier.data?.noDerivedAttributes || false,
+          smartBonus:
+            ruleType === "smartAmmo" ? modifier.data?.smartBonus : undefined,
         });
       }
     });
@@ -1794,10 +1796,15 @@ function performAttackRoll(
   }
 
   // Get modifiers from character, weapon, attachments, and ammo
+  let field = isMelee ? "melee" : "ranged";
+  const aimedShot = targetedLocation !== "body";
+  if (aimedShot) {
+    field = field + " aimed";
+  }
   let modifiers = getEffectsAndModifiersForToken(
     record,
     ["attackBonus", "attackPenalty"],
-    isMelee ? "melee" : "ranged",
+    field,
     weapon._id,
     weapon,
     ammoItem
@@ -1816,6 +1823,24 @@ function performAttackRoll(
     );
     attackModifiers.push(...skillModifiers);
   }
+
+  // Get Smart Ammo Mods
+  const smartAmmoModifiers = getEffectsAndModifiersForToken(
+    record,
+    ["smartAmmo"],
+    isMelee ? "melee" : "ranged",
+    weapon._id,
+    weapon,
+    ammoItem
+  );
+  let smartAmmoValue = null;
+  let smartBonus = null;
+  smartAmmoModifiers.forEach((modifier) => {
+    if (modifier.active === true) {
+      smartAmmoValue = parseInt(modifier.value, 10) || 0;
+      smartBonus = parseInt(modifier.smartBonus, 10) || 0;
+    }
+  });
 
   if (range === "auto" && !isMelee && type !== "suppressive" && !isShell) {
     // Get targets, roll for each based on range to target (or just 1 if no targets)
@@ -1845,8 +1870,6 @@ function performAttackRoll(
       targetName: "",
     });
   }
-
-  // TODO SMART ammo modifiers
 
   let icon = "GiPistolGun";
   if (weapon.data?.type === "ranged weapon") {
@@ -1890,6 +1913,8 @@ function performAttackRoll(
     autofireDamage: weapon.data?.autofireDamage || 0,
     afMultiplierMax: weapon.data?.afMultiplierMax || 0,
     targetedLocation: targetedLocation,
+    smartAmmoValue: smartAmmoValue,
+    smartBonus: smartBonus,
     dv: 0,
     icon,
     targetName: "",
