@@ -1,7 +1,5 @@
 // Set up the roll so we can re-color d6s
 let noCriticalInjuries = data?.roll?.metadata?.noCriticalInjuries || false;
-// NPC Types that can't get injuries
-const NO_INJURIES = ["program", "black ice", "vehicle", "drone", "defenses"];
 
 let roll = {
   ...data.roll,
@@ -57,9 +55,6 @@ let noArmorAblation =
 // Names of critical injury tables per location (could be changed later)
 let headInjuries = "Critical Injuries to the Head";
 let bodyInjuries = "Critical Injuries to the Body";
-
-// TODO MACROS FOR ROLLING CRITICAL INJURIES IF TABLE EXISTS AND IF CRITICAL
-// AND APPLYING THEM TO THE TARGET IN THE CRITICAL INJURY ROLL HANDLER
 
 // Here we need to determine if it was a hit or miss and display in the chat.
 const tags = [
@@ -178,7 +173,7 @@ targets.forEach(target => {
     const valuesToSet = {};
 
     let targetName = target.name || "Target";
-    if (!target.identifier) {
+    if (!target.identified) {
       targetName = target.unidentifiedName || target.name || "Target";
     }
 
@@ -351,11 +346,13 @@ targets.forEach(target => {
 
     // Generate appropriate message based on what happened
     let message = '';
+
+    let showBrokenLeg = false;
     
     // Apply special location effects
     if (${isLeg} && damage > 0 && ${!noCriticalInjuries}) {
-      // TODO -- ADD MACRO TO APPLY BROKEN LEG CRITICAL INJURY CONDITION
-      message += \`Suffered a Broken Leg Critical Injury!\\n\`;
+      message += \`Broken Leg Inflicted!\\n\`;
+      showBrokenLeg = true;
     } else if (${isHand} && damage > 0) {
       message += \`Held item dropped.\\n\`;
     }
@@ -408,9 +405,11 @@ targets.forEach(target => {
       if (armorProtected) {
         message = \`Armor blocked the damage.\\n\`;
       } else {
-        message = \`No damage was applied to \${targetName}.\`;
+        message = \`No damage was applied to.\`;
       }
     }
+
+    const brokenLegMacro = showBrokenLeg ? getBrokenLegMacro() : '';
     
     // UNDO macro using api.setValuesOnRecord to avoid race conditions
     const undoMacro = Object.keys(oldValues).length > 0 ? 
@@ -425,11 +424,52 @@ if (isGM) {
 } 
 \\\`\\\`\\\`\` : '';
 
-    api.sendMessage(\`\${message.trim()}\${undoMacro ? '\\n' + undoMacro : ''}\`, undefined, undefined, undefined, target);
+    api.sendMessage(\`\${message.trim()}\${brokenLegMacro}\\n\${undoMacro ? '\\n' + undoMacro : ''}\`, undefined, undefined, undefined, target);
   }
 });
 \`\`\`
 `;
+
+// If we need to roll a critical injury, show macro
+const criticalInjuryMacro =
+  record && isCritical && !noCriticalInjuries
+    ? `
+\`\`\`Roll_Critical_Injury
+// NPC Types that can't get injuries
+const NO_INJURIES = ["program", "black ice", "vehicle", "drone", "defenses"];
+const targets = api.getTargets(record);
+const tokens = targets.map((target) => target.token);
+const tableName = '${targetLocation}' === "head" ? '${headInjuries}' : '${bodyInjuries}';
+const criticalInjuryMetadata = {
+  tableName: tableName,
+  deductHP: 5,
+  targetId: "",
+  targetName: "",
+};
+if (tokens.length > 0) {
+  tokens.forEach((target) => {
+    const targetName = target.identified
+      ? target.name || target.record?.name
+      : target.unidentifiedName || target.record?.unidentifiedName;
+    if (!NO_INJURIES.includes(target.data?.type || "")) {
+      api.roll(
+        "2d6",
+        {
+          ...criticalInjuryMetadata,
+          targetId: target._id,
+          targetName: targetName,
+        },
+        "criticalInjury"
+      );
+    }
+  });
+} else {
+  // Roll without target IDs
+  api.roll("2d6", criticalInjuryMetadata, "criticalInjury");
+}
+\`\`\`
+`
+    : "";
 
 const totalDamage = isAutofire
   ? `${roll.total} * ${afMultiplier} = ${roll.total * afMultiplier}`
@@ -439,46 +479,10 @@ const message = isAutofire
   ? `
 **[center]Autofire Damage: ${totalDamage}[/center]**
 ${damageMacro}
+${criticalInjuryMacro}
 `
   : `
 ${damageMacro}
+${criticalInjuryMacro}
 `;
 api.sendMessage(message, roll, [], tags);
-
-// If we need to roll a critical injury, prompt once for each target
-// First get targets
-if (record && isCritical && !noCriticalInjuries) {
-  const targets = api.getTargets(record);
-  const tokens = targets.map((target) => target.token);
-  const tableName = targetLocation === "head" ? headInjuries : bodyInjuries;
-  const criticalInjuryMetadata = {
-    tableName: tableName,
-    deductHP: 5,
-    tokenId: null,
-  };
-  if (tokens.length > 0) {
-    tokens.forEach((token) => {
-      if (!NO_INJURIES.includes(token.data?.type || "")) {
-        api.promptRoll(
-          "Critical Injury to the " + capitalize(targetLocation),
-          "2d6",
-          [],
-          {
-            ...criticalInjuryMetadata,
-            tokenId: token._id,
-          },
-          "criticalInjury"
-        );
-      }
-    });
-  } else {
-    // Roll without target IDs
-    api.promptRoll(
-      "Critical Injury to the " + capitalize(targetLocation),
-      "2d6",
-      [],
-      criticalInjuryMetadata,
-      "criticalInjury"
-    );
-  }
-}

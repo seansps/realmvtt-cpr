@@ -136,7 +136,9 @@
   }
 
   function onUpdateStat(value, stat) {
-    setStatsAndSkills(record, value, stat);
+    const bestEquippedArmor = getBestEquippedArmor(record);
+    const penalty = bestEquippedArmor.highestPenalty;
+    setStatsAndSkills(record, value, stat, null, penalty, true);
   }
 
   function onConditionChange() {

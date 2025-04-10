@@ -1,9 +1,9 @@
 // Roll handler for critical injuries
-
-let tableName =
-  data?.roll?.metadata?.tableName || "Critical Injuries to the Body";
-let deductHP = data?.roll?.metadata?.deductHP || 5;
-let tokenId = data?.roll?.tokenId;
+const metadata = data?.roll?.metadata;
+let tableName = metadata?.tableName || "Critical Injuries to the Body";
+let deductHP = metadata?.deductHP || 5;
+let targetId = metadata?.targetId || "";
+let targetName = metadata?.targetName || "";
 
 let total = data?.roll?.total || 0;
 
@@ -26,7 +26,7 @@ if (tableName.toLowerCase().includes("head")) {
   });
 }
 
-let message = "Critical Injury Inflicted";
+let message = "[center]Critical Injury Inflicted[/center]";
 
 const sendFinalMessage = () => {
   api.sendMessage(message, data?.roll, [], tags);
@@ -44,16 +44,6 @@ api.getRecordByTypeAndName("tables", tableName, (table) => {
     sendFinalMessage();
     return;
   }
-
-  // Get the token by ID for the target
-  // Determine if they already have this injury
-
-  // IF NO TARGET, then we show a macro to apply the injury to a target
-
-  // If they do, roll instant until we get another, if there are other results.
-  // If there is only 1 other result, just apply that one.
-
-  // Apply the injury, add any effects / changes to data / and deduct 5 HP if needed
 
   // First get the result from the table
   const result = getResultFromTable(table, total);
@@ -87,7 +77,11 @@ api.getRecordByTypeAndName("tables", tableName, (table) => {
   const injuryId = injuryRecordLink.value._id;
   const injuryName = injuryRecordLink.tooltip;
 
-  message = `**Critical Injury Inflicted:** ${injuryName}\n`;
+  if (targetName) {
+    message = `[center]${injuryName} :IconArrowBigRight: ${targetName}[/center]\n`;
+  } else {
+    message = `[center]${injuryName}[/center]\n`;
+  }
   if (injuryStatus) {
     message += ` - Effect: ${injuryStatus}\n`;
   }
@@ -126,14 +120,31 @@ api.getRecord('conditions', '${injuryId}', (injuryRecord) => {
     };
     targets.forEach(target => {
       const targetRecord = target.recordType === "characters" ? target.record : target;
-      addCondition(targetRecord, injuryRecordLink);
+      addCondition(targetRecord, injuryRecordLink, ${deductHP});
     });
   }
 });
 \`\`\``;
 
-  // TODO only add this if there is no target
-  message += `\n${macro}`;
+  const reRollMacro = `
+\`\`\`Re-roll_Critical_Injury
+const tableName = '${tableName}';
+const criticalInjuryMetadata = {
+  tableName: tableName,
+  deductHP: ${deductHP},
+  targetId: '${targetId}',
+  targetName: '${targetName}',
+};
+const targetLocation = tableName.toLowerCase().includes("head") ? "Head" : "Body";
+// Roll without target IDs
+api.roll(
+  "2d6",
+  criticalInjuryMetadata,
+  "criticalInjury"
+);
+\`\`\``;
+
+  message += `\n${macro}\n${reRollMacro}`;
 
   sendFinalMessage();
 });

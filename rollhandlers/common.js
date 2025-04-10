@@ -849,7 +849,8 @@ function setStatsAndSkills(
   value,
   stat,
   moreValuesToSet = null,
-  penalty = 0
+  penalty = 0,
+  updateCurHp = false
 ) {
   // Create an object to hold all the values we want to set
   const valuesToSet = {};
@@ -961,7 +962,9 @@ function setStatsAndSkills(
     const hitpoints = 10 + 5 * average;
 
     valuesToSet["data.hitpoints"] = hitpoints;
-    valuesToSet["data.curhp"] = hitpoints;
+    if (updateCurHp) {
+      valuesToSet["data.curhp"] = hitpoints;
+    }
 
     // Set seriouslyWounded to half rounded up of hitpoints
     valuesToSet["data.seriouslyWounded"] = Math.ceil(hitpoints / 2);
@@ -2108,8 +2111,43 @@ function performDamageRoll(record, weapon, type = "single") {
   );
 }
 
+function getBrokenLegMacro() {
+  const brokenLegMacro = `
+\`\`\`Apply_Broken_Leg
+let targets = api.getSelectedOrDroppedToken();
+
+// If record is not null, check if we're the GM or owner and use it
+if (record) {
+  if (isGM || record?.record?.ownerId === userId) {
+    targets = [record];
+  }
+}
+
+// If we're a player and we did not drop on a record, get our owned tokens
+if (!isGM && targets.length === 0) {
+    targets = api.getSelectedOwnedTokens().map(target => target.token);
+}
+
+// First query the injury record
+api.getRecordByTypeAndName('conditions', 'Broken Leg', (injuryRecord) => {
+  if (injuryRecord) {
+    const injuryRecordLink = {
+      value: injuryRecord,
+      tooltip: injuryRecord?.name || "Injury",
+    };
+    targets.forEach(target => {
+      const targetRecord = target.recordType === "characters" ? target.record : target;
+      addCondition(targetRecord, injuryRecordLink, 5);
+    });
+  }
+});
+\`\`\``;
+
+  return brokenLegMacro;
+}
+
 // Add a condition (injury, addiciton, cover) to a record
-function addCondition(record, recordLink) {
+function addCondition(record, recordLink, deductHp = 0) {
   const conditionObj = {
     ...recordLink.value,
   };
@@ -2142,6 +2180,20 @@ function addCondition(record, recordLink) {
     valuesToSet["data.shieldHP"] = bestEquippedArmor.shield[0]?.curSp || 0;
     valuesToSet["data.shieldPenalty"] =
       bestEquippedArmor.shield[0]?.penalty || 0;
+
+    if (deductHp > 0) {
+      const curHp = valuesToSet["data.curhp"] || record.data?.curhp || 0;
+      const newHp = Math.max(curHp - deductHp, 0);
+      valuesToSet["data.curhp"] = newHp;
+      // Float text
+      const token =
+        record.linked !== undefined
+          ? record
+          : api.getSelectedOrDroppedToken()?.[0];
+      if (token) {
+        api.floatText(token, `-${deductHp}`, "#FF0000");
+      }
+    }
 
     if (Object.keys(valuesToSet).length > 0) {
       api.setValuesOnRecord(newRecord, valuesToSet);
