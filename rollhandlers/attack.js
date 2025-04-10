@@ -280,6 +280,20 @@ const attackModifiers = [
 const attackMetadata = JSON.parse('${JSON.stringify(metadata)}');
 // Get the record again and then prompt the roll
 api.getRecord('${rollRecordType}', '${recordId}', (updatedRecord) => {
+  // Add luck mod if it exists
+  const nextRoll = updatedRecord?.data?.nextRoll || 0;
+  if (nextRoll) {
+    attackModifiers.push({
+      name: "Luck Used",
+      value: nextRoll,
+      active: true,
+      modifierType: "skillBonus",
+      field: "all",
+      valueType: "number",
+      isPenalty: false,
+      isEffect: false,
+    });
+  }
   api.promptRollForToken(updatedRecord, '${tooltip}', '1d10', attackModifiers, attackMetadata, 'attack');
 });
 \`\`\`
