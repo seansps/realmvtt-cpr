@@ -65,18 +65,19 @@ function checkForReplacements(value, replacements = {}, recordOverride = null) {
     }
   }
   // Case for INT|REF|DEX|TECH|COOL|WILL|LUCK|MOVE|BODY|EMP
-  const matchStat = value.match(
-    /INT|REF|DEX|TECH|COOL|WILL|LUCK|MOVE|BODY|EMP/i
-  );
-  if (matchStat) {
-    let stat = matchStat[0].toLowerCase().replace(" ", "");
+  const statRegex = /(INT|REF|DEX|TECH|COOL|WILL|LUCK|MOVE|BODY|EMP)/gi;
+  let match;
+  while ((match = statRegex.exec(value)) !== null) {
+    let stat = match[0].toLowerCase().replace(" ", "");
     if (stat === "emp") {
       stat = "curEmp";
     } else if (stat === "luck") {
       stat = "curLuck";
     }
     const statVal = parseInt(thisRecord?.data?.[stat] || "0", 10);
-    value = value.replaceAll(matchStat[0], statVal);
+    // Create a new regex with the exact match to replace just this occurrence
+    const replaceRegex = new RegExp(match[0], "g");
+    value = value.replace(replaceRegex, statVal);
   }
   // Check for replacements in the replacements object
   if (replacements && Object.keys(replacements).length > 0) {
@@ -1541,6 +1542,13 @@ function useItem(record, itemDataPath) {
     api.getValueOnRecord(record, `${itemDataPath}.data.description`) || "";
   const effects =
     api.getValueOnRecord(record, `${itemDataPath}.data.effects`) || [];
+
+  const checkSkill = api.getValueOnRecord(
+    record,
+    `${itemDataPath}.data.checkSkill`
+  );
+  const checkDV = api.getValueOnRecord(record, `${itemDataPath}.data.checkDV`);
+
   const healing = api.getValueOnRecord(record, `${itemDataPath}.data.healing`);
   const damage = api.getValueOnRecord(record, `${itemDataPath}.data.useDamage`);
   const portrait = api.getValueOnRecord(record, `${itemDataPath}.portrait`);
@@ -1555,27 +1563,55 @@ function useItem(record, itemDataPath) {
 ${itemDescription}
 `;
 
-  let recordLinks;
-  // Add record links to conditions (for drug addictions) if any
+  // Add macros to conditions (such as drug addictions) if any
   const conditions = api.getValueOnRecord(
     record,
-    `${itemDataPath}.data.addictions`
+    `${itemDataPath}.data.conditions`
   );
   if (conditions) {
-    const conditionName = JSON.parse(conditions)?.name || "";
-    const conditionId = JSON.parse(conditions)?._id || "";
-    if (conditionId) {
-      recordLinks = [
-        {
-          tooltip: conditionName,
-          type: "records",
-          value: {
-            _id: conditionId,
-            recordType: "conditions",
-          },
-        },
-      ];
-    }
+    // Create macros for all Conditions that this action can apply
+    let conditionButtons = "";
+    conditions.forEach((conditionJson) => {
+      const condition = JSON.parse(conditionJson);
+      const conditionName = condition?.name || "";
+      const conditionID = condition?._id || "";
+      const conditionTitle = `Apply_${conditionName.replace(/ /g, "_")}`;
+      if (conditionButtons !== "") {
+        conditionButtons += "\n";
+      }
+      conditionButtons += `\`\`\`${conditionTitle}
+let targets = api.getSelectedOrDroppedToken();
+
+// If record is not null, check if we're the GM or owner and use it
+if (record) {
+  if (isGM || record?.record?.ownerId === userId) {
+    targets = [record];
+  }
+}
+
+// If we're a player and we did not drop on a record, get our owned tokens
+if (!isGM && targets.length === 0) {
+    targets = api.getSelectedOwnedTokens().map(target => target.token);
+}
+
+// First re-query the condition record
+api.getRecord('conditions', '${conditionID}', (conditionRecord) => {
+  if (conditionRecord) {
+    const conditionRecordLink = {
+      value: conditionRecord,
+      tooltip: conditionRecord?.name || "Condition",
+    };
+    targets.forEach(target => {
+      const targetRecord = target.recordType === "characters" ? target.record : target;
+      // For conditions applied this way, we will not deduct HP
+      addCondition(targetRecord, conditionRecordLink, 0);
+    });
+  }
+});
+\`\`\``;
+    });
+
+    markdownDescription += `\n${conditionButtons}`;
   }
 
   // If we're using a potion with an effect or healing, add the buttons
@@ -1601,17 +1637,22 @@ targets.forEach(target => {
     markdownDescription += `\n${effectButtons}`;
   }
 
+  // Healing macros
   if (healing) {
     const escapedName = itemName.replace(/'/g, "\\'");
     const escapedHealing = healing.replace(/'/g, "\\'");
+    let healingRoll = evaluateMath(
+      checkForReplacements(escapedHealing, {}, record)
+    );
     const healingButton = `\`\`\`Roll_Healing
 api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
-  api.promptRollForToken(updatedRecord, '${escapedName} Healing', '${escapedHealing}', [], {}, 'healing')
+  api.promptRollForToken(updatedRecord, '${escapedName} Healing', '${healingRoll}', [], {}, 'healing')
 });
 \`\`\``;
     markdownDescription += `\n${healingButton}`;
   }
 
+  // Macros to roll damage
   if (damage) {
     const damageButton = `\`\`\`Roll_Damage
 // Requery the record and get the weapon
@@ -1625,7 +1666,26 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
     markdownDescription += `\n${damageButton}`;
   }
 
-  api.sendMessage(markdownDescription, undefined, recordLinks);
+  // Roll skill macro, if defined, with DV if set
+  if (checkSkill) {
+    const skillCheckObj = JSON.parse(checkSkill);
+    const skillCheckName = skillCheckObj?.name || "Skill";
+    const skillRollButton = `\`\`\`Roll_${skillCheckName.replace(/ /g, "_")}
+  const selectedTokens = api.getSelectedOrDroppedToken();
+  selectedTokens.forEach(token => {
+    // Pass along the total of this roll as the DV for the skill check
+    const skillCheckMetadata = {
+      isDodge: false,
+      dv: ${checkDV},
+    };
+
+    performSkillRoll(token, "${skillCheckName}", skillCheckMetadata);
+  });
+\`\`\``;
+    markdownDescription += `\n${skillRollButton}`;
+  }
+
+  api.sendMessage(markdownDescription, undefined, []);
 
   // If consumable, deduct count by 1, delete item if count is 0
   if (isConsumable) {

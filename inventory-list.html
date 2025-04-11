@@ -12,8 +12,12 @@
       isAmmo &&
       ((api.getValue(`${itemDataPath}.data.effects`) &&
         api.getValue(`${itemDataPath}.data.effects`).length > 0) ||
+        (api.getValue(`${itemDataPath}.data.conditions`) &&
+          api.getValue(`${itemDataPath}.data.conditions`).length > 0) ||
         api.getValue(`${itemDataPath}.data.healing`) ||
-        api.getValue(`${itemDataPath}.data.useDamage`));
+        api.getValue(`${itemDataPath}.data.useDamage`) ||
+        api.getValue(`${itemDataPath}.data.checkSkill`) ||
+        api.getValue(`${itemDataPath}.data.checkDV`));
     const isConsumable =
       api.getValue(`${itemDataPath}.data.consumable`) || false;
 

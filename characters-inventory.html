@@ -17,6 +17,9 @@
     const isAmmoWithValues =
       isAmmo &&
       ((item?.data?.effects && item?.data?.effects.length > 0) ||
+        (item?.data?.conditions && item?.data?.conditions.length > 0) ||
+        item?.data?.checkSkill ||
+        item?.data?.checkDV ||
         item?.data?.healing ||
         item?.data?.useDamage);
     const isConsumable = item?.data?.consumable || false;
@@ -70,6 +73,9 @@
           const isAmmoWithValues =
             isAmmo &&
             ((item.data?.effects && item.data?.effects.length > 0) ||
+              (item.data?.conditions && item.data?.conditions.length > 0) ||
+              item.data?.checkSkill ||
+              item.data?.checkDV ||
               item.data?.healing ||
               item.data?.useDamage);
           // If ammo, multiply the unit count by the item count

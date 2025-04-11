@@ -1239,6 +1239,16 @@
   <box field="consumableProperties" hidden="true" hidewhenidentified="false">
     <dropdown
       width="100%"
+      field="conditions"
+      label="Conditions"
+      description="Conditions that can be applied when used"
+      placeholder="Select Conditions if Applicable..."
+      multiselect="10"
+      optionsquery='{"type": "conditions", "query": {}}'
+    >
+    </dropdown>
+    <dropdown
+      width="100%"
       field="effects"
       label="Effects"
       description="Effects that can be applied when used"
@@ -1296,16 +1306,6 @@
   </box>
 
   <box field="drugProperties" hidden="true" hidewhenidentified="false">
-    <dropdown
-      width="100%"
-      field="addictions"
-      label="Addictions"
-      description="Addictions that can be applied when used"
-      placeholder="Select Addictions if Applicable..."
-      multiselect="10"
-      optionsquery='{"type": "conditions", "query": {"data.type": "addiction"}}'
-    >
-    </dropdown>
     <div style="display: flex; flex-direction: row; width: 100%; gap: 8px">
       <stringfield
         width="100%"
