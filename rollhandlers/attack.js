@@ -18,6 +18,8 @@ const weaponId = metadata?.weaponId;
 const weaponDataPath = metadata?.weaponDataPath;
 const tooltip = metadata?.tooltip;
 const icon = metadata?.icon;
+const isSeriouslyWounded = metadata?.isSeriouslyWounded || false;
+const isMortallyWounded = metadata?.isMortallyWounded || false;
 const targetName = metadata?.targetName;
 let smartAmmoValue = metadata?.smartAmmoValue;
 let smartBonus = metadata?.smartBonus || 10;
@@ -169,6 +171,18 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
 
   let beatDvBy = 1;
   let afMultiplierMax = metadata?.afMultiplierMax || 3;
+
+  if (isMortallyWounded) {
+    tags.push({
+      name: "Mortally Wounded",
+      tooltip: "Mortally wounded incurs a -4 penalty to all actions.",
+    });
+  } else if (isSeriouslyWounded) {
+    tags.push({
+      name: "Seriously Wounded",
+      tooltip: "Seriously wounded incurs a -2 penalty to all actions.",
+    });
+  }
 
   if (dv !== undefined && dv !== null && dv > 0) {
     // Success or failure if DV was defined

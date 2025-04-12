@@ -1446,6 +1446,36 @@ function updateAttributes(valuesToSet, highestPenalty) {
   return updateAttributesOnRecord(record, valuesToSet, highestPenalty);
 }
 
+function getWoundedPenalty(record) {
+  // Check if the token is seriously wounded (HP <= 50% of max HP)
+  const isSeriouslyWounded =
+    record.data?.curhp <= Math.ceil(record.data?.hitpoints / 2);
+  const isMortallyWounded = record.data?.curhp < 1;
+
+  // If the token is seriously wounded, check for ignoreSeriouslyWounded modifier
+  if (isSeriouslyWounded) {
+    // Check for ignoreSeriouslyWounded modifier
+    const ignoreSeriouslyWoundedModifiers = getEffectsAndModifiersForToken(
+      record,
+      ["ignoreSeriouslyWounded"]
+    );
+    if (ignoreSeriouslyWoundedModifiers.length === 0 || isMortallyWounded) {
+      // Add a penalty of -2 to the skill roll
+      return {
+        name: isMortallyWounded
+          ? "Mortally Wounded Penalty"
+          : "Seriously Wounded Penalty",
+        value: isMortallyWounded ? -4 : -2,
+        active: true,
+        valueType: "number",
+        isPenalty: true,
+      };
+    }
+  }
+
+  return null;
+}
+
 function getBestEquippedArmor(record) {
   // Return list of all equipped armor in order of SP/HP
   const items = record?.data?.inventory || [];
@@ -1714,8 +1744,8 @@ function performSkillRoll(record, skillName, additionalMetadata = {}) {
     skills.forEach((s) => {
       if (s.name === skillName) {
         skill = s;
-      } else if (s.subSkills && s.subSkills.length > 0) {
-        s.subSkills.forEach((subSkill) => {
+      } else if (s.data?.subSkills && s.data?.subSkills.length > 0) {
+        s.data?.subSkills.forEach((subSkill) => {
           if (subSkill.name === skillName) {
             skill = subSkill;
           }
@@ -1744,9 +1774,16 @@ function performSkillRoll(record, skillName, additionalMetadata = {}) {
   );
   skillModifiers.push(...additionalModifiers);
 
+  const woundedPenalty = getWoundedPenalty(record);
+  if (woundedPenalty) {
+    skillModifiers.push(woundedPenalty);
+  }
+
   const metadata = {
     rollName: skillName,
     modifiers: skillModifiers,
+    isSeriouslyWounded: woundedPenalty && woundedPenalty.value === -2,
+    isMortallyWounded: woundedPenalty && woundedPenalty.value === -4,
     ...additionalMetadata,
   };
 
@@ -2014,6 +2051,8 @@ function performAttackRoll(
     dv: 0,
     icon,
     targetName: "",
+    isSeriouslyWounded: false,
+    isMortallyWounded: false,
   };
 
   // Always true for Melee since it doesn't use ammo
@@ -2078,6 +2117,14 @@ function performAttackRoll(
     }
     // No roll
     return;
+  }
+
+  // Check if the token is seriously wounded or mortally wounded
+  const woundedPenalty = getWoundedPenalty(record);
+  if (woundedPenalty) {
+    attackModifiers.push(woundedPenalty);
+    attackMetadata.isSeriouslyWounded = woundedPenalty.value === -2;
+    attackMetadata.isMortallyWounded = woundedPenalty.value === -4;
   }
 
   // Now prompt for rolls

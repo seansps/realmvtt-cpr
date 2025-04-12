@@ -15,6 +15,9 @@ const modifiers = metadata?.modifiers || [];
 const skillName = metadata?.rollName;
 const tooltip = `Skill Roll for ${skillName}`;
 
+const isSeriouslyWounded = metadata?.isSeriouslyWounded || false;
+const isMortallyWounded = metadata?.isMortallyWounded || false;
+
 // If we used luck, we need to remove it from the token that rolled
 let usedLuck = false;
 if (modifiers.find((m) => m.name === "Luck Used")) {
@@ -91,6 +94,18 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
     name: skillName,
     tooltip,
   });
+
+  if (isMortallyWounded) {
+    tags.push({
+      name: "Mortally Wounded",
+      tooltip: "Mortally wounded incurs a -4 penalty to all actions.",
+    });
+  } else if (isSeriouslyWounded) {
+    tags.push({
+      name: "Seriously Wounded",
+      tooltip: "Seriously wounded incurs a -2 penalty to all actions.",
+    });
+  }
 
   if (dv !== undefined && dv !== null) {
     // Success or failure if DV was defined

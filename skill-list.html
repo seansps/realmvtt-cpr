@@ -82,34 +82,7 @@
     // Get the skill name
     const skillName = skill.name || "New Skill";
 
-    let skillModifiers = [
-      {
-        name: skillName,
-        value: skill.data?.base || 0,
-        active: true,
-        valueType: "number",
-      },
-    ];
-
-    const additionalModifiers = getEffectsAndModifiersForToken(
-      record,
-      ["skillBonus", "skillPenalty"],
-      skillName
-    );
-    skillModifiers.push(...additionalModifiers);
-
-    const metadata = {
-      rollName: skillName,
-      modifiers: skillModifiers,
-    };
-
-    api.promptRoll(
-      `Skill Check: ${skillName}`,
-      "1d10",
-      skillModifiers,
-      metadata,
-      "skill"
-    );
+    performSkillRoll(record, skillName);
   }
 </script>
 
