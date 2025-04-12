@@ -1217,7 +1217,9 @@ function getEffectsAndModifiersForToken(
   const equippedItems = items.filter(
     (item) =>
       item.data?.carried === "equipped" &&
-      (item.data?.type !== "cyberware" || item.data?.active === "true")
+      (item.data?.type !== "cyberware" ||
+        item.data?.active === true ||
+        item.data?.active === undefined)
   );
 
   const criticalInjuries = target?.data?.criticalInjuries || [];
@@ -1429,17 +1431,21 @@ function updateAttributesOnRecord(record, valuesToSet, highestPenalty) {
 
 // Checks for active cyberware armor
 function checkIfCyberwareArmor(item, location) {
-  if (item.data?.type === "cyberware" && item.data?.active === "true") {
+  let isCyberwareArmor = false;
+  if (
+    item.data?.type === "cyberware" &&
+    (item.data?.active === true || item.data?.active === undefined)
+  ) {
     const modifiers = item.data?.modifiers || [];
     modifiers.forEach((modifier) => {
       const modifierType = modifier.data?.type || "";
       if (modifierType === `${location}Sp`) {
-        return true;
+        isCyberwareArmor = true;
       }
     });
   }
 
-  return false;
+  return isCyberwareArmor;
 }
 
 // Uses the context's record to update attributes
@@ -1522,7 +1528,9 @@ function getBestEquippedArmor(record) {
     (item) =>
       item.data?.type !== "armor" &&
       item.data?.carried === "equipped" &&
-      (item.data?.type !== "cyberware" || item.data?.active === "true")
+      (item.data?.type !== "cyberware" ||
+        item.data?.active === true ||
+        item.data?.active === undefined)
   );
 
   otherItems.forEach((item) => {

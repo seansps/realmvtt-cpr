@@ -41,6 +41,16 @@
     // If an item's equipped status changes, update any bonuses
     const valuesToSet = {};
 
+    // If this is cyberware, and we haven't set the active status, set it to true
+    const activeStatus = api.getValue(`${itemDataPath}.data.active`);
+    if (
+      value === "equipped" &&
+      itemType === "cyberware" &&
+      (activeStatus === undefined || activeStatus === null)
+    ) {
+      valuesToSet[`${itemDataPath}.data.active`] = true;
+    }
+
     // Get the current ac due to armor and set it on the
     // record
     const bestEquippedArmor = getBestEquippedArmor(record);

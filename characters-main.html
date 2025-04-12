@@ -246,14 +246,141 @@
   }
 
   function onRest() {
+    // Get modifiers for healing
+    const healingModifiers = getEffectsAndModifiersForToken(
+      record,
+      "healingBonus"
+    );
+    const healingBonus = healingModifiers.reduce(
+      (acc, mod) => acc + mod.value,
+      0
+    );
+
+    //  Recover up to BODY hp + any modifiers for healing
+    const body = record.data?.body || 0;
+    const healingAmount = body + healingBonus;
+    const curhp = record.data?.curhp || 0;
+    const hitpoints = record.data?.hitpoints || 0;
+    const newHp = Math.min(curhp + healingAmount, hitpoints);
+
     const valuesToSet = {
-      // TODO recover up to BODY hp + any modifiers for healing
-      // TODO reset deathSave to equal to body
+      "data.curhp": newHp,
+      "data.deathSave": body,
     };
 
-    // api.setValues(valuesToSet);
+    // Go through each effect, look up the item with that ID in inventory, and heal it by the value of the effect
+    const inventory = record.data?.inventory || [];
+    let healedArmor = [];
+    inventory.forEach((item, itemIndex) => {
+      // Check for healCurrentSp effects for this item
+      const healCurrentSpEffects = getEffectsAndModifiersForToken(
+        record,
+        ["healCurrentSp"],
+        "",
+        item._id
+      );
+      if (healCurrentSpEffects.length > 0) {
+        healCurrentSpEffects.forEach((effect) => {
+          let maxSp = item.data?.armorSp || 0;
+          // Some items define SP in a modifier, so check that here too
+          const modifiers = item.data?.modifiers || [];
+          modifiers.forEach((modifier) => {
+            if (
+              modifier.data?.type === "headSp" ||
+              modifier.data?.type === "bodySp" ||
+              modifier.data?.type === "shieldSp"
+            ) {
+              const modValue = parseInt(modifier.data?.value, 10);
+              if (modValue > maxSp) {
+                maxSp = modValue;
+              }
+            }
+          });
+          const curSp = item.data?.curSp;
+          if (curSp === undefined) {
+            curSp = maxSp;
+          }
+          const spHealAmount = effect.value;
+          const newSp = Math.min(maxSp, curSp + spHealAmount);
+          valuesToSet[`data.inventory.${itemIndex}.data.curSp`] = newSp;
+          if (newSp - curSp > 0) {
+            healedArmor.push({
+              name: item.name,
+              amount: newSp - curSp,
+            });
+          }
+          // If this is the same armor as what we're showing on the character, update the attributes
+          if (item.name === record.data?.headArmor) {
+            valuesToSet["data.headArmorSP"] = newSp;
+          } else if (item.name === record.data?.bodyArmor) {
+            valuesToSet["data.bodyArmorSP"] = newSp;
+          } else if (item.name === record.data?.shield) {
+            valuesToSet["data.shieldSP"] = newSp;
+          }
+        });
+      }
+    });
 
-    api.sendMessage("Resting for the day. (TODO)", undefined, [], []);
+    api.setValues(valuesToSet, (record) => {
+      // Remove any effects for Mortally Wounded or Death Save Penalties
+      const effects = record?.effects || [];
+      const deathSavePenaltyEffect = effects.find(
+        (effect) => effect.name === "Death Save Penalty"
+      );
+      const mortallyWoundedEffect = effects.find(
+        (effect) => effect.name === "Mortally Wounded"
+      );
+
+      if (deathSavePenaltyEffect || mortallyWoundedEffect) {
+        const tokenForRecord = api.getToken() || record;
+
+        // Function to remove Mortally Wounded effect
+        const removeMortallyWounded = (currentRecord) => {
+          const currentMortallyWoundedEffect = currentRecord?.effects?.find(
+            (effect) => effect.name === "Mortally Wounded"
+          );
+
+          if (currentMortallyWoundedEffect) {
+            const tokenForRecord = api.getToken() || currentRecord;
+
+            api.removeEffectById(
+              currentMortallyWoundedEffect._id,
+              tokenForRecord
+            );
+          }
+        };
+
+        // First remove Death Save Penalty if it exists, then remove Mortally Wounded
+        if (deathSavePenaltyEffect) {
+          api.removeEffectById(
+            deathSavePenaltyEffect._id,
+            tokenForRecord,
+            (updatedRecord) => {
+              removeMortallyWounded(updatedRecord);
+            }
+          );
+        } else {
+          // Only remove Mortally Wounded
+          removeMortallyWounded(tokenForRecord);
+        }
+      }
+    });
+
+    let message = "Resting for the day.";
+    if (healingAmount > 0) {
+      message += ` Recovered ${healingAmount} HP.`;
+    }
+    if (healingBonus > 0) {
+      message += ` Healing bonus: ${healingBonus}.`;
+    }
+
+    if (healedArmor.length > 0) {
+      message += ` Healed ${healedArmor
+        .map((armor) => `${armor.name} by ${armor.amount}`)
+        .join(". ")}.`;
+    }
+
+    api.sendMessage(message, undefined, [], []);
   }
 
   function onResetLuck() {
