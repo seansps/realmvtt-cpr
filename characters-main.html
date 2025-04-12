@@ -265,7 +265,12 @@
   }
 
   function onRollDeathSave() {
-    console.log("TODO onRollDeathSave");
+    // Death save is just a d10 rolling under the body stat
+    const body = record.data?.body || 0;
+    const deathSaveMetadata = {
+      dv: body,
+    };
+    api.promptRoll("Death Save", "1d10", [], deathSaveMetadata, "deathSave");
   }
 
   function onUpdateSp(field) {
