@@ -2232,6 +2232,15 @@ function performDamageRoll(record, weapon, type = "single") {
     ignoreHalfSp = true;
   }
 
+  // If any of our targets are mortally wounded, we will need to show the critical injury button
+  const targets = api.getTargets(record);
+  let targetIsMortallyWounded = false;
+  targets.forEach((target) => {
+    if (target?.token?.data?.curhp < 1) {
+      targetIsMortallyWounded = true;
+    }
+  });
+
   const damageMetadata = {
     rollName: "Damage",
     tooltip: `Damage with ${weapon.name}`,
@@ -2248,6 +2257,7 @@ function performDamageRoll(record, weapon, type = "single") {
     noArmorAblation: false,
     noCriticalInjuries: false,
     explosive: isExplosive,
+    targetIsMortallyWounded: targetIsMortallyWounded,
   };
 
   let modifiers = getEffectsAndModifiersForToken(

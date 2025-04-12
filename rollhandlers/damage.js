@@ -30,6 +30,7 @@ if (d6s.length >= 2 && !noCriticalInjuries) {
   });
 }
 
+let targetIsMortallyWounded = roll.metadata?.targetIsMortallyWounded || false;
 let isHalfSp = roll.metadata?.ignoreHalfSp === true;
 let isExplosive = roll.metadata?.explosive === true;
 let isAutofire = roll.metadata?.isAutofire === true;
@@ -64,10 +65,12 @@ const tags = [
   },
 ];
 
-if (isCritical) {
+if (isCritical || targetIsMortallyWounded) {
   tags.push({
     name: "Critical",
-    tooltip: "Critical Injury Inflicted",
+    tooltip: targetIsMortallyWounded
+      ? "Critical Injury inflicted on Mortally Wounded target"
+      : "Critical Injury inflicted due to rolling two or more 6s",
   });
 }
 
@@ -437,7 +440,7 @@ if (isGM) {
 
 // If we need to roll a critical injury, show macro
 const criticalInjuryMacro =
-  record && isCritical && !noCriticalInjuries
+  record && (isCritical || targetIsMortallyWounded) && !noCriticalInjuries
     ? `
 \`\`\`Roll_Critical_Injury
 // NPC Types that can't get injuries
