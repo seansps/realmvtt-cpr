@@ -1088,6 +1088,7 @@ const MODIFIERS_WITHOUT_VALUE = [
   "noCriticalInjuries",
   "nonLethal",
   "nonLethalGreaterThanOne",
+  "ignoreSeriouslyWounded",
 ];
 
 function getEffectsAndModifiersForToken(
