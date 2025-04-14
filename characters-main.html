@@ -257,7 +257,8 @@
     );
 
     //  Recover up to BODY hp + any modifiers for healing
-    const body = record.data?.body || 0;
+    // Use actualBody where we track the actual value used for HP
+    const body = record.data?.actualBody || 0;
     const healingAmount = body + healingBonus;
     const curhp = record.data?.curhp || 0;
     const hitpoints = record.data?.hitpoints || 0;
@@ -393,7 +394,8 @@
 
   function onRollDeathSave() {
     // Death save is just a d10 rolling under the body stat
-    const body = record.data?.body || 0;
+    // Use actualBody where we track the actual value used for HP and Death Saves
+    const body = record.data?.actualBody || 0;
     const deathSaveMetadata = {
       dv: body,
     };

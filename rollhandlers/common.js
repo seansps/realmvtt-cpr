@@ -1566,6 +1566,299 @@ function getBestEquippedArmor(record) {
   return result;
 }
 
+function useAbility(record, abilityDataPath) {
+  const abilityName = api.getValueOnRecord(record, `${abilityDataPath}.name`);
+  const portrait = api.getValueOnRecord(record, `${abilityDataPath}.portrait`);
+  const description = api.getValueOnRecord(
+    record,
+    `${abilityDataPath}.data.description`
+  );
+  const effects = api.getValueOnRecord(
+    record,
+    `${abilityDataPath}.data.effects`
+  );
+  const conditions = api.getValueOnRecord(
+    record,
+    `${abilityDataPath}.data.conditions`
+  );
+
+  const damageOverride = api.getValueOnRecord(
+    record,
+    `${abilityDataPath}.data.damage`
+  );
+
+  const isAttack = api.getValueOnRecord(
+    record,
+    `${abilityDataPath}.data.isAttack`
+  );
+
+  // Get damage amount
+  let damage = "";
+  if (damageOverride) {
+    damage = damageOverride;
+  } else {
+    // Check the radio button for damageType
+    const damageType = api.getValueOnRecord(
+      record,
+      `${abilityDataPath}.data.damageType`
+    );
+    const useBrawling = damageType === "Use Default Brawling Damage";
+    const useMartialArts = damageType === "Use Default Martial Arts Damage";
+    const useBody = damageType === "Use Body As Damage";
+
+    // For body damage we use totalBody (the body stat after modifiers even if they do not apply to HP)
+    const bodyStat = record.data?.totalBody || 0;
+    // Check if we have a cyberarm -- if so, and this is "Brawling" we always use at least 2d6
+    const cyberarm = record.data?.inventory?.find(
+      (item) =>
+        item.data?.type === "cyberware" &&
+        item.data?.carried === "equipped" &&
+        (item.data?.foundationalSlot || "").includes("cyberarm")
+    );
+
+    if (useBrawling || useMartialArts) {
+      damage = "1d6";
+      if (useBrawling && cyberarm) {
+        damage = "2d6";
+      }
+      if (bodyStat >= 5 && bodyStat <= 6) {
+        damage = "2d6";
+      } else if (bodyStat >= 7 && bodyStat <= 10) {
+        damage = "3d6";
+      } else if (bodyStat >= 11) {
+        damage = "4d6";
+      }
+    } else if (useBody) {
+      // Damage is just the body stat, a static number
+      damage = `${bodyStat}`;
+    }
+  }
+
+  const itemIcon = portrait
+    ? `![${abilityName}](${assetUrl}${portrait}?width=40&height=40) `
+    : "";
+  const abilityDescription = api.richTextToMarkdown(description || "");
+
+  let markdownDescription = "";
+
+  // For abilitiies that don't have a primary skill, we use the ability name as the header
+  // and output the description with the icon
+  const abilityHeader = `
+#### ${itemIcon}${abilityName}
+
+---
+${abilityDescription}
+`;
+
+  const ignoreArmor = api.getValueOnRecord(
+    record,
+    `${abilityDataPath}.data.ignoreArmor`
+  );
+  const bonusAblation = api.getValueOnRecord(
+    record,
+    `${abilityDataPath}.data.bonusAblation`
+  );
+  const ablationAmount = bonusAblation + 1 || 1;
+  const critInjuryDamage = api.getValueOnRecord(
+    record,
+    `${abilityDataPath}.data.critInjuryDamage`
+  );
+
+  // Only attack rolls have a targeted location
+  const targetedLocation = isAttack
+    ? record.data?.targetedLocation || "body"
+    : "body";
+
+  if (damage) {
+    const damageButton = `\`\`\`Roll_Damage
+api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
+ const damageMetadata = {
+    rollName: "Damage",
+    tooltip: "Damage with ${abilityName}",
+    weaponName: "${abilityName}",
+    isMelee: true,
+    ignoreHalfSp: ${ignoreArmor === "Ignore Half Armor" ? true : false},
+    isAutofire: false,
+    afMultiplier: 1,
+    targetedLocation: "${targetedLocation}",
+    ablationAmount: ${ablationAmount},
+    ignoresArmorUnder: ${ignoreArmor === "Ignore Full Armor" ? 100 : 0},
+    nonLethal: false,
+    nonLethalGreaterThanOne: false,
+    noArmorAblation: ${ignoreArmor === "Ignore Full Armor" ? true : false},
+    noCriticalInjuries: false,
+    explosive: false,
+    targetIsMortallyWounded: false,
+  };
+
+  let modifiers = getEffectsAndModifiersForToken(
+    updatedRecord,
+    ["damageBonus", "damagePenalty"],
+    "melee",
+    null,
+    null,
+    null
+  );
+
+  let ablationModifiers = getEffectsAndModifiersForToken(
+    updatedRecord,
+    ["armorAblationBonus"],
+    "melee",
+    null,
+    null,
+    null
+  );
+  if (ablationModifiers.length > 0) {
+    ablationModifiers.forEach((modifier) => {
+      if (modifier.active === true) {
+        damageMetadata.ablationAmount += parseInt(modifier.value, 10) || 0;
+      }
+    });
+  }
+
+  api.promptRollForToken(
+    updatedRecord,
+    "Damage with ${abilityName}",
+    '${damage}',
+    modifiers,
+    damageMetadata,
+    "damage"
+  );
+});
+\`\`\``;
+    markdownDescription += `\n${damageButton}`;
+  }
+
+  // Add macros to conditions (such as drug addictions) if any
+  if (conditions) {
+    // Create macros for all Conditions that this action can apply
+    let conditionButtons = "";
+    conditions.forEach((conditionJson) => {
+      const condition = JSON.parse(conditionJson);
+      const conditionName = condition?.name || "";
+      const conditionID = condition?._id || "";
+      const conditionTitle = `Apply_${conditionName.replace(/ /g, "_")}`;
+      if (conditionButtons !== "") {
+        conditionButtons += "\n";
+      }
+      conditionButtons += `\`\`\`${conditionTitle}
+let targets = api.getSelectedOrDroppedToken();
+
+// If record is not null, check if we're the GM or owner and use it
+if (record) {
+if (isGM || record?.record?.ownerId === userId) {
+  targets = [record];
+}
+}
+
+// If we're a player and we did not drop on a record, get our owned tokens
+if (!isGM && targets.length === 0) {
+  targets = api.getSelectedOwnedTokens().map(target => target.token);
+}
+
+// First re-query the condition record
+api.getRecord('conditions', '${conditionID}', (conditionRecord) => {
+if (conditionRecord) {
+  const conditionRecordLink = {
+    value: conditionRecord,
+    tooltip: conditionRecord?.name || "Condition",
+  };
+  targets.forEach(target => {
+    const targetRecord = target.recordType === "characters" ? target.record : target;
+    // For conditions applied this way, we will not deduct HP
+    addCondition(targetRecord, conditionRecordLink, ${critInjuryDamage});
+  });
+}
+});
+\`\`\``;
+    });
+
+    markdownDescription += `\n${conditionButtons}`;
+  }
+
+  // If we're using a potion with an effect or healing, add the buttons
+  if (effects) {
+    // Create macros for all effects that this action can apply
+    let effectButtons = "";
+    effects.forEach((effectJson) => {
+      const effect = JSON.parse(effectJson);
+      const effectName = effect?.name || "";
+      const effectID = effect?._id || "";
+      const effectTitle = `Apply_${effectName.replace(/ /g, "_")}`;
+      if (effectButtons !== "") {
+        effectButtons += "\n";
+      }
+      effectButtons += `\`\`\`${effectTitle}
+let targets = api.getSelectedOrDroppedToken();
+targets.forEach(target => {
+api.addEffectById('${effectID}', target);
+});
+\`\`\``;
+    });
+
+    markdownDescription += `\n${effectButtons}`;
+  }
+
+  const defenderSkill = api.getValueOnRecord(
+    record,
+    `${abilityDataPath}.data.defenderSkill`
+  );
+  let defenderSkillName = "";
+  if (defenderSkill) {
+    const skillCheckObj = JSON.parse(defenderSkill);
+    defenderSkillName = skillCheckObj?.name || "Skill";
+  }
+
+  // Roll skill macro, if defined, with DV if set
+  const checkSkill = api.getValueOnRecord(
+    record,
+    `${abilityDataPath}.data.checkSkill`
+  );
+  let checkSkillName = "";
+  if (checkSkill) {
+    const skillCheckObj = JSON.parse(checkSkill);
+    checkSkillName = skillCheckObj?.name || "Skill";
+  }
+  const checkDv = api.getValueOnRecord(
+    record,
+    `${abilityDataPath}.data.checkDV`
+  );
+  // If check skill is defined we roll it and pass along the markdownDescription
+  if (checkSkillName) {
+    performSkillRoll(record, checkSkillName, {
+      isDodge: false,
+      dv: checkDv,
+      overrideDescription: markdownDescription,
+      defenderSkill: defenderSkillName,
+      targetedLocation: isAttack ? targetedLocation : null,
+      isAttack: isAttack,
+      abilityName: abilityName,
+    });
+  } else {
+    // Otherwise we just output the description
+    if (defenderSkillName) {
+      const skillRollButton = `\`\`\`Roll_${defenderSkillName.replace(
+        / /g,
+        "_"
+      )}
+      const selectedTokens = api.getSelectedOrDroppedToken();
+      selectedTokens.forEach(token => {
+        // Pass along the total of this roll as the DV for the skill check
+        const skillCheckMetadata = {
+          isDodge: false,
+          dv: ${checkDv},
+        };
+    
+        performSkillRoll(token, "${defenderSkillName}", skillCheckMetadata);
+      }); 
+    \`\`\``;
+      markdownDescription += `\n${skillRollButton}`;
+    }
+
+    api.sendMessage(`${abilityHeader}\n${markdownDescription}`, undefined, []);
+  }
+}
+
 function useItem(record, itemDataPath) {
   // Deduct count by 1, delete item if count is 0,
   // and output the description to Chat
@@ -1786,6 +2079,20 @@ function performSkillRoll(record, skillName, additionalMetadata = {}) {
   const woundedPenalty = getWoundedPenalty(record);
   if (woundedPenalty) {
     skillModifiers.push(woundedPenalty);
+  }
+  // Get penalties for aimed attacks using Brawling/Martial Arts
+  if (additionalMetadata.targetedLocation && additionalMetadata.isAttack) {
+    let targetedLocation = additionalMetadata.targetedLocation;
+    if (targetedLocation !== "body") {
+      skillModifiers.push({
+        name: `Aimed Shot: ${capitalize(targetedLocation)}`,
+        value: -8,
+        active: true,
+        valueType: "number",
+        modifierType: "attackPenalty",
+        isPenalty: true,
+      });
+    }
   }
 
   const metadata = {

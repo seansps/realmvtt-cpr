@@ -14,7 +14,8 @@ const metadata = data?.roll?.metadata;
 const modifiers = metadata?.modifiers || [];
 const skillName = metadata?.rollName;
 const tooltip = `Skill Roll for ${skillName}`;
-
+const overrideDescription = metadata?.overrideDescription;
+const defenderSkill = metadata?.defenderSkill;
 const isSeriouslyWounded = metadata?.isSeriouslyWounded || false;
 const isMortallyWounded = metadata?.isMortallyWounded || false;
 
@@ -54,8 +55,40 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
   );
 } else {
   const tags = [];
+
+  if (metadata.isAttack) {
+    tags.push({
+      name: "Attack",
+      tooltip: "This skill check was used to make a melee attack.",
+    });
+  }
+
+  if (metadata.abilityName) {
+    tags.push({
+      name: `Ability: ${metadata.abilityName}`,
+      tooltip: `This skill check was rolled as part of the ${metadata.abilityName} ability.`,
+    });
+  }
+
   if (metadata.priorRoll && metadata.priorRoll.tags) {
     tags.push(...metadata.priorRoll.tags);
+  }
+
+  if (metadata.targetedLocation === "head" && metadata.isAttack) {
+    tags.push({
+      name: `Head Shot`,
+      tooltip: `At a max of 1 ROF, the attack was aimed at the Head.`,
+    });
+  } else if (metadata.targetedLocation === "hand") {
+    tags.push({
+      name: `Hand Shot`,
+      tooltip: `At a max of 1 ROF, the attack was aimed at the Hand.`,
+    });
+  } else if (metadata.targetedLocation === "leg") {
+    tags.push({
+      name: `Leg Shot`,
+      tooltip: `At a max of 1 ROF, the attack was aimed at the Leg.`,
+    });
   }
 
   if (metadata.critSuccess) {
@@ -107,14 +140,36 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
     });
   }
 
+  if (overrideDescription) {
+    message = overrideDescription;
+  }
+
+  // If a DV check is provided, we check it
   if (dv !== undefined && dv !== null) {
     // Success or failure if DV was defined
     // In Cyberpunk RED, you need to roll higher than the DV to succeed
     if (roll.total > dv) {
-      message = `\n\n**[center][color=green]Success[/color] (vs DV ${dv})[/center]**`;
+      message = `\n\**[center][color=green]Success[/color] (vs DV ${dv})[/center]**\n${message}`;
     } else {
-      message = `\n\n**[center][color=red]Failure[/color] (vs DV ${dv})[/center]**`;
+      message = `\n\n**[center][color=red]Failure[/color] (vs DV ${dv})[/center]**\n${message}`;
     }
+  }
+  // Else if a defender skill was provided we add a macro to roll it with this total as the DV
+  else if (defenderSkill) {
+    const skillRollButton = `\`\`\`Roll_${defenderSkill.replace(/ /g, "_")}
+    const selectedTokens = api.getSelectedOrDroppedToken();
+    selectedTokens.forEach(token => {
+      // Pass along the total of this roll as the DV for the skill check
+      const skillCheckMetadata = {
+        isDodge: false,
+        dv: ${roll.total},
+        defenderSkill: "${defenderSkill}",
+      };
+  
+      performSkillRoll(token, "${defenderSkill}", skillCheckMetadata);
+    }); 
+  \`\`\``;
+    message += `\n${skillRollButton}`;
   }
 
   api.sendMessage(message, roll, [], tags);

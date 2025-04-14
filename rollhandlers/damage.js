@@ -114,10 +114,15 @@ if (isHeadshot) {
   });
 }
 
-if (ignoresArmorUnder > 0) {
+if (ignoresArmorUnder > 0 && ignoresArmorUnder < 100) {
   tags.push({
     name: `Ignores SP < ${ignoresArmorUnder}`,
     tooltip: `Damage ignores armor SP if it is less than ${ignoresArmorUnder}.`,
+  });
+} else if (ignoresArmorUnder >= 100) {
+  tags.push({
+    name: `Ignores Armor`,
+    tooltip: `Damage ignores all armor SP.`,
   });
 }
 

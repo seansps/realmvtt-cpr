@@ -204,15 +204,32 @@
     </div>
   </div>
 
-  <div>
-    <label
-      variant="bold"
-      field="ammoListLabel"
-      label="Ammo"
-      size="sm"
-      textalign="center"
-    ></label>
-  </div>
+  <div style="display: flex">
+    <div style="width: 100%">
+      <div>
+        <label
+          variant="bold"
+          field="ammoListLabel"
+          label="Ammo"
+          size="sm"
+          textalign="center"
+        ></label>
+      </div>
 
-  <list listtype="ammo_list" variant="striped" field="inventory"></list>
+      <list listtype="ammo_list" variant="striped" field="inventory"></list>
+    </div>
+    <div style="width: 100%">
+      <div>
+        <label
+          variant="bold"
+          field="abilityListLabel"
+          label="Abilities"
+          size="sm"
+          textalign="center"
+        ></label>
+      </div>
+
+      <list listtype="ability_list" variant="striped" field="abilities"></list>
+    </div>
+  </div>
 </div>

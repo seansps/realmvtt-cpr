@@ -139,17 +139,17 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
   if (metadata.targetedLocation === "head") {
     tags.push({
       name: `Head Shot`,
-      tooltip: `The attack was aimed at the Head.`,
+      tooltip: `At a max of 1 ROF, the attack was aimed at the Head.`,
     });
   } else if (metadata.targetedLocation === "hand") {
     tags.push({
       name: `Hand Shot`,
-      tooltip: `The attack was aimed at the Hand.`,
+      tooltip: `At a max of 1 ROF, the attack was aimed at the Hand.`,
     });
   } else if (metadata.targetedLocation === "leg") {
     tags.push({
       name: `Leg Shot`,
-      tooltip: `The attack was aimed at the Leg.`,
+      tooltip: `At a max of 1 ROF, the attack was aimed at the Leg.`,
     });
   }
 
