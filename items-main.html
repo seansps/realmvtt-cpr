@@ -227,6 +227,15 @@
     );
   }
 
+  function onHumanityLossChange(value) {
+    // Sett the humanity loss button to unhidden
+    const cyberwareDataPath = dataPath.replace(/data.humanityLoss[.]?/, "");
+    api.setValues({
+      [`${cyberwareDataPath}fields.humanityLossBtn.hidden`]:
+        value === "" || value === undefined,
+    });
+  }
+
   function onAttachmentTypeChange(value) {
     // Rebuild the attachment data path incase this is a nested item
     let attachmentDataPath = dataPath.replace(/data.attachmentType[.]?/, "");
@@ -1462,7 +1471,7 @@
         flex-direction: row;
         width: 100%;
         gap: 8px;
-        align-items: center;
+        align-items: flex-end;
       "
     >
       <stringfield
@@ -1470,13 +1479,24 @@
         field="humanityLoss"
         label="Humanity Loss"
         placeholder="Enter Humanity Loss Roll..."
+        onchange="onHumanityLossChange(value);"
       ></stringfield>
-      <checkbox
-        field="halfHumanityLoss"
-        width="200px"
-        label="Is Halved"
-        textalign="left"
-      ></checkbox>
+      <div
+        style="display: flex; flex-direction: column; width: 200px; gap: 4px"
+      >
+        <checkbox
+          field="halfHumanityLoss"
+          width="100%"
+          label="Halved"
+          textalign="left"
+        ></checkbox>
+        <checkbox
+          field="borgware"
+          width="100%"
+          label="Borgware"
+          textalign="left"
+        ></checkbox>
+      </div>
       <numberfield
         width="100%"
         field="baseHumanityLoss"
@@ -1487,7 +1507,15 @@
     </div>
   </box>
 
-  <div style="display: flex; flex-direction: column; width: 100%; gap: 4px">
+  <div
+    style="
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 4px;
+      margin-top: 4px;
+    "
+  >
     <label
       field="weaponAttachedLabel"
       label="Attached Weapon"

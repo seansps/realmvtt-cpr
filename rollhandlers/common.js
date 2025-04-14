@@ -993,6 +993,8 @@ function setStatsAndSkills(
   // If the stat was emp, we set maxHumanity
   if (stat === "emp") {
     valuesToSet["data.humanity"] = valuesToSet["data.actualEmp"] * 10;
+    valuesToSet["data.totalHumanity"] = valuesToSet["data.actualEmp"] * 10;
+
     // Only set curHumanity if it's not already set
     if (record?.data?.curHumanity === undefined) {
       valuesToSet["data.curHumanity"] = valuesToSet["data.actualEmp"] * 10;
@@ -1004,7 +1006,10 @@ function setStatsAndSkills(
   if (stat === "curHumanity") {
     // Set curEmp equal to curHumanity / 10
     valuesToSet["data.curEmp"] = Math.floor(val / 10);
+    valuesToSet["data.totalCurEmp"] = Math.floor(val / 10);
     statToCheck = "emp";
+    // Set stat to emp too, since we are changing skills based on it
+    stat = "curEmp";
     val = Math.floor(val / 10);
   }
 
@@ -1019,6 +1024,34 @@ function setStatsAndSkills(
   }
   if (stat === "luck") {
     statToCheck = "n/a";
+  }
+
+  if (stat === "emp" || stat === "curEmp" || stat === "humanity") {
+    // Go through all equipped cyberware and determine humanity loss
+    const equippedCyberware = (record.data?.inventory || []).filter(
+      (item) =>
+        item.data?.carried === "equipped" && item.data?.type === "cyberware"
+    );
+    let maxHumanityLoss = 0;
+    equippedCyberware.forEach((cyberware) => {
+      const humanityLoss = cyberware.data?.humanityLoss || "";
+      // If the cyberware defines HL, check if it's borgware
+      let maxLoss = humanityLoss ? 2 : 0;
+      if (
+        humanityLoss &&
+        (cyberware.data?.borgware ||
+          cyberware.data?.cyberwareInstallSlot === "borgware")
+      ) {
+        maxLoss = 4;
+      }
+      maxHumanityLoss += maxLoss;
+    });
+    // Set totalHumanity to humanity - maxHumanityLoss
+    if (maxHumanityLoss > 0) {
+      const curTotal =
+        valuesToSet["data.humanity"] || record?.data?.humanity || 0;
+      valuesToSet["data.totalHumanity"] = curTotal - maxHumanityLoss;
+    }
   }
 
   // Update all skills based on this stat

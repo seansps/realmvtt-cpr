@@ -1211,7 +1211,19 @@
         placeholder="0"
         size="xs"
         width="100%"
+        field="totalHumanity"
+        hideonlocked="false"
+        color="blue"
+        label="Max Humanity"
+      ></numberfield>
+
+      <numberfield
+        placeholder="0"
+        size="xs"
+        width="100%"
         field="humanity"
+        onchange="onUpdateStat(value, 'humanity')"
+        hideOnLocked="true"
         color="blue"
         label="Max Humanity"
       ></numberfield>

@@ -1,0 +1,40 @@
+<!-- This list is just the foundational cyberware equipped for a specific type -->
+
+<div style="height: 30px; display: flex; gap: 4px; align-items: center">
+  <div style="width: 30px; min-width: 30px">
+    <portrait width="30px" height="30px" name="portrait"></portrait>
+  </div>
+  <div style="flex-grow: 1">
+    <namefield
+      size="xs"
+      variant="standard"
+      placeholder="Item"
+      field="namefield"
+    ></namefield>
+  </div>
+  <checkbox
+    field="active"
+    size="xs"
+    label="Active"
+    textalign="right"
+  ></checkbox>
+  <popover field="popover">
+    <popover.target>
+      <iconbutton
+        size="md"
+        hidden="true"
+        field="humanityLossBtn"
+        variant="default"
+        options='[{"icon": "IconBrain", "label": "Roll Humanity Loss", "value": "humanityLoss"}]'
+      ></iconbutton>
+    </popover.target>
+    <popover.dropdown>
+      <label
+        size="sm"
+        variant="bold"
+        textalign="center"
+        label="Humanity Loss"
+      ></label>
+    </popover.dropdown>
+  </popover>
+</div>

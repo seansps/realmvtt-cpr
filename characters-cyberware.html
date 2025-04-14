@@ -1,0 +1,58 @@
+<script>
+  function getCyberwareFoundationalFiltersFor(type) {
+    // Only show cyberware that matches the foundational type
+    const filters = [
+      {
+        field: "foundationalSlot",
+        operator: "equals",
+        value: type,
+      },
+    ];
+
+    return filters;
+  }
+</script>
+
+<div>
+  <label variant="bold" textalign="center" label="Cyberware"></label>
+</div>
+
+<!-- Neural Link -->
+<label size="sm" variant="bold" textalign="left" label="Neural Link"></label>
+<list
+  field="inventory"
+  listtype="cyberware_foundational_list"
+  getfilters="return getCyberwareFoundationalFiltersFor('neural link');"
+></list>
+
+<div style="margin-top: 2px">
+  <divider field="neuralLinkDivider"></divider>
+</div>
+
+<!-- Cyberaudio Suite -->
+
+<!-- Right Cybereye -->
+
+<!-- Left Cybereye -->
+
+<!-- Right Cyberarm -->
+
+<!-- Cyberfinders on Right Hand -->
+
+<!-- Left Cyberarm -->
+
+<!-- Cyberfinders on Left Hand -->
+
+<!-- Right Cyberleg -->
+
+<!-- Left Cyberleg -->
+
+<!-- Internal Cyberware -->
+
+<!-- External Cyberware -->
+
+<!-- Fashionware -->
+
+<!-- Borgware -->
+
+<!-- Cyberware from Gear -->
