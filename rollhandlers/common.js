@@ -2981,3 +2981,136 @@ function getOptionSlotValue(cyberwareInstallSlot, leftOrRight) {
 
   return result;
 }
+
+function getCyberwareSlotValue(cyberwareInstallSlot, leftOrRight) {
+  if (cyberwareInstallSlot === "neuralware") {
+    return "usedNeuralLinkOptionSlots";
+  } else if (cyberwareInstallSlot === "chipware") {
+    return "usedChipwareOptionSlots";
+  } else if (cyberwareInstallSlot === "fashionware") {
+    return "usedFashionwareOptionSlots";
+  } else if (cyberwareInstallSlot === "cyberoptics") {
+    if (leftOrRight === "left") {
+      return "usedLeftCyberEyeOptionSlots";
+    } else {
+      return "usedRightCyberEyeOptionSlots";
+    }
+  } else if (cyberwareInstallSlot === "cyberaudio") {
+    return "usedCyberaudioSuiteOptionSlots";
+  } else if (cyberwareInstallSlot === "cyberfingers") {
+    if (leftOrRight === "left") {
+      return "usedLeftCyberFingerOptionSlots";
+    } else {
+      return "usedRightCyberFingerOptionSlots";
+    }
+  } else if (cyberwareInstallSlot === "cyberarms") {
+    if (leftOrRight === "left") {
+      return "usedLeftCyberArmOptionSlots";
+    } else {
+      return "usedRightCyberArmOptionSlots";
+    }
+  } else if (cyberwareInstallSlot === "cyberlegs") {
+    if (leftOrRight === "left") {
+      return "usedLeftCyberLegOptionSlots";
+    } else {
+      return "usedRightCyberLegOptionSlots";
+    }
+  } else if (cyberwareInstallSlot === "internal body cyberware") {
+    return "usedInternalOptionSlots";
+  } else if (cyberwareInstallSlot === "external body cyberware") {
+    return "usedExternalOptionSlots";
+  }
+
+  return "";
+}
+
+function setCyberwareSlotValues(record) {
+  // Update slots used as needed
+  const valuesToSet = {};
+  const cyberwareTables = [
+    "fashionware",
+    "neuralware",
+    "chipware",
+    "cyberoptics",
+    "cyberaudio",
+    "cyberfingers",
+    "internal body cyberware",
+    "external body cyberware",
+    "cyberarms",
+    "cyberlegs",
+    "borgware",
+  ];
+  cyberwareTables.forEach((installSlot) => {
+    // Adjust the slots used based on cyberwareInstallSlot
+    const cyberwareFiltered = (record?.data?.inventory || []).filter(
+      (item) =>
+        item.data?.cyberwareInstallSlot === installSlot &&
+        item.data?.carried === "equipped" &&
+        item.data?.type === "cyberware"
+    );
+    let cyberwareFilteredLeft = cyberwareFiltered;
+    let cyberwareFilteredRight = [];
+    let leftOrRight = "";
+    if (installSlot === "cyberoptics") {
+      leftOrRight = "left";
+      cyberwareFilteredLeft = cyberwareFiltered.filter(
+        (item) => item.data?.location === "left"
+      );
+      cyberwareFilteredRight = cyberwareFiltered.filter(
+        (item) => item.data?.location === "right"
+      );
+    } else if (installSlot === "cyberfingers") {
+      leftOrRight = "left";
+      cyberwareFilteredLeft = cyberwareFiltered.filter(
+        (item) => item.data?.location === "left"
+      );
+      cyberwareFilteredRight = cyberwareFiltered.filter(
+        (item) => item.data?.location === "right"
+      );
+    } else if (installSlot === "cyberarms") {
+      leftOrRight = "left";
+      cyberwareFilteredLeft = cyberwareFiltered.filter(
+        (item) => item.data?.location === "left"
+      );
+      cyberwareFilteredRight = cyberwareFiltered.filter(
+        (item) => item.data?.location === "right"
+      );
+    } else if (installSlot === "cyberlegs") {
+      leftOrRight = "left";
+      cyberwareFilteredLeft = cyberwareFiltered.filter(
+        (item) => item.data?.location === "left"
+      );
+      cyberwareFilteredRight = cyberwareFiltered.filter(
+        (item) => item.data?.location === "right"
+      );
+    }
+
+    let slotValue = getCyberwareSlotValue(installSlot, leftOrRight);
+
+    // If there's a left side, update the left side
+    if (slotValue) {
+      // Get the total slots used for this cyberware
+      const totalSlots = cyberwareFilteredLeft.reduce(
+        (acc, item) => acc + item.data?.slots,
+        0
+      );
+      valuesToSet[`data.${slotValue}`] = totalSlots;
+    }
+
+    // If there's a right side, update the right side
+    if (leftOrRight) {
+      slotValue = getCyberwareSlotValue(installSlot, "right");
+      if (slotValue) {
+        const totalSlots = cyberwareFilteredRight.reduce(
+          (acc, item) => acc + item.data?.slots,
+          0
+        );
+        valuesToSet[`data.${slotValue}`] = totalSlots;
+      }
+    }
+  });
+
+  if (Object.keys(valuesToSet).length > 0) {
+    api.setValuesOnRecord(record, valuesToSet);
+  }
+}

@@ -31,6 +31,24 @@
         operator: "equals",
         value: type,
       },
+      {
+        field: "cyberwareInstallSlot",
+        operator: "equals",
+        value: "foundational",
+      },
+    ];
+
+    return filters;
+  }
+
+  function getCyberwareFiltersFor(type) {
+    // Only show cyberware that matches the foundational type
+    const filters = [
+      {
+        field: "cyberwareInstallSlot",
+        operator: "equals",
+        value: type,
+      },
     ];
 
     return filters;
@@ -53,6 +71,7 @@
   <list
     field="inventory"
     listtype="cyberware_foundational_list"
+    emptylisttext="No Neural Link Equipped"
     getfilters="return getCyberwareFoundationalFiltersFor('neural link');"
   ></list>
 
@@ -80,6 +99,34 @@
     width="100px"
     size="xs"
   ></numberfield>
+
+  <div style="margin-top: 4px">
+    <list
+      field="inventory"
+      listtype="cyberware_list"
+      variant="striped"
+      getfilters="return getCyberwareFiltersFor('neuralware');"
+      emptylisttext="No Neuralware Equipped"
+    ></list>
+  </div>
+
+  <div style="margin-top: 2px">
+    <divider
+      field="chipwareDivider"
+      label="Chipware"
+      color="secondary"
+    ></divider>
+  </div>
+
+  <div style="margin-top: 4px">
+    <list
+      field="inventory"
+      listtype="cyberware_list"
+      variant="striped"
+      getfilters="return getCyberwareFiltersFor('chipware');"
+      emptylisttext="No Chipware Equipped"
+    ></list>
+  </div>
 </box>
 
 <!-- Chipware if slot is in neuralware -->

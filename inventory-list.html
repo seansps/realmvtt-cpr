@@ -70,14 +70,29 @@
         if (!leftOrRight) {
           if (item.data?.cyberwareInstallSlot === "cyberoptics") {
             // Determine which eye we should use
-            const leftEye = api.getValue(`${itemDataPath}.data.leftEye`) || [];
-            const rightEye =
-              api.getValue(`${itemDataPath}.data.rightEye`) || [];
-            if (!leftEye.length && !rightEye.length) {
+            const leftEye = (record?.data?.inventory || []).filter(
+              (item) =>
+                item.data?.cyberwareInstallSlot === "foundational" &&
+                item.data?.foundationalSlot === "left cybereye" &&
+                item.data?.carried === "equipped" &&
+                item.data?.type === "cyberware"
+            );
+            const rightEye = (record?.data?.inventory || []).filter(
+              (item) =>
+                item.data?.cyberwareInstallSlot === "foundational" &&
+                item.data?.foundationalSlot === "right cybereye" &&
+                item.data?.carried === "equipped" &&
+                item.data?.type === "cyberware"
+            );
+            const numSlotsLeftEye =
+              record?.data?.usedLeftCyberEyeOptionSlots || 0;
+            const numSlotsRightEye =
+              record?.data?.usedRightCyberEyeOptionSlots || 0;
+            if (!leftEye && !rightEye) {
               leftOrRight = "left";
-            } else if (!leftEye.length) {
+            } else if (!leftEye) {
               leftOrRight = "right";
-            } else if (leftEye.length < rightEye.length) {
+            } else if (numSlotsLeftEye < numSlotsRightEye) {
               leftOrRight = "left";
             } else {
               leftOrRight = "right";
@@ -85,15 +100,29 @@
             valuesToSet[`${itemDataPath}.data.location`] = leftOrRight;
           } else if (item.data?.cyberwareInstallSlot === "cyberfingers") {
             // Determine which hand we should use
-            const leftHand =
-              api.getValue(`${itemDataPath}.data.leftHandFingers`) || [];
-            const rightHand =
-              api.getValue(`${itemDataPath}.data.rightHandFingers`) || [];
-            if (!leftHand.length && !rightHand.length) {
+            const leftHand = (record?.data?.inventory || []).filter(
+              (item) =>
+                item.data?.cyberwareInstallSlot === "foundational" &&
+                item.data?.foundationalSlot === "left hand" &&
+                item.data?.carried === "equipped" &&
+                item.data?.type === "cyberware"
+            );
+            const rightHand = (record?.data?.inventory || []).filter(
+              (item) =>
+                item.data?.cyberwareInstallSlot === "foundational" &&
+                item.data?.foundationalSlot === "right hand" &&
+                item.data?.carried === "equipped" &&
+                item.data?.type === "cyberware"
+            );
+            const numSlotsLeftHand =
+              record?.data?.usedLeftCyberFingerOptionSlots || 0;
+            const numSlotsRightHand =
+              record?.data?.usedRightCyberFingerOptionSlots || 0;
+            if (!leftHand && !rightHand) {
               leftOrRight = "left";
-            } else if (!leftHand.length) {
+            } else if (!leftHand) {
               leftOrRight = "right";
-            } else if (leftHand.length < rightHand.length) {
+            } else if (numSlotsLeftHand < numSlotsRightHand) {
               leftOrRight = "left";
             } else {
               leftOrRight = "right";
@@ -101,14 +130,29 @@
             valuesToSet[`${itemDataPath}.data.location`] = leftOrRight;
           } else if (item.data?.cyberwareInstallSlot === "cyberarms") {
             // Determine which arm we should use
-            const leftArm = api.getValue(`${itemDataPath}.data.leftArm`) || [];
-            const rightArm =
-              api.getValue(`${itemDataPath}.data.rightArm`) || [];
-            if (!leftArm.length && !rightArm.length) {
+            const leftArm = (record?.data?.inventory || []).filter(
+              (item) =>
+                item.data?.cyberwareInstallSlot === "foundational" &&
+                item.data?.foundationalSlot === "left cyberarm" &&
+                item.data?.carried === "equipped" &&
+                item.data?.type === "cyberware"
+            );
+            const rightArm = (record?.data?.inventory || []).filter(
+              (item) =>
+                item.data?.cyberwareInstallSlot === "foundational" &&
+                item.data?.foundationalSlot === "right cyberarm" &&
+                item.data?.carried === "equipped" &&
+                item.data?.type === "cyberware"
+            );
+            const numSlotsLeftArm =
+              record?.data?.usedLeftCyberArmOptionSlots || 0;
+            const numSlotsRightArm =
+              record?.data?.usedRightCyberArmOptionSlots || 0;
+            if (!leftArm && !rightArm) {
               leftOrRight = "left";
-            } else if (!leftArm.length) {
+            } else if (!leftArm) {
               leftOrRight = "right";
-            } else if (leftArm.length < rightArm.length) {
+            } else if (numSlotsLeftArm < numSlotsRightArm) {
               leftOrRight = "left";
             } else {
               leftOrRight = "right";
@@ -116,14 +160,29 @@
             valuesToSet[`${itemDataPath}.data.location`] = leftOrRight;
           } else if (item.data?.cyberwareInstallSlot === "cyberlegs") {
             // Determine which leg we should use
-            const leftLeg = api.getValue(`${itemDataPath}.data.leftLeg`) || [];
-            const rightLeg =
-              api.getValue(`${itemDataPath}.data.rightLeg`) || [];
-            if (!leftLeg.length && !rightLeg.length) {
+            const leftLeg = (record?.data?.inventory || []).filter(
+              (item) =>
+                item.data?.cyberwareInstallSlot === "foundational" &&
+                item.data?.foundationalSlot === "left cyberleg" &&
+                item.data?.carried === "equipped" &&
+                item.data?.type === "cyberware"
+            );
+            const rightLeg = (record?.data?.inventory || []).filter(
+              (item) =>
+                item.data?.cyberwareInstallSlot === "foundational" &&
+                item.data?.foundationalSlot === "right cyberleg" &&
+                item.data?.carried === "equipped" &&
+                item.data?.type === "cyberware"
+            );
+            const numSlotsLeftLeg =
+              record?.data?.usedLeftCyberLegOptionSlots || 0;
+            const numSlotsRightLeg =
+              record?.data?.usedRightCyberLegOptionSlots || 0;
+            if (!leftLeg && !rightLeg) {
               leftOrRight = "left";
-            } else if (!leftLeg.length) {
+            } else if (!leftLeg) {
               leftOrRight = "right";
-            } else if (leftLeg.length < rightLeg.length) {
+            } else if (numSlotsLeftLeg < numSlotsRightLeg) {
               leftOrRight = "left";
             } else {
               leftOrRight = "right";
@@ -165,7 +224,11 @@
       bestEquippedArmor.shield[0]?.penalty || 0;
 
     if (Object.keys(valuesToSet).length > 0) {
-      api.setValues(valuesToSet);
+      api.setValues(valuesToSet, (record) => {
+        setCyberwareSlotValues(record);
+      });
+    } else {
+      setCyberwareSlotValues(record);
     }
   }
 
