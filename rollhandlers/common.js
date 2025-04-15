@@ -2136,14 +2136,24 @@ function performSkillRoll(record, skillName, additionalMetadata = {}) {
     ...additionalMetadata,
   };
 
-  api.promptRollForToken(
-    record,
-    `Skill Check: ${skillName}`,
-    "1d10",
-    skillModifiers,
-    metadata,
-    "skill"
-  );
+  if (record.linked === undefined) {
+    api.promptRoll(
+      `Skill Check: ${skillName}`,
+      "1d10",
+      skillModifiers,
+      metadata,
+      "skill"
+    );
+  } else {
+    api.promptRollForToken(
+      record,
+      `Skill Check: ${skillName}`,
+      "1d10",
+      skillModifiers,
+      metadata,
+      "skill"
+    );
+  }
 }
 
 function performAttackRoll(
@@ -2683,14 +2693,24 @@ function performDamageRoll(record, weapon, type = "single") {
     });
   }
 
-  api.promptRollForToken(
-    record,
-    `Damage with ${weapon.name}`,
-    damage,
-    modifiers,
-    damageMetadata,
-    "damage"
-  );
+  if (record.linked === undefined) {
+    api.promptRoll(
+      `Damage with ${weapon.name}`,
+      damage,
+      modifiers,
+      damageMetadata,
+      "damage"
+    );
+  } else {
+    api.promptRollForToken(
+      record,
+      `Damage with ${weapon.name}`,
+      damage,
+      modifiers,
+      damageMetadata,
+      "damage"
+    );
+  }
 }
 
 function getBrokenLegMacro() {
