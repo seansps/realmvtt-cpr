@@ -1,4 +1,28 @@
 <script>
+  function onLoad() {
+    // If we haven't set the max slots yet, set them now
+
+    if (record?.data?.neuralLinkOptionSlotsMax === undefined) {
+      // Set defaults, but will need to check on equip of foundational cyberware to update
+      api.setValues({
+        "data.neuralLinkOptionSlots": 5,
+        "data.leftCyberEyeOptionSlots": 3,
+        "data.rightCyberEyeOptionSlots": 3,
+        "data.cyberaudioSuiteOptionSlots": 3,
+        "data.chipwareOptionSlots": 1,
+        "data.internalOptionSlots": 7,
+        "data.externalOptionSlots": 7,
+        "data.rightCyberArmOptionSlots": 4,
+        "data.leftCyberArmOptionSlots": 4,
+        "data.rightCyberFingerOptionSlots": 5,
+        "data.leftCyberFingerOptionSlots": 5,
+        "data.leftCyberLegOptionSlots": 3,
+        "data.rightCyberLegOptionSlots": 3,
+        "data.fashionwareOptionSlots": 7,
+      });
+    }
+  }
+
   function getCyberwareFoundationalFiltersFor(type) {
     // Only show cyberware that matches the foundational type
     const filters = [
@@ -13,21 +37,52 @@
   }
 </script>
 
+<numberfield
+  field="hiddenField"
+  hidden="true"
+  onchange="onLoad()"
+></numberfield>
+
 <div>
   <label variant="bold" textalign="center" label="Cyberware"></label>
 </div>
 
 <!-- Neural Link -->
 <label size="sm" variant="bold" textalign="left" label="Neural Link"></label>
-<list
-  field="inventory"
-  listtype="cyberware_foundational_list"
-  getfilters="return getCyberwareFoundationalFiltersFor('neural link');"
-></list>
+<box variant="card" field="neuralLinkGroup" size="xs">
+  <list
+    field="inventory"
+    listtype="cyberware_foundational_list"
+    getfilters="return getCyberwareFoundationalFiltersFor('neural link');"
+  ></list>
 
-<div style="margin-top: 2px">
-  <divider field="neuralLinkDivider"></divider>
-</div>
+  <div style="margin-top: 2px">
+    <divider
+      field="neuralLinkDivider"
+      label="Option Slots"
+      color="primary"
+    ></divider>
+  </div>
+
+  <div style="display: flex; flex-direction: row; gap: 4px">
+    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+    <counter
+      field="usedNeuralLinkOptionSlots"
+      size="xs"
+      maxvaluefield="neuralLinkOptionSlots"
+    ></counter>
+  </div>
+  <numberfield
+    field="neuralLinkOptionSlots"
+    minvalue="1"
+    hideonlocked="true"
+    label="Max Slots"
+    width="100px"
+    size="xs"
+  ></numberfield>
+</box>
+
+<!-- Chipware if slot is in neuralware -->
 
 <!-- Cyberaudio Suite -->
 

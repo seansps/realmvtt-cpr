@@ -2933,3 +2933,51 @@ function addCondition(record, recordLink, deductHp = 0) {
     );
   }
 }
+
+// Map slot to option slot value
+function getOptionSlotValue(cyberwareInstallSlot, leftOrRight) {
+  const result = {
+    fieldName: "",
+    defaultValue: 0,
+  };
+
+  if (cyberwareInstallSlot === "neural link") {
+    result.fieldName = "neuralLinkOptionSlots";
+    result.defaultValue = 5;
+  } else if (
+    cyberwareInstallSlot === "right cybereye" ||
+    cyberwareInstallSlot === "left cybereye"
+  ) {
+    if (leftOrRight === "left") {
+      result.fieldName = "leftCyberEyeOptionSlots";
+    } else {
+      result.fieldName = "rightCyberEyeOptionSlots";
+    }
+    result.defaultValue = 3;
+  } else if (cyberwareInstallSlot === "cyberaudio suite") {
+    result.fieldName = "cyberaudioSuiteOptionSlots";
+    result.defaultValue = 3;
+  } else if (
+    cyberwareInstallSlot === "right cyberarm" ||
+    cyberwareInstallSlot === "left cyberarm"
+  ) {
+    if (leftOrRight === "left") {
+      result.fieldName = "leftCyberArmOptionSlots";
+    } else {
+      result.fieldName = "rightCyberArmOptionSlots";
+    }
+    result.defaultValue = 4;
+  } else if (
+    cyberwareInstallSlot === "right cyberleg" ||
+    cyberwareInstallSlot === "left cyberleg"
+  ) {
+    if (leftOrRight === "left") {
+      result.fieldName = "leftCyberLegOptionSlots";
+    } else {
+      result.fieldName = "rightCyberLegOptionSlots";
+    }
+    result.defaultValue = 3;
+  }
+
+  return result;
+}

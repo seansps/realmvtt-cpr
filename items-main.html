@@ -160,6 +160,7 @@
       valuesToSet[`${pathToFields}.consumable.hidden`] = true;
       valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
       valuesToSet[`${pathToFields}.weaponAttachmentProperties.hidden`] = false;
+      valuesToSet[`${pathToFields}.slots.hidden`] = false;
     } else {
       valuesToSet[`${pathToFields}.consumable.hidden`] = true;
       valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = true;
@@ -537,6 +538,28 @@
         api.setValues(valuesToSet);
       }
     });
+  }
+
+  function onCyberwareInstallSlotChange(value) {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+
+    // If this is an nested item, just return. (Like a weapon attachment)
+    let pathToFields = "fields";
+    if (nearestParentDataPath !== "") {
+      pathToFields = `${nearestParentDataPath}.fields`;
+    }
+
+    if (value === "foundational") {
+      api.setValues({
+        [`${pathToFields}.optionSlots.hidden`]: false,
+        [`${pathToFields}.slots.hidden`]: true,
+      });
+    } else {
+      api.setValues({
+        [`${pathToFields}.optionSlots.hidden`]: true,
+        [`${pathToFields}.slots.hidden`]: false,
+      });
+    }
   }
 
   function onAttachmentsChange() {
@@ -1419,6 +1442,7 @@
         field="cyberwareInstallSlot"
         label="Cyberware Install Slot"
         placeholder="Select Install Slot..."
+        onchange="onCyberwareInstallSlotChange(value);"
         options='[{"label": "Foundational", "value": "foundational"}, {"label": "Fashionware", "value": "fashionware"}, 
         {"label": "Neuralware", "value": "neuralware"}, {"label": "Chipware", "value": "chipware"}, {"label": "Cyberoptics", "value": "cyberoptics"}, 
         {"label": "Cyberaudio", "value": "cyberaudio"}, {"label": "Cyberfingers", "value": "cyberfingers"}, 
@@ -1462,6 +1486,15 @@
         field="slots"
         label="Slots Required"
         placeholder="Enter Slots..."
+        minvalue="0"
+      ></numberfield>
+
+      <numberfield
+        width="100%"
+        field="optionSlots"
+        hidden="true"
+        label="Option Slots"
+        placeholder="Enter Option Slots..."
         minvalue="0"
       ></numberfield>
     </div>

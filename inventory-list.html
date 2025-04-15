@@ -43,12 +43,95 @@
 
     // If this is cyberware, and we haven't set the active status, set it to true
     const activeStatus = api.getValue(`${itemDataPath}.data.active`);
-    if (
-      value === "equipped" &&
-      itemType === "cyberware" &&
-      (activeStatus === undefined || activeStatus === null)
-    ) {
-      valuesToSet[`${itemDataPath}.data.active`] = true;
+    if (value === "equipped" && itemType === "cyberware") {
+      if (activeStatus === undefined || activeStatus === null) {
+        valuesToSet[`${itemDataPath}.data.active`] = true;
+      }
+      // If it's foundational cyberware, we need to update the option slots
+      if (item.data?.cyberwareInstallSlot === "foundational") {
+        const optionSlots = api.getValue(`${itemDataPath}.data.optionSlots`);
+        const foundationalSlot = api.getValue(
+          `${itemDataPath}.data.foundationalSlot`
+        );
+        const leftOrRight = foundationalSlot.toLowerCase().includes("left")
+          ? "left"
+          : "right";
+        const optionSlotValue = getOptionSlotValue(
+          foundationalSlot,
+          leftOrRight
+        );
+        if (optionSlotValue.fieldName) {
+          valuesToSet[`data.${optionSlotValue.fieldName}`] =
+            optionSlots || optionSlotValue.defaultValue;
+        }
+      } else {
+        // On the cyberware list, we'll store if it's left or right, if required
+        let leftOrRight = item.data?.location;
+        if (!leftOrRight) {
+          if (item.data?.cyberwareInstallSlot === "cyberoptics") {
+            // Determine which eye we should use
+            const leftEye = api.getValue(`${itemDataPath}.data.leftEye`) || [];
+            const rightEye =
+              api.getValue(`${itemDataPath}.data.rightEye`) || [];
+            if (!leftEye.length && !rightEye.length) {
+              leftOrRight = "left";
+            } else if (!leftEye.length) {
+              leftOrRight = "right";
+            } else if (leftEye.length < rightEye.length) {
+              leftOrRight = "left";
+            } else {
+              leftOrRight = "right";
+            }
+            valuesToSet[`${itemDataPath}.data.location`] = leftOrRight;
+          } else if (item.data?.cyberwareInstallSlot === "cyberfingers") {
+            // Determine which hand we should use
+            const leftHand =
+              api.getValue(`${itemDataPath}.data.leftHandFingers`) || [];
+            const rightHand =
+              api.getValue(`${itemDataPath}.data.rightHandFingers`) || [];
+            if (!leftHand.length && !rightHand.length) {
+              leftOrRight = "left";
+            } else if (!leftHand.length) {
+              leftOrRight = "right";
+            } else if (leftHand.length < rightHand.length) {
+              leftOrRight = "left";
+            } else {
+              leftOrRight = "right";
+            }
+            valuesToSet[`${itemDataPath}.data.location`] = leftOrRight;
+          } else if (item.data?.cyberwareInstallSlot === "cyberarms") {
+            // Determine which arm we should use
+            const leftArm = api.getValue(`${itemDataPath}.data.leftArm`) || [];
+            const rightArm =
+              api.getValue(`${itemDataPath}.data.rightArm`) || [];
+            if (!leftArm.length && !rightArm.length) {
+              leftOrRight = "left";
+            } else if (!leftArm.length) {
+              leftOrRight = "right";
+            } else if (leftArm.length < rightArm.length) {
+              leftOrRight = "left";
+            } else {
+              leftOrRight = "right";
+            }
+            valuesToSet[`${itemDataPath}.data.location`] = leftOrRight;
+          } else if (item.data?.cyberwareInstallSlot === "cyberlegs") {
+            // Determine which leg we should use
+            const leftLeg = api.getValue(`${itemDataPath}.data.leftLeg`) || [];
+            const rightLeg =
+              api.getValue(`${itemDataPath}.data.rightLeg`) || [];
+            if (!leftLeg.length && !rightLeg.length) {
+              leftOrRight = "left";
+            } else if (!leftLeg.length) {
+              leftOrRight = "right";
+            } else if (leftLeg.length < rightLeg.length) {
+              leftOrRight = "left";
+            } else {
+              leftOrRight = "right";
+            }
+            valuesToSet[`${itemDataPath}.data.location`] = leftOrRight;
+          }
+        }
+      }
     }
 
     // Get the current ac due to armor and set it on the
