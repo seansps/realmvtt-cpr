@@ -1749,8 +1749,8 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
     });
   }
 
-  api.promptRollForToken(
-    updatedRecord,
+  record = updatedRecord;
+  api.promptRoll(
     "Damage with ${abilityName}",
     '${damage}',
     modifiers,
@@ -2011,7 +2011,8 @@ targets.forEach(target => {
     );
     const healingButton = `\`\`\`Roll_Healing
 api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
-  api.promptRollForToken(updatedRecord, '${escapedName} Healing', '${healingRoll}', [], {}, 'healing')
+  record = updatedRecord;
+  api.promptRoll('${escapedName} Healing', '${healingRoll}', [], {}, 'healing')
 });
 \`\`\``;
     markdownDescription += `\n${healingButton}`;
@@ -2048,6 +2049,76 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
   });
 \`\`\``;
     markdownDescription += `\n${skillRollButton}`;
+  }
+
+  // Check for primary or secondary Humanity Loss and add macros
+  let primaryHumanityLossValue = api.getValueOnRecord(
+    record,
+    `${itemDataPath}.data.primaryHumanityLoss`
+  );
+  const primaryHumanityLoss = primaryHumanityLossValue
+    ? `${primaryHumanityLossValue}`
+    : "";
+  const primaryDiceRoll = api.getValueOnRecord(
+    record,
+    `${itemDataPath}.data.primaryDiceRoll`
+  );
+  let secondaryHumanityLossValue = api.getValueOnRecord(
+    record,
+    `${itemDataPath}.data.secondaryHumanityLoss`
+  );
+  const secondaryHumanityLoss = secondaryHumanityLossValue
+    ? `${secondaryHumanityLossValue}`
+    : "";
+  const secondaryDiceRoll = api.getValueOnRecord(
+    record,
+    `${itemDataPath}.data.secondaryDiceRoll`
+  );
+  if (primaryHumanityLoss || primaryDiceRoll) {
+    const primaryLossButton = `\`\`\`Roll_Primary_Humanity_Loss
+    const selectedTokens = api.getSelectedOrDroppedToken();
+    selectedTokens.forEach(token => {
+      const rollLoss = '${primaryHumanityLoss}' || '${primaryDiceRoll}';
+      const metadata = {
+        // Always use base loss if base is selected, else check if half loss is enabled
+        halfHumanityLoss: false,
+        isBaseLoss: false,
+      };
+
+      api.promptRollForToken(
+        token,
+        "Primary Humanity Loss",
+        rollLoss,
+        [],
+        metadata,
+        "humanityLoss"
+      );
+    });
+  \`\`\``;
+    markdownDescription += `\n${primaryLossButton}`;
+  }
+  if (secondaryHumanityLoss || secondaryDiceRoll) {
+    const secondaryLossButton = `\`\`\`Roll_Secondary_Humanity_Loss
+    const selectedTokens = api.getSelectedOrDroppedToken();
+    selectedTokens.forEach(token => {
+      const rollLoss = '${secondaryHumanityLoss}' || '${secondaryDiceRoll}';
+      const metadata = {
+        // Always use base loss if base is selected, else check if half loss is enabled
+        halfHumanityLoss: false,
+        isBaseLoss: false,
+      };
+
+      api.promptRollForToken(
+        token,
+        "Secondary Humanity Loss",
+        rollLoss,
+        [],
+        metadata,
+        "humanityLoss"
+      );
+    });
+  \`\`\``;
+    markdownDescription += `\n${secondaryLossButton}`;
   }
 
   api.sendMessage(markdownDescription, undefined, []);
