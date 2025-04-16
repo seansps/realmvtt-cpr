@@ -83,19 +83,21 @@
                 item.data?.foundationalSlot === "left cybereye" &&
                 item.data?.carried === "equipped" &&
                 item.data?.type === "cyberware"
-            );
+            )?.[0];
             const rightEye = (record?.data?.inventory || []).filter(
               (item) =>
                 item.data?.cyberwareInstallSlot === "foundational" &&
                 item.data?.foundationalSlot === "right cybereye" &&
                 item.data?.carried === "equipped" &&
                 item.data?.type === "cyberware"
-            );
+            )?.[0];
             const numSlotsLeftEye =
               record?.data?.usedLeftCyberEyeOptionSlots || 0;
             const numSlotsRightEye =
               record?.data?.usedRightCyberEyeOptionSlots || 0;
             if (!leftEye && !rightEye) {
+              leftOrRight = "right";
+            } else if (!rightEye) {
               leftOrRight = "left";
             } else if (!leftEye) {
               leftOrRight = "right";
@@ -119,19 +121,21 @@
                 item.data?.foundationalSlot === "left hand" &&
                 item.data?.carried === "equipped" &&
                 item.data?.type === "cyberware"
-            );
+            )?.[0];
             const rightHand = (record?.data?.inventory || []).filter(
               (item) =>
                 item.data?.cyberwareInstallSlot === "foundational" &&
                 item.data?.foundationalSlot === "right hand" &&
                 item.data?.carried === "equipped" &&
                 item.data?.type === "cyberware"
-            );
+            )?.[0];
             const numSlotsLeftHand =
               record?.data?.usedLeftCyberFingerOptionSlots || 0;
             const numSlotsRightHand =
               record?.data?.usedRightCyberFingerOptionSlots || 0;
             if (!leftHand && !rightHand) {
+              leftOrRight = "right";
+            } else if (!rightHand) {
               leftOrRight = "left";
             } else if (!leftHand) {
               leftOrRight = "right";
@@ -159,19 +163,21 @@
                 item.data?.foundationalSlot === "left cyberarm" &&
                 item.data?.carried === "equipped" &&
                 item.data?.type === "cyberware"
-            );
+            )?.[0];
             const rightArm = (record?.data?.inventory || []).filter(
               (item) =>
                 item.data?.cyberwareInstallSlot === "foundational" &&
                 item.data?.foundationalSlot === "right cyberarm" &&
                 item.data?.carried === "equipped" &&
                 item.data?.type === "cyberware"
-            );
+            )?.[0];
             const numSlotsLeftArm =
               record?.data?.usedLeftCyberArmOptionSlots || 0;
             const numSlotsRightArm =
               record?.data?.usedRightCyberArmOptionSlots || 0;
             if (!leftArm && !rightArm) {
+              leftOrRight = "right";
+            } else if (!rightArm) {
               leftOrRight = "left";
             } else if (!leftArm) {
               leftOrRight = "right";
@@ -210,19 +216,21 @@
                 item.data?.foundationalSlot === "left cyberleg" &&
                 item.data?.carried === "equipped" &&
                 item.data?.type === "cyberware"
-            );
+            )?.[0];
             const rightLeg = (record?.data?.inventory || []).filter(
               (item) =>
                 item.data?.cyberwareInstallSlot === "foundational" &&
                 item.data?.foundationalSlot === "right cyberleg" &&
                 item.data?.carried === "equipped" &&
                 item.data?.type === "cyberware"
-            );
+            )?.[0];
             const numSlotsLeftLeg =
               record?.data?.usedLeftCyberLegOptionSlots || 0;
             const numSlotsRightLeg =
               record?.data?.usedRightCyberLegOptionSlots || 0;
             if (!leftLeg && !rightLeg) {
+              leftOrRight = "right";
+            } else if (!rightLeg) {
               leftOrRight = "left";
             } else if (!leftLeg) {
               leftOrRight = "right";

@@ -3059,7 +3059,7 @@ function setCyberwareSlotValues(record) {
     if (installSlot === "cyberarms") {
       cyberwareFiltered = (record?.data?.inventory || []).filter(
         (item) =>
-          (item.data?.foundationalSlot === installSlot &&
+          (item.data?.cyberwareInstallSlot === installSlot &&
             item.data?.carried === "equipped" &&
             item.data?.type === "cyberware") ||
           (item.data?.cyberwareInstallSlot === "foundational" &&
@@ -3071,7 +3071,7 @@ function setCyberwareSlotValues(record) {
     } else if (installSlot === "cyberlegs") {
       cyberwareFiltered = (record?.data?.inventory || []).filter(
         (item) =>
-          (item.data?.foundationalSlot === installSlot &&
+          (item.data?.cyberwareInstallSlot === installSlot &&
             item.data?.carried === "equipped" &&
             item.data?.type === "cyberware") ||
           (item.data?.cyberwareInstallSlot === "foundational" &&
