@@ -1,8 +1,25 @@
 <script>
+  // TODO ondrop to add cyberware here too
+
   function onLoad() {
     // If we haven't set the max slots yet, set them now
 
-    if (record?.data?.neuralLinkOptionSlotsMax === undefined) {
+    if (
+      record?.data?.neuralLinkOptionSlots === undefined ||
+      record?.data?.leftCyberEyeOptionSlots === undefined ||
+      record?.data?.rightCyberEyeOptionSlots === undefined ||
+      record?.data?.cyberaudioSuiteOptionSlots === undefined ||
+      record?.data?.chipwareOptionSlots === undefined ||
+      record?.data?.internalOptionSlots === undefined ||
+      record?.data?.externalOptionSlots === undefined ||
+      record?.data?.rightCyberArmOptionSlots === undefined ||
+      record?.data?.leftCyberArmOptionSlots === undefined ||
+      record?.data?.rightCyberFingerOptionSlots === undefined ||
+      record?.data?.leftCyberFingerOptionSlots === undefined ||
+      record?.data?.leftCyberLegOptionSlots === undefined ||
+      record?.data?.rightCyberLegOptionSlots === undefined ||
+      record?.data?.fashionwareOptionSlots === undefined
+    ) {
       // Set defaults, but will need to check on equip of foundational cyberware to update
       api.setValues({
         "data.neuralLinkOptionSlots": 5,
@@ -41,7 +58,7 @@
     return filters;
   }
 
-  function getCyberwareFiltersFor(type) {
+  function getCyberwareFiltersFor(type, location) {
     // Only show cyberware that matches the foundational type
     const filters = [
       {
@@ -51,15 +68,51 @@
       },
     ];
 
+    if (location) {
+      filters.push({
+        field: "cyberLocation",
+        operator: "equals",
+        value: location,
+      });
+    }
+
+    // If this is an arm or left, also show foundational left/right hands/feet
+    if (type === "cyberarms" || type === "cyberlegs") {
+      let secondaryType = "hand";
+      if (type === "cyberlegs") {
+        secondaryType = "foot";
+      }
+      filters.push({
+        field: "foundationalSlot",
+        operator: "equals",
+        value: `${location} ${secondaryType}`,
+        isOr: true,
+      });
+      filters.push({
+        field: "cyberLocation",
+        operator: "equals",
+        value: location,
+        isOr: false,
+      });
+      filters.push({
+        field: "carried",
+        operator: "equals",
+        value: "equipped",
+        isOr: false,
+      });
+      filters.push({
+        field: "type",
+        operator: "equals",
+        value: "cyberware",
+        isOr: false,
+      });
+    }
+
     return filters;
   }
 </script>
 
-<numberfield
-  field="hiddenField"
-  hidden="true"
-  onchange="onLoad()"
-></numberfield>
+<numberfield field="hiddenField" hidden="true" onload="onLoad()"></numberfield>
 
 <div>
   <label variant="bold" textalign="center" label="Cyberware"></label>
@@ -109,7 +162,7 @@
       emptylisttext="No Neuralware Equipped"
     ></list>
   </div>
-
+  <!-- Chipware if slot is in neuralware -->
   <div style="margin-top: 2px">
     <divider
       field="chipwareDivider"
@@ -117,7 +170,6 @@
       color="secondary"
     ></divider>
   </div>
-
   <div style="margin-top: 4px">
     <list
       field="inventory"
@@ -129,21 +181,279 @@
   </div>
 </box>
 
-<!-- Chipware if slot is in neuralware -->
-
 <!-- Cyberaudio Suite -->
+<div style="margin-top: 8px"></div>
+<label
+  size="sm"
+  variant="bold"
+  textalign="left"
+  label="Cyberaudio Suite"
+></label>
+<box variant="card" field="cyberaudioSuiteGroup" size="xs">
+  <list
+    field="inventory"
+    listtype="cyberware_foundational_list"
+    emptylisttext="No Cyberaudio Suite Equipped"
+    getfilters="return getCyberwareFoundationalFiltersFor('cyberaudio suite');"
+  ></list>
+
+  <div style="margin-top: 2px">
+    <divider
+      field="cyberaudioSuiteDivider"
+      label="Option Slots"
+      color="primary"
+    ></divider>
+  </div>
+
+  <div style="display: flex; flex-direction: row; gap: 4px">
+    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+    <counter
+      field="usedCyberaudioSuiteOptionSlots"
+      size="xs"
+      maxvaluefield="cyberaudioSuiteOptionSlots"
+    ></counter>
+  </div>
+  <numberfield
+    field="cyberaudioSuiteOptionSlots"
+    minvalue="1"
+    hideonlocked="true"
+    label="Max Slots"
+    width="100px"
+    size="xs"
+  ></numberfield>
+
+  <div style="margin-top: 4px">
+    <list
+      field="inventory"
+      listtype="cyberware_list"
+      variant="striped"
+      getfilters="return getCyberwareFiltersFor('cyberaudio');"
+      emptylisttext="No Cyberaudio Equipped"
+    ></list>
+  </div>
+</box>
 
 <!-- Right Cybereye -->
+<div style="margin-top: 8px"></div>
+<label size="sm" variant="bold" textalign="left" label="Right Cybereye"></label>
+<box variant="card" field="rightCybereyeGroup" size="xs">
+  <list
+    field="inventory"
+    listtype="cyberware_foundational_list"
+    emptylisttext="No Right Cybereye Equipped"
+    getfilters="return getCyberwareFoundationalFiltersFor('right cybereye');"
+  ></list>
+
+  <div style="margin-top: 2px">
+    <divider
+      field="rightCybereyeDivider"
+      label="Option Slots"
+      color="primary"
+    ></divider>
+  </div>
+
+  <div style="display: flex; flex-direction: row; gap: 4px">
+    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+    <counter
+      field="usedRightCyberEyeOptionSlots"
+      size="xs"
+      maxvaluefield="rightCyberEyeOptionSlots"
+    ></counter>
+  </div>
+  <numberfield
+    field="rightCyberEyeOptionSlots"
+    minvalue="1"
+    hideonlocked="true"
+    label="Max Slots"
+    width="100px"
+    size="xs"
+  ></numberfield>
+
+  <div style="margin-top: 4px">
+    <list
+      field="inventory"
+      listtype="cyberware_list"
+      variant="striped"
+      getfilters="return getCyberwareFiltersFor('cyberoptics', 'right');"
+      emptylisttext="No Cyberoptics Equipped in Right Eye"
+    ></list>
+  </div>
+</box>
 
 <!-- Left Cybereye -->
+<div style="margin-top: 8px"></div>
+<label size="sm" variant="bold" textalign="left" label="Left Cybereye"></label>
+<box variant="card" field="leftCybereyeGroup" size="xs">
+  <list
+    field="inventory"
+    listtype="cyberware_foundational_list"
+    emptylisttext="No Left Cybereye Equipped"
+    getfilters="return getCyberwareFoundationalFiltersFor('left cybereye');"
+  ></list>
+
+  <div style="margin-top: 2px">
+    <divider
+      field="leftCybereyeDivider"
+      label="Option Slots"
+      color="primary"
+    ></divider>
+  </div>
+
+  <div style="display: flex; flex-direction: row; gap: 4px">
+    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+    <counter
+      field="usedLeftCyberEyeOptionSlots"
+      size="xs"
+      maxvaluefield="leftCyberEyeOptionSlots"
+    ></counter>
+  </div>
+  <numberfield
+    field="leftCyberEyeOptionSlots"
+    minvalue="1"
+    hideonlocked="true"
+    label="Max Slots"
+    width="100px"
+    size="xs"
+  ></numberfield>
+
+  <div style="margin-top: 4px">
+    <list
+      field="inventory"
+      listtype="cyberware_list"
+      variant="striped"
+      getfilters="return getCyberwareFiltersFor('cyberoptics', 'left');"
+      emptylisttext="No Cyberoptics Equipped in Left Eye"
+    ></list>
+  </div>
+</box>
 
 <!-- Right Cyberarm -->
+<div style="margin-top: 8px"></div>
+<label size="sm" variant="bold" textalign="left" label="Right Cyberarm"></label>
+<box variant="card" field="rightCyberarmGroup" size="xs">
+  <list
+    field="inventory"
+    listtype="cyberware_foundational_list"
+    emptylisttext="No Right Cyberarm Equipped"
+    getfilters="return getCyberwareFoundationalFiltersFor('right cyberarm');"
+  ></list>
 
-<!-- Cyberfinders on Right Hand -->
+  <div style="margin-top: 2px">
+    <divider
+      field="rightCyberarmDivider"
+      label="Option Slots"
+      color="primary"
+    ></divider>
+  </div>
+
+  <div style="display: flex; flex-direction: row; gap: 4px">
+    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+    <counter
+      field="usedRightCyberArmOptionSlots"
+      size="xs"
+      maxvaluefield="rightCyberArmOptionSlots"
+    ></counter>
+  </div>
+  <numberfield
+    field="rightCyberArmOptionSlots"
+    minvalue="1"
+    hideonlocked="true"
+    label="Max Slots"
+    width="100px"
+    size="xs"
+  ></numberfield>
+
+  <div style="margin-top: 4px">
+    <list
+      field="inventory"
+      listtype="cyberware_list"
+      variant="striped"
+      getfilters="return getCyberwareFiltersFor('cyberarms', 'right');"
+      emptylisttext="No Cyberware Equipped in Right Arm"
+    ></list>
+  </div>
+  <!-- Cyberfinders on Right Hand -->
+  <div style="margin-top: 2px">
+    <divider
+      field="rightCyberFingerDivider"
+      label="Right Hand Cyberfingers"
+      color="secondary"
+    ></divider>
+  </div>
+  <div style="margin-top: 4px">
+    <list
+      field="inventory"
+      listtype="cyberware_list"
+      variant="striped"
+      getfilters="return getCyberwareFiltersFor('cyberfingers', 'right');"
+      emptylisttext="No Cyberfingers Equipped in Right Hand"
+    ></list>
+  </div>
+</box>
 
 <!-- Left Cyberarm -->
+<div style="margin-top: 8px"></div>
+<label size="sm" variant="bold" textalign="left" label="Left Cyberarm"></label>
+<box variant="card" field="leftCyberarmGroup" size="xs">
+  <list
+    field="inventory"
+    listtype="cyberware_foundational_list"
+    emptylisttext="No Left Cyberarm Equipped"
+    getfilters="return getCyberwareFoundationalFiltersFor('left cyberarm');"
+  ></list>
 
-<!-- Cyberfinders on Left Hand -->
+  <div style="margin-top: 2px">
+    <divider
+      field="leftCyberarmDivider"
+      label="Option Slots"
+      color="primary"
+    ></divider>
+  </div>
+
+  <div style="display: flex; flex-direction: row; gap: 4px">
+    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+    <counter
+      field="usedLeftCyberArmOptionSlots"
+      size="xs"
+      maxvaluefield="leftCyberArmOptionSlots"
+    ></counter>
+  </div>
+  <numberfield
+    field="leftCyberArmOptionSlots"
+    minvalue="1"
+    hideonlocked="true"
+    label="Max Slots"
+    width="100px"
+    size="xs"
+  ></numberfield>
+
+  <div style="margin-top: 4px">
+    <list
+      field="inventory"
+      listtype="cyberware_list"
+      variant="striped"
+      getfilters="return getCyberwareFiltersFor('cyberarms', 'left');"
+      emptylisttext="No Cyberware Equipped in Left Arm"
+    ></list>
+  </div>
+  <!-- Cyberfinders on Left Hand -->
+  <div style="margin-top: 2px">
+    <divider
+      field="leftCyberFingerDivider"
+      label="Left Hand Cyberfingers"
+      color="secondary"
+    ></divider>
+  </div>
+  <div style="margin-top: 4px">
+    <list
+      field="inventory"
+      listtype="cyberware_list"
+      variant="striped"
+      getfilters="return getCyberwareFiltersFor('cyberfingers', 'left');"
+      emptylisttext="No Cyberfingers Equipped in Left Hand"
+    ></list>
+  </div>
+</box>
 
 <!-- Right Cyberleg -->
 

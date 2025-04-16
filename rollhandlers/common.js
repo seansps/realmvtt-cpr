@@ -3003,13 +3003,21 @@ function getCyberwareSlotValue(cyberwareInstallSlot, leftOrRight) {
     } else {
       return "usedRightCyberFingerOptionSlots";
     }
-  } else if (cyberwareInstallSlot === "cyberarms") {
+  } else if (
+    cyberwareInstallSlot === "cyberarms" ||
+    cyberwareInstallSlot === "right hand" ||
+    cyberwareInstallSlot === "left hand"
+  ) {
     if (leftOrRight === "left") {
       return "usedLeftCyberArmOptionSlots";
     } else {
       return "usedRightCyberArmOptionSlots";
     }
-  } else if (cyberwareInstallSlot === "cyberlegs") {
+  } else if (
+    cyberwareInstallSlot === "cyberlegs" ||
+    cyberwareInstallSlot === "right foot" ||
+    cyberwareInstallSlot === "left foot"
+  ) {
     if (leftOrRight === "left") {
       return "usedLeftCyberLegOptionSlots";
     } else {
@@ -3042,46 +3050,79 @@ function setCyberwareSlotValues(record) {
   ];
   cyberwareTables.forEach((installSlot) => {
     // Adjust the slots used based on cyberwareInstallSlot
-    const cyberwareFiltered = (record?.data?.inventory || []).filter(
+    let cyberwareFiltered = (record?.data?.inventory || []).filter(
       (item) =>
         item.data?.cyberwareInstallSlot === installSlot &&
         item.data?.carried === "equipped" &&
         item.data?.type === "cyberware"
     );
+    if (installSlot === "cyberarms") {
+      cyberwareFiltered = (record?.data?.inventory || []).filter(
+        (item) =>
+          (item.data?.foundationalSlot === installSlot &&
+            item.data?.carried === "equipped" &&
+            item.data?.type === "cyberware") ||
+          (item.data?.cyberwareInstallSlot === "foundational" &&
+            item.data?.carried === "equipped" &&
+            item.data?.type === "cyberware" &&
+            (item.data?.foundationalSlot === "right hand" ||
+              item.data?.foundationalSlot === "left hand"))
+      );
+    } else if (installSlot === "cyberlegs") {
+      cyberwareFiltered = (record?.data?.inventory || []).filter(
+        (item) =>
+          (item.data?.foundationalSlot === installSlot &&
+            item.data?.carried === "equipped" &&
+            item.data?.type === "cyberware") ||
+          (item.data?.cyberwareInstallSlot === "foundational" &&
+            item.data?.carried === "equipped" &&
+            item.data?.type === "cyberware" &&
+            (item.data?.foundationalSlot === "right foot" ||
+              item.data?.foundationalSlot === "left foot"))
+      );
+    }
     let cyberwareFilteredLeft = cyberwareFiltered;
     let cyberwareFilteredRight = [];
     let leftOrRight = "";
     if (installSlot === "cyberoptics") {
       leftOrRight = "left";
       cyberwareFilteredLeft = cyberwareFiltered.filter(
-        (item) => item.data?.location === "left"
+        (item) => item.data?.cyberLocation === "left"
       );
       cyberwareFilteredRight = cyberwareFiltered.filter(
-        (item) => item.data?.location === "right"
+        (item) => item.data?.cyberLocation === "right"
       );
     } else if (installSlot === "cyberfingers") {
       leftOrRight = "left";
       cyberwareFilteredLeft = cyberwareFiltered.filter(
-        (item) => item.data?.location === "left"
+        (item) => item.data?.cyberLocation === "left"
       );
       cyberwareFilteredRight = cyberwareFiltered.filter(
-        (item) => item.data?.location === "right"
+        (item) => item.data?.cyberLocation === "right"
       );
-    } else if (installSlot === "cyberarms") {
+    } else if (
+      installSlot === "cyberarms" ||
+      installSlot === "right hand" ||
+      installSlot === "left hand"
+    ) {
       leftOrRight = "left";
       cyberwareFilteredLeft = cyberwareFiltered.filter(
-        (item) => item.data?.location === "left"
+        (item) => item.data?.cyberLocation === "left"
       );
       cyberwareFilteredRight = cyberwareFiltered.filter(
-        (item) => item.data?.location === "right"
+        (item) => item.data?.cyberLocation === "right"
       );
-    } else if (installSlot === "cyberlegs") {
+    } else if (
+      installSlot === "cyberlegs" ||
+      installSlot === "right foot" ||
+      installSlot === "left foot"
+    ) {
       leftOrRight = "left";
       cyberwareFilteredLeft = cyberwareFiltered.filter(
-        (item) => item.data?.location === "left"
+        (item) => item.data?.cyberLocation === "left"
       );
       cyberwareFilteredRight = cyberwareFiltered.filter(
-        (item) => item.data?.location === "right"
+        (item) => item.data?.cyberLocation === "right"
       );
     }
 

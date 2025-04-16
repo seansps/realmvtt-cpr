@@ -48,7 +48,14 @@
         valuesToSet[`${itemDataPath}.data.active`] = true;
       }
       // If it's foundational cyberware, we need to update the option slots
-      if (item.data?.cyberwareInstallSlot === "foundational") {
+      if (
+        item.data?.cyberwareInstallSlot === "foundational" &&
+        // Hands and feet go in arms and legs
+        item.data?.foundationalSlot !== "left hand" &&
+        item.data?.foundationalSlot !== "right hand" &&
+        item.data?.foundationalSlot !== "left foot" &&
+        item.data?.foundationalSlot !== "right foot"
+      ) {
         const optionSlots = api.getValue(`${itemDataPath}.data.optionSlots`);
         const foundationalSlot = api.getValue(
           `${itemDataPath}.data.foundationalSlot`
@@ -66,7 +73,7 @@
         }
       } else {
         // On the cyberware list, we'll store if it's left or right, if required
-        let leftOrRight = item.data?.location;
+        let leftOrRight = item.data?.cyberLocation;
         if (!leftOrRight) {
           if (item.data?.cyberwareInstallSlot === "cyberoptics") {
             // Determine which eye we should use
@@ -97,7 +104,13 @@
             } else {
               leftOrRight = "right";
             }
-            valuesToSet[`${itemDataPath}.data.location`] = leftOrRight;
+            valuesToSet[`${itemDataPath}.data.cyberLocation`] = leftOrRight;
+            itemFields.moveLeftBtn = {
+              hidden: leftOrRight === "left" ? true : false,
+            };
+            itemFields.moveRightBtn = {
+              hidden: leftOrRight === "right" ? true : false,
+            };
           } else if (item.data?.cyberwareInstallSlot === "cyberfingers") {
             // Determine which hand we should use
             const leftHand = (record?.data?.inventory || []).filter(
@@ -127,8 +140,18 @@
             } else {
               leftOrRight = "right";
             }
-            valuesToSet[`${itemDataPath}.data.location`] = leftOrRight;
-          } else if (item.data?.cyberwareInstallSlot === "cyberarms") {
+            valuesToSet[`${itemDataPath}.data.cyberLocation`] = leftOrRight;
+            itemFields.moveLeftBtn = {
+              hidden: leftOrRight === "left" ? true : false,
+            };
+            itemFields.moveRightBtn = {
+              hidden: leftOrRight === "right" ? true : false,
+            };
+          } else if (
+            item.data?.cyberwareInstallSlot === "cyberarms" ||
+            item.data?.foundationalSlot === "right hand" || // Hands use slots in the arm
+            item.data?.foundationalSlot === "left hand"
+          ) {
             // Determine which arm we should use
             const leftArm = (record?.data?.inventory || []).filter(
               (item) =>
@@ -157,8 +180,29 @@
             } else {
               leftOrRight = "right";
             }
-            valuesToSet[`${itemDataPath}.data.location`] = leftOrRight;
-          } else if (item.data?.cyberwareInstallSlot === "cyberlegs") {
+            valuesToSet[`${itemDataPath}.data.cyberLocation`] = leftOrRight;
+            // Hands and feet can't move
+            itemFields.moveLeftBtn = {
+              hidden:
+                leftOrRight === "left" ||
+                item.data?.foundationalSlot === "left hand" ||
+                item.data?.foundationalSlot === "right hand"
+                  ? true
+                  : false,
+            };
+            itemFields.moveRightBtn = {
+              hidden:
+                leftOrRight === "right" ||
+                item.data?.foundationalSlot === "left hand" ||
+                item.data?.foundationalSlot === "right hand"
+                  ? true
+                  : false,
+            };
+          } else if (
+            item.data?.cyberwareInstallSlot === "cyberlegs" ||
+            item.data?.foundationalSlot === "right foot" || // Feet use slots in the leg
+            item.data?.foundationalSlot === "left foot"
+          ) {
             // Determine which leg we should use
             const leftLeg = (record?.data?.inventory || []).filter(
               (item) =>
@@ -187,7 +231,24 @@
             } else {
               leftOrRight = "right";
             }
-            valuesToSet[`${itemDataPath}.data.location`] = leftOrRight;
+            valuesToSet[`${itemDataPath}.data.cyberLocation`] = leftOrRight;
+            // Hands and feet can't move
+            itemFields.moveLeftBtn = {
+              hidden:
+                leftOrRight === "left" ||
+                item.data?.foundationalSlot === "left foot" ||
+                item.data?.foundationalSlot === "right foot"
+                  ? true
+                  : false,
+            };
+            itemFields.moveRightBtn = {
+              hidden:
+                leftOrRight === "right" ||
+                item.data?.foundationalSlot === "left foot" ||
+                item.data?.foundationalSlot === "right foot"
+                  ? true
+                  : false,
+            };
           }
         }
       }

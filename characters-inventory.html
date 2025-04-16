@@ -65,8 +65,13 @@
       const itemsToAdd = itemsInPack
         .map((item) => {
           // If this is existing item, get the current count
-          const thisIndex = items.findIndex((i) => i.data?.fromId === item._id);
-          const existingItem = thisIndex !== -1 ? items[thisIndex] : undefined;
+          let thisIndex = items.findIndex((i) => i.data?.fromId === item._id);
+          let existingItem = thisIndex !== -1 ? items[thisIndex] : undefined;
+          // Ignore cyberware, which we don't want to allow stacking
+          if (existingItem && existingItem.data?.type === "cyberware") {
+            thisIndex = -1;
+            existingItem = undefined;
+          }
           let itemCount = parseFloat(item?.data?.count || "0");
           const isConsumable = item.data?.consumable || false;
           const isAmmo = item.data?.type === "ammo";
@@ -113,7 +118,11 @@
         }
       });
     } else {
-      const existingItem = index !== -1 ? items[index] : undefined;
+      let existingItem = index !== -1 ? items[index] : undefined;
+      // Ignore cyberware, which we don't want to allow stacking
+      if (existingItem && existingItem.data?.type === "cyberware") {
+        existingItem = undefined;
+      }
       if (existingItem) {
         // Add count to existing item
         const count = parseFloat(existingItem.data?.count || "0");

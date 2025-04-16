@@ -366,7 +366,7 @@
     } else {
       api.setValues({
         [`${pathToFields}.afDvProperties.hidden`]: true,
-        [`${pathToFields}.autoFireBtn.hidden`]: true,
+        [`${pathToFields}.autoFireBtn."hidden`]: true,
         [`${pathToFields}.singleDmgBtn.hidden`]: false,
         [`${pathToFields}.singleDmgBtnWhenAf.hidden`]: true,
         [`${pathToFields}.afDmgBtn.hidden`]: true,
@@ -552,7 +552,7 @@
     if (value === "foundational") {
       api.setValues({
         [`${pathToFields}.optionSlots.hidden`]: false,
-        [`${pathToFields}.slots.hidden`]: true,
+        [`${pathToFields}.slots.hidden`]: false,
       });
     } else {
       api.setValues({

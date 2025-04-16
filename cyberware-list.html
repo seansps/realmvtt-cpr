@@ -22,21 +22,30 @@
       "humanityLoss"
     );
   };
+
+  function onMove(newLocation) {
+    // Moves the cyberware in an arm/eye/leg to the left or right table
+    const cyberwareDataPath = getNearestParentDataPath(dataPath);
+    const cyberware = api.getValue(cyberwareDataPath);
+
+    const valuesToSet = {};
+    valuesToSet[`${cyberwareDataPath}.data.cyberLocation`] = newLocation;
+    // Hide/unhide the move buttons
+    valuesToSet[`${cyberwareDataPath}.fields.moveLeftBtn.hidden`] =
+      newLocation === "left" ? true : false;
+    valuesToSet[`${cyberwareDataPath}.fields.moveRightBtn.hidden`] =
+      newLocation === "right" ? true : false;
+
+    api.setValues(valuesToSet, (updatedRecord) => {
+      // Update the cyberware slot values
+      setCyberwareSlotValues(updatedRecord);
+    });
+  }
 </script>
 
 <div style="height: 30px; display: flex; gap: 4px; align-items: center">
   <div style="width: 30px; min-width: 30px">
     <portrait width="30px" height="30px" name="portrait"></portrait>
-  </div>
-  <div style="width: 60px">
-    <numberfield
-      size="xs"
-      variant="tooltip"
-      label="Count"
-      field="count"
-      placeholder="0"
-    >
-    </numberfield>
   </div>
   <div style="flex-grow: 1">
     <namefield
@@ -89,4 +98,20 @@
       </div>
     </popover.dropdown>
   </popover>
+  <iconbutton
+    field="moveLeftBtn"
+    size="md"
+    hidden="true"
+    variant="default"
+    options='[{"icon": "IconArrowDown", "label": "Move to Left", "value": "moveLeft"}]'
+    onclick="onMove('left')"
+  ></iconbutton>
+  <iconbutton
+    field="moveRightBtn"
+    size="md"
+    hidden="true"
+    variant="default"
+    options='[{"icon": "IconArrowUp", "label": "Move to Right", "value": "moveRight"}]'
+    onclick="onMove('right')"
+  ></iconbutton>
 </div>
