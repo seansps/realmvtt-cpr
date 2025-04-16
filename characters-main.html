@@ -272,6 +272,7 @@
     // Go through each effect, look up the item with that ID in inventory, and heal it by the value of the effect
     const inventory = record.data?.inventory || [];
     let healedArmor = [];
+    const bestArmor = getBestEquippedArmor(record);
     inventory.forEach((item, itemIndex) => {
       // Check for healCurrentSp effects for this item
       const healCurrentSpEffects = getEffectsAndModifiersForToken(
@@ -282,79 +283,87 @@
       );
       if (healCurrentSpEffects.length > 0) {
         healCurrentSpEffects.forEach((effect) => {
-          let maxSp = item.data?.armorSp || 0;
-          const maxHeadSp = 0;
-          const maxBodySp = 0;
-          const maxShieldSp = 0;
-          // Some items define SP in a modifier, so check that here too
-          const modifiers = item.data?.modifiers || [];
-          modifiers.forEach((modifier) => {
-            if (
-              modifier.data?.type === "headSp" ||
-              modifier.data?.type === "bodySp" ||
-              modifier.data?.type === "shieldSp"
-            ) {
-              const modValue = parseInt(modifier.data?.value, 10);
-              if (modValue > maxSp) {
-                if (modifier.data?.type === "headSp") {
-                  maxHeadSp = modValue;
-                } else if (modifier.data?.type === "bodySp") {
-                  maxBodySp = modValue;
-                } else if (modifier.data?.type === "shieldSp") {
-                  maxShieldSp = modValue;
+          if (effect.itemId === item._id) {
+            let maxSp = item.data?.armorSp || 0;
+            let maxHeadSp = maxSp;
+            let maxBodySp = maxSp;
+            let maxShieldSp = maxSp;
+            // Some items define SP in a modifier, so check that here too
+            const modifiers = item.data?.modifiers || [];
+            modifiers.forEach((modifier) => {
+              if (
+                modifier.data?.type === "headSp" ||
+                modifier.data?.type === "bodySp" ||
+                modifier.data?.type === "shieldSp"
+              ) {
+                const modValue = parseInt(modifier.data?.value, 10);
+                if (modValue > maxSp) {
+                  if (modifier.data?.type === "headSp") {
+                    maxHeadSp = modValue;
+                  } else if (modifier.data?.type === "bodySp") {
+                    maxBodySp = modValue;
+                  } else if (modifier.data?.type === "shieldSp") {
+                    maxShieldSp = modValue;
+                  }
                 }
               }
-            }
-          });
-          const curHeadSp = item.data?.curheadSp;
-          const curBodySp = item.data?.curbodySp;
-          const curShieldSp = item.data?.curshieldSp;
-          if (curHeadSp === undefined) {
-            curHeadSp = maxSp;
-          }
-          if (curBodySp === undefined) {
-            curBodySp = maxSp;
-          }
-          if (curShieldSp === undefined) {
-            curShieldSp = maxSp;
-          }
-          const spHealAmount = effect.value;
-          const newHeadSp = Math.min(maxSp, curHeadSp + spHealAmount);
-          const newBodySp = Math.min(maxSp, curBodySp + spHealAmount);
-          const newShieldSp = Math.min(maxSp, curShieldSp + spHealAmount);
-
-          // If this is cyberware, set all SP to the same value else just set the ones that are different
-          if (item.data?.type === "cyberware") {
-            valuesToSet[`data.inventory.${itemIndex}.data.curheadSp`] =
-              newHeadSp;
-            valuesToSet[`data.inventory.${itemIndex}.data.curbodySp`] =
-              newBodySp;
-            valuesToSet[`data.inventory.${itemIndex}.data.curshieldSp`] =
-              newShieldSp;
-          } else if (item.data?.armorLocation === "head") {
-            valuesToSet[`data.inventory.${itemIndex}.data.curheadSp`] =
-              newHeadSp;
-          } else if (item.data?.armorLocation === "body") {
-            valuesToSet[`data.inventory.${itemIndex}.data.curbodySp`] =
-              newBodySp;
-          } else if (item.data?.armorLocation === "shield") {
-            valuesToSet[`data.inventory.${itemIndex}.data.curshieldSp`] =
-              newShieldSp;
-          }
-
-          if (newHeadSp - curHeadSp > 0) {
-            healedArmor.push({
-              name: item.name,
-              amount: newHeadSp - curHeadSp,
             });
-          }
-          // If this is the same armor as what we're showing on the character, update the attributes
-          if (item.name === record.data?.headArmor) {
-            valuesToSet["data.headArmorSP"] = newSp;
-          } else if (item.name === record.data?.bodyArmor) {
-            valuesToSet["data.bodyArmorSP"] = newSp;
-          } else if (item.name === record.data?.shield) {
-            valuesToSet["data.shieldSP"] = newSp;
+            let curHeadSp = parseInt(item.data?.curheadSp, 10);
+            let curBodySp = parseInt(item.data?.curbodySp, 10);
+            let curShieldSp = parseInt(item.data?.curshieldSp, 10);
+            if (isNaN(curHeadSp)) {
+              curHeadSp = Math.max(maxHeadSp, maxSp);
+            }
+            if (isNaN(curBodySp)) {
+              curBodySp = Math.max(maxBodySp, maxSp);
+            }
+            if (isNaN(curShieldSp)) {
+              curShieldSp = Math.max(maxShieldSp, maxSp);
+            }
+
+            const spHealAmount = effect.value;
+            const newHeadSp = Math.min(maxHeadSp, curHeadSp + spHealAmount);
+            const newBodySp = Math.min(maxBodySp, curBodySp + spHealAmount);
+            const newShieldSp = Math.min(
+              maxShieldSp,
+              curShieldSp + spHealAmount
+            );
+
+            // If this is cyberware, set all SP to the same value else just set the ones that are different
+            if (item.data?.type === "cyberware") {
+              valuesToSet[`data.inventory.${itemIndex}.data.curheadSp`] =
+                newHeadSp;
+              valuesToSet[`data.inventory.${itemIndex}.data.curbodySp`] =
+                newBodySp;
+              valuesToSet[`data.inventory.${itemIndex}.data.curshieldSp`] =
+                newShieldSp;
+            } else if (item.data?.armorLocation === "head") {
+              valuesToSet[`data.inventory.${itemIndex}.data.curheadSp`] =
+                newHeadSp;
+            } else if (item.data?.armorLocation === "body") {
+              valuesToSet[`data.inventory.${itemIndex}.data.curbodySp`] =
+                newBodySp;
+            } else if (item.data?.armorLocation === "shield") {
+              valuesToSet[`data.inventory.${itemIndex}.data.curshieldSp`] =
+                newShieldSp;
+            }
+
+            if (newHeadSp - curHeadSp > 0) {
+              healedArmor.push({
+                name: item.name,
+                amount: newHeadSp - curHeadSp,
+              });
+            }
+            // If this is the same armor as what we're showing on the character, update the attributes
+            if (item._id === bestArmor.head?.[0]?._id) {
+              valuesToSet["data.headArmorSP"] = newHeadSp;
+            }
+            if (item._id === bestArmor.body?.[0]?._id) {
+              valuesToSet["data.bodyArmorSP"] = newBodySp;
+            }
+            if (item._id === bestArmor.shield?.[0]?._id) {
+              valuesToSet["data.shieldSP"] = newShieldSp;
+            }
           }
         });
       }
