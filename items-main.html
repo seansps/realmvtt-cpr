@@ -26,7 +26,6 @@
       [`${pathToFields}.maxSlots.hidden`]: true,
       [`${pathToFields}.ammoProperties.hidden`]: true,
       [`${pathToFields}.armorProperties.hidden`]: true,
-      [`${pathToFields}.curSp.hidden`]: true,
       [`${pathToFields}.blackICEProperties.hidden`]: true,
       [`${pathToFields}.demonProperties.hidden`]: true,
       [`${pathToFields}.droneProperties.hidden`]: true,
@@ -52,6 +51,9 @@
       [`${pathToFields}.ammo.hidden`]: true,
       [`${pathToFields}.useSpecialBtn.hidden`]: true,
       [`${pathToFields}.ammoCount.hidden`]: true,
+      [`${pathToFields}.curheadSp.hidden`]: true,
+      [`${pathToFields}.curbodySp.hidden`]: true,
+      [`${pathToFields}.curshieldSp.hidden`]: true,
     };
 
     if (typeStr === "agent app") {
@@ -66,7 +68,9 @@
       valuesToSet[`${pathToFields}.consumable.hidden`] = true;
       valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
       valuesToSet[`${pathToFields}.armorProperties.hidden`] = false;
-      valuesToSet[`${pathToFields}.curSp.hidden`] = false;
+      valuesToSet[`${pathToFields}.curheadSp.hidden`] = true;
+      valuesToSet[`${pathToFields}.curbodySp.hidden`] = true;
+      valuesToSet[`${pathToFields}.curshieldSp.hidden`] = true;
     } else if (typeStr === "black ice") {
       valuesToSet[`${pathToFields}.consumable.hidden`] = true;
       valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
@@ -538,6 +542,37 @@
         api.setValues(valuesToSet);
       }
     });
+  }
+
+  function onArmorLocationChange(value) {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const item = api.getValue(nearestParentDataPath) || record;
+
+    // If this is an nested item, just return. (Like a weapon attachment)
+    let pathToFields = "fields";
+    if (nearestParentDataPath !== "") {
+      pathToFields = `${nearestParentDataPath}.fields`;
+    }
+
+    const valuesToSet = {};
+
+    if (value === "head") {
+      valuesToSet[`${pathToFields}.curheadSp.hidden`] = false;
+      valuesToSet[`${pathToFields}.curbodySp.hidden`] = true;
+      valuesToSet[`${pathToFields}.curshieldSp.hidden`] = true;
+    } else if (value === "body") {
+      valuesToSet[`${pathToFields}.curheadSp.hidden`] = true;
+      valuesToSet[`${pathToFields}.curbodySp.hidden`] = false;
+      valuesToSet[`${pathToFields}.curshieldSp.hidden`] = true;
+    } else if (value === "shield") {
+      valuesToSet[`${pathToFields}.curheadSp.hidden`] = true;
+      valuesToSet[`${pathToFields}.curbodySp.hidden`] = true;
+      valuesToSet[`${pathToFields}.curshieldSp.hidden`] = false;
+    }
+
+    if (Object.keys(valuesToSet).length > 0) {
+      api.setValues(valuesToSet);
+    }
   }
 
   function onCyberwareInstallSlotChange(value) {
@@ -1184,6 +1219,7 @@
         field="armorLocation"
         label="Armor Location"
         placeholder="Select Location..."
+        onchange="onArmorLocationChange(value);"
         options='[{"label": "Head", "value": "head"}, {"label": "Body", "value": "body"}, {"label": "Shield", "value": "shield"}]'
       ></dropdown>
       <numberfield

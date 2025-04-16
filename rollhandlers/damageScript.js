@@ -55,7 +55,7 @@ if (damage > 0) {
       );
 
       if (armorItemIndex !== -1) {
-        valuesToSet[`data.inventory.${armorItemIndex}.data.curSp`] =
+        valuesToSet[`data.inventory.${armorItemIndex}.data.curshieldSp`] =
           newShieldHp;
       }
     }
@@ -86,9 +86,10 @@ if (damage > 0) {
             isCyberArmor)
         ) {
           const armorSp = parseInt(item.data?.sp || "0", 10) || 0;
-          const curSp =
-            parseInt(item.data?.[`cur${targetLocation}Sp`] || "0", 10) ||
-            armorSp;
+          let curSp = parseInt(item.data?.[`cur${targetLocation}Sp`], 10);
+          if (isNaN(curSp)) {
+            curSp = armorSp;
+          }
           valuesToSet[
             `data.inventory.${armorItemIndex}.data.cur${targetLocation}Sp`
           ] = curSp - ablationAmount;
@@ -151,7 +152,9 @@ if (value > 0 && token) {
         "#FF0000"
       );
     } else {
-      api.floatText(token, `-${damage}`, "#FF0000");
+      if (damage > 0) {
+        api.floatText(token, `-${damage}`, "#FF0000");
+      }
     }
   }
 }

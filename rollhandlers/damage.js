@@ -37,6 +37,7 @@ let isAutofire = roll.metadata?.isAutofire === true;
 let ablationAmount = roll.metadata?.ablationAmount || 1;
 let afMultiplier = roll.metadata?.afMultiplier || 1;
 let targetLocation = roll.metadata?.targetedLocation || "body";
+let armorLocation = targetLocation === "head" ? "head" : "body";
 let isHeadshot = targetLocation === "head";
 let isHand = targetLocation === "hand";
 let isLeg = targetLocation === "leg";
@@ -258,8 +259,12 @@ targets.forEach(target => {
           );
           
           if (armorItemIndex !== -1) {
-            const invPath = \`data.inventory.\${armorItemIndex}.data.curSp\`;
-            oldValues[invPath] = parseInt(shield.data?.curSp || "0", 10);
+            const invPath = \`data.inventory.\${armorItemIndex}.data.curshieldSp\`;
+            let oldShieldSp = parseInt(shield.data?.curshieldSp, 10);
+            if (isNaN(oldShieldSp)) {
+              oldShieldSp = shield.data?.sp;
+            }
+            oldValues[invPath] = oldShieldSp;
             valuesToSet[invPath] = newShieldHp;
           }
         }
@@ -311,10 +316,13 @@ targets.forEach(target => {
               ) {
                 const invPath = \`data.inventory.\${armorItemIndex}.data\`;
                 const armorSp = parseInt(item.data?.sp || "0", 10) || 0;
-                const curSp = parseInt(item.data?.curSp || "0", 10) || armorSp;
+                let curSp = parseInt(item.data?.cur${armorLocation}Sp, 10);
+                if (isNaN(curSp)) {
+                  curSp = armorSp;
+                }
                 
-                oldValues[\`\${invPath}.curSp\`] = curSp;
-                valuesToSet[\`\${invPath}.curSp\`] = Math.max(0, curSp - ${ablationAmount});
+                oldValues[\`\${invPath}.cur${armorLocation}Sp\`] = curSp;
+                valuesToSet[\`\${invPath}.cur${armorLocation}Sp\`] = Math.max(0, curSp - ${ablationAmount});
               }
             });
           }
@@ -408,7 +416,9 @@ targets.forEach(target => {
             isHeadshot ? " due to headshot" : ""
           } and armor was ablated.\\n\`;
         } else {
-          api.floatText(target, \`-\${damage}\`, "#FF0000");
+          if (damage > 0) {
+            api.floatText(target, \`-\${damage}\`, "#FF0000");
+          }
           message += \`Took \${damage} damage${
             isHeadshot ? " due to headshot" : ""
           }.\\n\`;

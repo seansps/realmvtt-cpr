@@ -1538,7 +1538,10 @@ function getBestEquippedArmor(record) {
     const armorPenalty = parseInt(item.data?.penalty || 0, 10);
 
     // Get current SP fallback to armorSp if not set
-    const currentSp = parseInt(item.data?.curSp || armorSp, 10);
+    let currentSp = parseInt(item.data?.[`cur${armorType}Sp`], 10);
+    if (isNaN(currentSp)) {
+      currentSp = armorSp;
+    }
 
     if (armorPenalty > result.highestPenalty) {
       result.highestPenalty = armorPenalty;
@@ -1577,7 +1580,10 @@ function getBestEquippedArmor(record) {
       ) {
         let armorType = modifierType.replace("Sp", "");
         let armorSp = parseInt(modifier.data?.value || 0, 10);
-        let currentSp = parseInt(item.data?.curSp || armorSp, 10);
+        let currentSp = parseInt(item.data?.[`cur${armorType}Sp`], 10);
+        if (isNaN(currentSp)) {
+          currentSp = armorSp;
+        }
 
         if (result[armorType]) {
           result[armorType].push({

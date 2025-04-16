@@ -283,6 +283,9 @@
       if (healCurrentSpEffects.length > 0) {
         healCurrentSpEffects.forEach((effect) => {
           let maxSp = item.data?.armorSp || 0;
+          const maxHeadSp = 0;
+          const maxBodySp = 0;
+          const maxShieldSp = 0;
           // Some items define SP in a modifier, so check that here too
           const modifiers = item.data?.modifiers || [];
           modifiers.forEach((modifier) => {
@@ -293,21 +296,56 @@
             ) {
               const modValue = parseInt(modifier.data?.value, 10);
               if (modValue > maxSp) {
-                maxSp = modValue;
+                if (modifier.data?.type === "headSp") {
+                  maxHeadSp = modValue;
+                } else if (modifier.data?.type === "bodySp") {
+                  maxBodySp = modValue;
+                } else if (modifier.data?.type === "shieldSp") {
+                  maxShieldSp = modValue;
+                }
               }
             }
           });
-          const curSp = item.data?.curSp;
-          if (curSp === undefined) {
-            curSp = maxSp;
+          const curHeadSp = item.data?.curheadSp;
+          const curBodySp = item.data?.curbodySp;
+          const curShieldSp = item.data?.curshieldSp;
+          if (curHeadSp === undefined) {
+            curHeadSp = maxSp;
+          }
+          if (curBodySp === undefined) {
+            curBodySp = maxSp;
+          }
+          if (curShieldSp === undefined) {
+            curShieldSp = maxSp;
           }
           const spHealAmount = effect.value;
-          const newSp = Math.min(maxSp, curSp + spHealAmount);
-          valuesToSet[`data.inventory.${itemIndex}.data.curSp`] = newSp;
-          if (newSp - curSp > 0) {
+          const newHeadSp = Math.min(maxSp, curHeadSp + spHealAmount);
+          const newBodySp = Math.min(maxSp, curBodySp + spHealAmount);
+          const newShieldSp = Math.min(maxSp, curShieldSp + spHealAmount);
+
+          // If this is cyberware, set all SP to the same value else just set the ones that are different
+          if (item.data?.type === "cyberware") {
+            valuesToSet[`data.inventory.${itemIndex}.data.curheadSp`] =
+              newHeadSp;
+            valuesToSet[`data.inventory.${itemIndex}.data.curbodySp`] =
+              newBodySp;
+            valuesToSet[`data.inventory.${itemIndex}.data.curshieldSp`] =
+              newShieldSp;
+          } else if (item.data?.armorLocation === "head") {
+            valuesToSet[`data.inventory.${itemIndex}.data.curheadSp`] =
+              newHeadSp;
+          } else if (item.data?.armorLocation === "body") {
+            valuesToSet[`data.inventory.${itemIndex}.data.curbodySp`] =
+              newBodySp;
+          } else if (item.data?.armorLocation === "shield") {
+            valuesToSet[`data.inventory.${itemIndex}.data.curshieldSp`] =
+              newShieldSp;
+          }
+
+          if (newHeadSp - curHeadSp > 0) {
             healedArmor.push({
               name: item.name,
-              amount: newSp - curSp,
+              amount: newHeadSp - curHeadSp,
             });
           }
           // If this is the same armor as what we're showing on the character, update the attributes
@@ -416,7 +454,8 @@
       );
 
       if (armorItemIndex !== -1) {
-        valuesToSet[`data.inventory.${armorItemIndex}.data.curSp`] = newSp;
+        valuesToSet[`data.inventory.${armorItemIndex}.data.cur${field}Sp`] =
+          newSp;
       }
     }
 
