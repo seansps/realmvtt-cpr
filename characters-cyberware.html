@@ -562,21 +562,6 @@
   label="Internal Cyberware"
 ></label>
 <box variant="card" field="internalCyberwareGroup" size="xs">
-  <list
-    field="inventory"
-    listtype="cyberware_foundational_list"
-    emptylisttext="No Internal Cyberware Equipped"
-    getfilters="return getCyberwareFoundationalFiltersFor('internal body cyberware');"
-  ></list>
-
-  <div style="margin-top: 2px">
-    <divider
-      field="internalCyberwareDivider"
-      label="Option Slots"
-      color="primary"
-    ></divider>
-  </div>
-
   <div style="display: flex; flex-direction: row; gap: 4px">
     <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
     <counter
@@ -614,21 +599,6 @@
   label="External Cyberware"
 ></label>
 <box variant="card" field="externalCyberwareGroup" size="xs">
-  <list
-    field="inventory"
-    listtype="cyberware_foundational_list"
-    emptylisttext="No External Cyberware Equipped"
-    getfilters="return getCyberwareFoundationalFiltersFor('external body cyberware');"
-  ></list>
-
-  <div style="margin-top: 2px">
-    <divider
-      field="externalCyberwareDivider"
-      label="Option Slots"
-      color="primary"
-    ></divider>
-  </div>
-
   <div style="display: flex; flex-direction: row; gap: 4px">
     <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
     <counter
@@ -658,7 +628,47 @@
 </box>
 
 <!-- Fashionware -->
+<div style="margin-top: 8px"></div>
+<label size="sm" variant="bold" textalign="left" label="Fashionware"></label>
+<box variant="card" field="fashionwareGroup" size="xs">
+  <div style="display: flex; flex-direction: row; gap: 4px">
+    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+    <counter
+      field="usedFashionwareOptionSlots"
+      size="xs"
+      maxvaluefield="fashionwareOptionSlots"
+    ></counter>
+  </div>
+  <numberfield
+    field="fashionwareOptionSlots"
+    minvalue="1"
+    hideonlocked="true"
+    label="Max Slots"
+    width="100px"
+    size="xs"
+  ></numberfield>
+
+  <div style="margin-top: 4px">
+    <list
+      field="inventory"
+      listtype="cyberware_list"
+      variant="striped"
+      getfilters="return getCyberwareFiltersFor('fashionware');"
+      emptylisttext="No Fashionware Equipped"
+    ></list>
+  </div>
+</box>
 
 <!-- Borgware -->
-
-<!-- Cyberware from Gear -->
+<div style="margin-top: 8px"></div>
+<label size="sm" variant="bold" textalign="left" label="Borgware"></label>
+<box variant="card" field="borgwareGroup" size="xs">
+  <div style="display: flex; flex-direction: row; gap: 4px">
+    <list
+      field="inventory"
+      listtype="cyberware_list"
+      variant="striped"
+      getfilters="return getCyberwareFiltersFor('borgware');"
+      emptylisttext="No Borgware Equipped"
+    ></list>
+</box>
