@@ -2977,6 +2977,15 @@ function getOptionSlotValue(cyberwareInstallSlot, leftOrRight) {
       result.fieldName = "rightCyberLegOptionSlots";
     }
     result.defaultValue = 3;
+  } else if (cyberwareInstallSlot === "internal body cyberware") {
+    result.fieldName = "internalCyberwareOptionSlots";
+    result.defaultValue = 7;
+  } else if (cyberwareInstallSlot === "external body cyberware") {
+    result.fieldName = "externalCyberwareOptionSlots";
+    result.defaultValue = 7;
+  } else if (cyberwareInstallSlot === "fashionware") {
+    result.fieldName = "fashionwareOptionSlots";
+    result.defaultValue = 7;
   }
 
   return result;
@@ -3024,9 +3033,9 @@ function getCyberwareSlotValue(cyberwareInstallSlot, leftOrRight) {
       return "usedRightCyberLegOptionSlots";
     }
   } else if (cyberwareInstallSlot === "internal body cyberware") {
-    return "usedInternalOptionSlots";
+    return "usedInternalCyberwareOptionSlots";
   } else if (cyberwareInstallSlot === "external body cyberware") {
-    return "usedExternalOptionSlots";
+    return "usedExternalCyberwareOptionSlots";
   }
 
   return "";

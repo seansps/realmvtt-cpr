@@ -86,9 +86,12 @@ if (damage > 0) {
             isCyberArmor)
         ) {
           const armorSp = parseInt(item.data?.sp || "0", 10) || 0;
-          const curSp = parseInt(item.data?.curSp || "0", 10) || armorSp;
-          valuesToSet[`data.inventory.${armorItemIndex}.data.curSp`] =
-            curSp - ablationAmount;
+          const curSp =
+            parseInt(item.data?.[`cur${targetLocation}Sp`] || "0", 10) ||
+            armorSp;
+          valuesToSet[
+            `data.inventory.${armorItemIndex}.data.cur${targetLocation}Sp`
+          ] = curSp - ablationAmount;
         }
       });
       // Reduct damage by armor sp
