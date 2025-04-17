@@ -1,6 +1,4 @@
 <script>
-  // TODO ondrop to add cyberware here too
-
   function onLoad() {
     // If we haven't set the max slots yet, set them now
 
@@ -41,6 +39,269 @@
         "data.internalCyberwareOptionSlots": 7,
         "data.externalCyberwareOptionSlots": 7,
       });
+    }
+  }
+
+  function onDropItem(recordLink) {
+    const item = recordLink?.value;
+
+    const isCyberware = item?.data?.type === "cyberware";
+
+    if (!isCyberware) {
+      return;
+    }
+
+    // Add the cyberware to inventory and set the attunement hidden field to visible if requires attunement
+    const itemToAdd = {
+      ...item,
+      icon: "IconBox",
+      data: {
+        ...item?.data,
+        // Track old ID for count tracking
+        fromId: item._id,
+        // Default count to 1
+        count: 1,
+        // Mark it as equipped
+        carried: "equipped",
+      },
+      fields: {
+        ...item?.fields,
+      },
+    };
+
+    // If this is cyberware, and we haven't set the active status, set it to true
+    const activeStatus = item.data?.active;
+    if (activeStatus === undefined || activeStatus === null) {
+      itemToAdd.data.active = true;
+    }
+    // If it's foundational cyberware, we need to update the option slots
+    if (
+      item.data?.cyberwareInstallSlot === "foundational" &&
+      // Hands and feet go in arms and legs
+      item.data?.foundationalSlot !== "left hand" &&
+      item.data?.foundationalSlot !== "right hand" &&
+      item.data?.foundationalSlot !== "left foot" &&
+      item.data?.foundationalSlot !== "right foot"
+    ) {
+      const optionSlots = item.data?.optionSlots;
+      const foundationalSlot = item.data?.foundationalSlot;
+      const leftOrRight = foundationalSlot.toLowerCase().includes("left")
+        ? "left"
+        : "right";
+      const optionSlotValue = getOptionSlotValue(
+        foundationalSlot,
+        leftOrRight
+      );
+      if (optionSlotValue.fieldName) {
+        itemToAdd.data[`${optionSlotValue.fieldName}`] =
+          optionSlots || optionSlotValue.defaultValue;
+      }
+    } else {
+      // On the cyberware list, we'll store if it's left or right, if required
+      let leftOrRight = item.data?.cyberLocation;
+      if (!leftOrRight) {
+        if (item.data?.cyberwareInstallSlot === "cyberoptics") {
+          // Determine which eye we should use
+          const leftEye = (record?.data?.inventory || []).filter(
+            (item) =>
+              item.data?.cyberwareInstallSlot === "foundational" &&
+              item.data?.foundationalSlot === "left cybereye" &&
+              item.data?.carried === "equipped" &&
+              item.data?.type === "cyberware"
+          )?.[0];
+          const rightEye = (record?.data?.inventory || []).filter(
+            (item) =>
+              item.data?.cyberwareInstallSlot === "foundational" &&
+              item.data?.foundationalSlot === "right cybereye" &&
+              item.data?.carried === "equipped" &&
+              item.data?.type === "cyberware"
+          )?.[0];
+          const numSlotsLeftEye =
+            record?.data?.usedLeftCyberEyeOptionSlots || 0;
+          const numSlotsRightEye =
+            record?.data?.usedRightCyberEyeOptionSlots || 0;
+          if (!leftEye && !rightEye) {
+            leftOrRight = "right";
+          } else if (!rightEye) {
+            leftOrRight = "left";
+          } else if (!leftEye) {
+            leftOrRight = "right";
+          } else if (numSlotsLeftEye < numSlotsRightEye) {
+            leftOrRight = "left";
+          } else {
+            leftOrRight = "right";
+          }
+          itemToAdd.data.cyberLocation = leftOrRight;
+          if (!itemToAdd.fields) itemToAdd.fields = {};
+          itemToAdd.fields.moveLeftBtn = {
+            hidden: leftOrRight === "left" ? true : false,
+          };
+          itemToAdd.fields.moveRightBtn = {
+            hidden: leftOrRight === "right" ? true : false,
+          };
+        } else if (item.data?.cyberwareInstallSlot === "cyberfingers") {
+          // Determine which hand we should use
+          const leftHand = (record?.data?.inventory || []).filter(
+            (item) =>
+              item.data?.cyberwareInstallSlot === "foundational" &&
+              item.data?.foundationalSlot === "left hand" &&
+              item.data?.carried === "equipped" &&
+              item.data?.type === "cyberware"
+          )?.[0];
+          const rightHand = (record?.data?.inventory || []).filter(
+            (item) =>
+              item.data?.cyberwareInstallSlot === "foundational" &&
+              item.data?.foundationalSlot === "right hand" &&
+              item.data?.carried === "equipped" &&
+              item.data?.type === "cyberware"
+          )?.[0];
+          const numSlotsLeftHand =
+            record?.data?.usedLeftCyberFingerOptionSlots || 0;
+          const numSlotsRightHand =
+            record?.data?.usedRightCyberFingerOptionSlots || 0;
+          if (!leftHand && !rightHand) {
+            leftOrRight = "right";
+          } else if (!rightHand) {
+            leftOrRight = "left";
+          } else if (!leftHand) {
+            leftOrRight = "right";
+          } else if (numSlotsLeftHand < numSlotsRightHand) {
+            leftOrRight = "left";
+          } else {
+            leftOrRight = "right";
+          }
+          itemToAdd.data.cyberLocation = leftOrRight;
+          if (!itemToAdd.fields) itemToAdd.fields = {};
+          itemToAdd.fields.moveLeftBtn = {
+            hidden: leftOrRight === "left" ? true : false,
+          };
+          itemToAdd.fields.moveRightBtn = {
+            hidden: leftOrRight === "right" ? true : false,
+          };
+        } else if (
+          item.data?.cyberwareInstallSlot === "cyberarms" ||
+          item.data?.foundationalSlot === "right hand" || // Hands use slots in the arm
+          item.data?.foundationalSlot === "left hand"
+        ) {
+          // Determine which arm we should use
+          const leftArm = (record?.data?.inventory || []).filter(
+            (item) =>
+              item.data?.cyberwareInstallSlot === "foundational" &&
+              item.data?.foundationalSlot === "left cyberarm" &&
+              item.data?.carried === "equipped" &&
+              item.data?.type === "cyberware"
+          )?.[0];
+          const rightArm = (record?.data?.inventory || []).filter(
+            (item) =>
+              item.data?.cyberwareInstallSlot === "foundational" &&
+              item.data?.foundationalSlot === "right cyberarm" &&
+              item.data?.carried === "equipped" &&
+              item.data?.type === "cyberware"
+          )?.[0];
+          const numSlotsLeftArm =
+            record?.data?.usedLeftCyberArmOptionSlots || 0;
+          const numSlotsRightArm =
+            record?.data?.usedRightCyberArmOptionSlots || 0;
+          if (!leftArm && !rightArm) {
+            leftOrRight = "right";
+          } else if (!rightArm) {
+            leftOrRight = "left";
+          } else if (!leftArm) {
+            leftOrRight = "right";
+          } else if (numSlotsLeftArm < numSlotsRightArm) {
+            leftOrRight = "left";
+          } else {
+            leftOrRight = "right";
+          }
+          itemToAdd.data.cyberLocation = leftOrRight;
+          if (!itemToAdd.fields) itemToAdd.fields = {};
+          itemToAdd.fields.moveLeftBtn = {
+            hidden: leftOrRight === "left" ||
+              item.data?.foundationalSlot === "left hand" ||
+              item.data?.foundationalSlot === "right hand"
+                ? true
+                : false
+          };
+          itemToAdd.fields.moveRightBtn = {
+            hidden: leftOrRight === "right" ||
+              item.data?.foundationalSlot === "left hand" ||
+              item.data?.foundationalSlot === "right hand"
+                ? true
+                : false
+          };
+        } else if (
+          item.data?.cyberwareInstallSlot === "cyberlegs" ||
+          item.data?.foundationalSlot === "right foot" || // Feet use slots in the leg
+          item.data?.foundationalSlot === "left foot"
+        ) {
+          // Determine which leg we should use
+          const leftLeg = (record?.data?.inventory || []).filter(
+            (item) =>
+              item.data?.cyberwareInstallSlot === "foundational" &&
+              item.data?.foundationalSlot === "left cyberleg" &&
+              item.data?.carried === "equipped" &&
+              item.data?.type === "cyberware"
+          )?.[0];
+          const rightLeg = (record?.data?.inventory || []).filter(
+            (item) =>
+              item.data?.cyberwareInstallSlot === "foundational" &&
+              item.data?.foundationalSlot === "right cyberleg" &&
+              item.data?.carried === "equipped" &&
+              item.data?.type === "cyberware"
+          )?.[0];
+          const numSlotsLeftLeg =
+            record?.data?.usedLeftCyberLegOptionSlots || 0;
+          const numSlotsRightLeg =
+            record?.data?.usedRightCyberLegOptionSlots || 0;
+          if (!leftLeg && !rightLeg) {
+            leftOrRight = "right";
+          } else if (!rightLeg) {
+            leftOrRight = "left";
+          } else if (!leftLeg) {
+            leftOrRight = "right";
+          } else if (numSlotsLeftLeg < numSlotsRightLeg) {
+            leftOrRight = "left";
+          } else {
+            leftOrRight = "right";
+          }
+          itemToAdd.data.cyberLocation = leftOrRight;
+          if (!itemToAdd.fields) itemToAdd.fields = {};
+          itemToAdd.fields.moveLeftBtn = {
+            hidden: leftOrRight === "left" ||
+              item.data?.foundationalSlot === "left foot" ||
+              item.data?.foundationalSlot === "right foot"
+                ? true
+                : false
+          };
+          itemToAdd.fields.moveRightBtn = {
+            hidden: leftOrRight === "right" ||
+              item.data?.foundationalSlot === "left foot" ||
+              item.data?.foundationalSlot === "right foot"
+                ? true
+                : false
+          };
+        }
+      }
+    }
+
+    // Add the item to the list then update the cyberware slot values
+    api.addValue(`data.inventory`, itemToAdd, (updatedRecord) => {
+      // Update all stats again
+      const valuesToSet = {};
+      const bestEquippedArmor = getBestEquippedArmor(updatedRecord);
+      // Update attributes as per modifiers
+      updateAttributesOnRecord(updatedRecord, valuesToSet, bestEquippedArmor.highestPenalty);
+      if (Object.keys(valuesToSet).length > 0) {
+        api.setValuesOnRecord(updatedRecord, valuesToSet, (updatedRecord) => {
+          setCyberwareSlotValues(updatedRecord);
+        });
+      }
+    });
+  }
+
+  function onDrop(type, recordLink) {
+    if (type === "items") {
+      onDropItem(recordLink);
     }
   }
 
