@@ -2591,6 +2591,39 @@ function performAttackRoll(
   }
 }
 
+// Perform a face down roll
+function performFaceDownRoll(record) {
+  // Facedown is 1d10 + COOL + Reputation
+  // and can use luck
+  const faceDownModifiers = [
+    {
+      name: "COOL",
+      value: record.data?.totalCool || 0,
+      active: true,
+      valueType: "number",
+      isPenalty: false,
+    },
+    {
+      name: "Reputation",
+      value: record.data?.reputation || 0,
+      active: true,
+      valueType: "number",
+      isPenalty: (record.data?.reputation || 0) < 0,
+    },
+  ];
+  const woundedPenalty = getWoundedPenalty(record);
+  api.promptRoll(
+    `Facedown`,
+    "1d10",
+    faceDownModifiers,
+    {
+      isMortallyWounded: woundedPenalty?.value === -4,
+      isSeriouslyWounded: woundedPenalty?.value === -2,
+    },
+    "facedown"
+  );
+}
+
 function performThrowObject(record) {
   // Get object and range
   const throwAmmo = record.data?.throwAmmo;
