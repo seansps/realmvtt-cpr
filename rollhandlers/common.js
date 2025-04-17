@@ -1337,6 +1337,7 @@ function getEffectsAndModifiersForToken(
           possibleItemId = feature?.weaponId || "";
         }
         results.push({
+          _id: feature?._id,
           name: feature?.name || "Feature",
           value: value,
           active: modifier.data?.active === true,
@@ -1346,6 +1347,9 @@ function getEffectsAndModifiersForToken(
           itemId: possibleItemId,
           isPenalty: isPenalty,
           isEffect: false,
+          requiredItem: modifier.data?.requiredItem || undefined,
+          requiredCount: modifier.data?.requiredCount || undefined,
+          count: feature.data?.count || undefined,
           max: modifier.data?.statMaximum || undefined,
           min: modifier.data?.statMinimum || undefined,
           isSet:
@@ -1358,6 +1362,60 @@ function getEffectsAndModifiersForToken(
       }
     });
   });
+
+  // Go through all modifiers and check if any require an item
+  // Remove the modifier for that item, if present (does not stack)
+  const modifiersToRemove = [];
+
+  results.forEach((modifier) => {
+    if (modifier.requiredItem) {
+      const requiredItem = target?.data?.inventory?.find(
+        (item) =>
+          item.name === modifier.requiredItem &&
+          item.data?.carried === "equipped" &&
+          (item.data?.type !== "cyberware" || item.data?.active)
+      );
+      if (!requiredItem) {
+        modifiersToRemove.push(modifier._id);
+      } else {
+        // Find modiifer with the requiredItem
+        const requiredItemModifier = results.find(
+          (m) => m.name === modifier.requiredItem
+        );
+
+        if (!requiredItemModifier) {
+          // Remove this one
+          modifiersToRemove.push(modifier._id);
+        } else if (!requiredItemModifier.foundMatch) {
+          // Remove the requiredItemModifier unless we found
+          // the other one (keep 1 of them)
+          modifier.foundMatch = true;
+          modifier.name = `${modifier.name} / ${requiredItemModifier.name}`;
+          modifiersToRemove.push(requiredItemModifier._id);
+        }
+      }
+    } else if (modifier.requiredCount) {
+      // If the modifier has a requiredCount, but no requiredItem,
+      // we need to check if there are items in the inventory that match
+      if ((modifier.count || 0) < modifier.requiredCount) {
+        // Check for other modifiers with the same name and count
+        const otherModifiers = results.filter(
+          (m) =>
+            m.name === modifier.name &&
+            modifier.value === m.value &&
+            modifier.modifierType === m.modifierType
+        );
+        if (otherModifiers.length + modifier.count < modifier.requiredCount) {
+          // Remove them all if under the count
+          modifiersToRemove.push(modifier._id);
+          modifiersToRemove.push(...otherModifiers.map((m) => m._id));
+        }
+      }
+    }
+  });
+
+  // Remove modifiers that are in the modifiersToRemove array
+  results = results.filter((r) => !modifiersToRemove.includes(r._id));
 
   // Add nextRoll modifier if it exists
   const nextRoll = target?.data?.nextRoll || 0;
@@ -1375,10 +1433,20 @@ function getEffectsAndModifiersForToken(
   }
 
   // Filter duplicates
-  results = results.filter(
-    (r, index, self) =>
-      index === self.findIndex((t) => JSON.stringify(t) === JSON.stringify(r))
-  );
+  results = results.filter((r, index, self) => {
+    // Create copies without _id for comparison
+    const rWithoutId = { ...r };
+    delete rWithoutId._id;
+
+    return (
+      index ===
+      self.findIndex((t) => {
+        const tWithoutId = { ...t };
+        delete tWithoutId._id;
+        return JSON.stringify(tWithoutId) === JSON.stringify(rWithoutId);
+      })
+    );
+  });
 
   if (types && types.length > 0) {
     results = results.filter((r) => types.includes(r.modifierType));
@@ -2240,11 +2308,11 @@ function performAttackRoll(
   type = "single",
   range = "auto"
 ) {
-  const isMelee = weapon.data?.type === "melee weapon";
+  const isMelee = weapon?.data?.type === "melee weapon";
 
   let isShell = false;
   // It's a shotgun shell if it's ranged with a isShell ammo
-  const ammo = weapon.data?.ammo;
+  const ammo = weapon?.data?.ammo;
   let ammoObject = {
     _id: "",
   };
@@ -2253,8 +2321,8 @@ function performAttackRoll(
     isShell = ammoObject?.isShell;
   }
   let ammoItem = null;
-  if (ammoObject && weapon.data?.type === "ranged weapon") {
-    const inventory = record.data?.inventory || [];
+  if (ammoObject && weapon?.data?.type === "ranged weapon") {
+    const inventory = record?.data?.inventory || [];
     ammoItem = inventory.find((item) => item._id === ammoObject._id);
   }
 
@@ -2288,26 +2356,26 @@ function performAttackRoll(
   }
   // Find the skill for the record by name. Use Autofire if type is autofire.
   // (Suppresive Fire just produces macros for enemy's to roll Concentration)
-  let skillName = weapon.data?.weaponSkill;
+  let skillName = weapon?.data?.weaponSkill;
 
   if (type === "autofire" || type === "suppressive") {
     skillName = "Autofire (x2)";
   }
 
-  if (weapon.data?.type === "ammo") {
+  if (weapon?.data?.type === "ammo") {
     // Use Athletics skill for throwing
     skillName = "Athletics";
   }
 
   let attackSkill = null;
   const skillGroups = [
-    ...(record.data?.skillGroups1 || []),
-    ...(record.data?.skillGroups2 || []),
+    ...(record?.data?.skillGroups1 || []),
+    ...(record?.data?.skillGroups2 || []),
   ];
   let attackSkillBase = 0;
   skillGroups.forEach((group) => {
     // We find the skill with the same name, or the Martial Arts skill with the highest base
-    let skill = (group.data?.skills || []).find(
+    let skill = (group?.data?.skills || []).find(
       (s) =>
         s.name === skillName ||
         (skillName === "Martial Arts" && s.name.includes("Martial Arts"))
@@ -2319,10 +2387,10 @@ function performAttackRoll(
 
     // Find the subskill with highest base value
     subSkills.forEach((subSkill) => {
-      const base = subSkill.data?.base || 0;
+      const base = subSkill?.data?.base || 0;
       if (base > highestSubSkill) {
         highestSubSkill = base;
-        highestSubSkillName = subSkill.name || "";
+        highestSubSkillName = subSkill?.name || "";
         attackSkill = subSkill;
       }
     });
@@ -2330,10 +2398,10 @@ function performAttackRoll(
     if (highestSubSkill > 0) {
       attackSkillBase = highestSubSkill;
       skillName = highestSubSkillName;
-    } else if (skill && skill.data?.base >= attackSkillBase) {
+    } else if (skill && skill?.data?.base >= attackSkillBase) {
       // We found the skill, so we can roll it
       attackSkill = skill;
-      attackSkillBase = skill.data?.base;
+      attackSkillBase = skill?.data?.base;
     }
   });
 
@@ -2347,7 +2415,7 @@ function performAttackRoll(
   ];
 
   // Get penalties for aimed shots (does not work for autofire or suppressive fire)
-  let targetedLocation = record.data?.targetedLocation || "body";
+  let targetedLocation = record?.data?.targetedLocation || "body";
   if (type === "autofire" || type === "suppressive") {
     targetedLocation = "body";
   }
@@ -2372,7 +2440,7 @@ function performAttackRoll(
     record,
     ["attackBonus", "attackPenalty"],
     field,
-    weapon._id,
+    weapon?._id,
     weapon,
     ammoItem
   );
@@ -2384,7 +2452,7 @@ function performAttackRoll(
       record,
       ["skillBonus", "skillPenalty"],
       attackSkill.name || "New Skill",
-      weapon._id,
+      weapon?._id,
       weapon,
       ammoItem
     );
@@ -2396,7 +2464,7 @@ function performAttackRoll(
     record,
     ["smartAmmo"],
     isMelee ? "melee" : "ranged",
-    weapon._id,
+    weapon?._id,
     weapon,
     ammoItem
   );
@@ -2439,7 +2507,7 @@ function performAttackRoll(
   }
 
   let icon = "GiPistolGun";
-  if (weapon.data?.type === "ranged weapon") {
+  if (weapon?.data?.type === "ranged weapon") {
     if (skillName === "Shoulder Arms") {
       icon = "GiWinchesterRifle";
     } else if (skillName === "Heavy Weapons") {
@@ -2451,7 +2519,7 @@ function performAttackRoll(
     } else if (skillName.includes("Pilot") || skillName.includes("Drive")) {
       icon = "GiTurret";
     }
-  } else if (weapon.data?.type === "melee weapon") {
+  } else if (weapon?.data?.type === "melee weapon") {
     icon = "GiKatana";
     if (skillName === "Brawling") {
       icon = "GiPunch";
@@ -2465,22 +2533,22 @@ function performAttackRoll(
     } else if (skillName === "Taekwondo") {
       icon = "GiHighKick";
     }
-  } else if (weapon.data?.type === "ammo") {
+  } else if (weapon?.data?.type === "ammo") {
     icon = "GiGrenade";
   }
 
   const attackMetadata = {
     rollName: "Attack",
-    tooltip: `Attack with ${weapon.name}`,
-    weaponName: weapon.name,
-    weaponId: weapon._id,
+    tooltip: weapon ? `Attack with ${weapon?.name}` : "Attack with Object",
+    weaponName: weapon?.name,
+    weaponId: weapon?._id,
     weaponDataPath: weaponDataPath,
     isMelee: isMelee,
     isSuppressive: type === "suppressive",
     isAutofire: type === "autofire",
-    weaponDamage: weapon.data?.damage || 0,
-    autofireDamage: weapon.data?.autofireDamage || 0,
-    afMultiplierMax: weapon.data?.afMultiplierMax || 0,
+    weaponDamage: weapon?.data?.damage || 0,
+    autofireDamage: weapon?.data?.autofireDamage || 0,
+    afMultiplierMax: weapon?.data?.afMultiplierMax || 0,
     targetedLocation: targetedLocation,
     smartAmmoValue: smartAmmoValue,
     smartBonus: smartBonus,
@@ -2506,7 +2574,7 @@ function performAttackRoll(
       record,
       [ammoModifierType],
       "",
-      weapon._id,
+      weapon?._id,
       weapon
     );
     ammoModifiers.forEach((modifier) => {
@@ -2518,15 +2586,15 @@ function performAttackRoll(
     });
 
     // Check if we have enough ammo in the weapon then deduct ammo
-    let count = parseInt(weapon.data?.ammoCount, 10) || 0;
-    if (weapon.data?.type === "ammo") {
+    let count = parseInt(weapon?.data?.ammoCount, 10) || 0;
+    if (weapon?.data?.type === "ammo") {
       // Count is on the weapon if we're throwing ammo
-      count = weapon.data?.count || 0;
+      count = weapon?.data?.count || 0;
     }
 
     if (count > 0 && count >= ammoPerShot) {
       const newCount = count - ammoPerShot;
-      if (weapon.data?.type === "ammo") {
+      if (weapon?.data?.type === "ammo") {
         api.setValues({
           [`${weaponDataPath}.data.count`]: newCount,
         });
@@ -2542,7 +2610,7 @@ function performAttackRoll(
 
   // If we don't have enough ammo, then we need to show a message
   if (!hasEnoughAmmo) {
-    if (weapon.data?.type === "ammo") {
+    if (weapon?.data?.type === "ammo") {
       api.showNotification(
         "You are out of this type of thrown ammo!",
         "red",
@@ -2642,6 +2710,15 @@ function performThrowObject(record) {
   }
 
   const throwRange = record.data?.throwRange || "auto";
+
+  if (!throwDataPath || !throwObject) {
+    api.showNotification(
+      "You need to select an ammo type to throw!",
+      "red",
+      "Throw Object"
+    );
+    return;
+  }
 
   performAttackRoll(record, throwObject, throwDataPath, "single", throwRange);
 }

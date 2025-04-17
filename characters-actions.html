@@ -38,9 +38,11 @@
 
   function throwAmmoOptions() {
     // Get a list of equipped ammo
-    const equippedAmmo = record.data?.inventory?.filter(
-      (item) => item.data.carried === "equipped" && item.data.type === "ammo"
-    );
+    const equippedAmmo =
+      (record.data?.inventory || [])?.filter(
+        (item) =>
+          item.data?.carried === "equipped" && item.data?.type === "ammo"
+      ) || [];
 
     if (equippedAmmo.length > 0) {
       return equippedAmmo.map((ammo) => ({

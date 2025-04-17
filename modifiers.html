@@ -242,4 +242,24 @@
       label="Only Applies To This Item"
     ></checkbox>
   </div>
+
+  <div style="display: flex; flex-direction: row; gap: 4px; width: 100%">
+    <stringfield
+      size="xs"
+      width="50%"
+      field="requiredItem"
+      description="If the modifier requires another equipped item."
+      label="Required Item"
+      placeholder="Enter Required Item (if any)"
+    ></stringfield>
+
+    <numberfield
+      size="xs"
+      width="50%"
+      field="requiredCount"
+      description="If the modifier only applies if present this many times."
+      label="Required Count"
+      placeholder="Enter Required Count (if any)"
+    ></numberfield>
+  </div>
 </div>
