@@ -1,0 +1,175 @@
+<script>
+  function onUsedIPChange() {
+    // Total up all the used IP values in the list
+    let usedIP = 0;
+    const usedIPList = record.data.ipSpent || [];
+    usedIPList.forEach((usedEntry) => {
+      const amountUsed = parseInt(usedEntry.data?.usedIP, 10);
+      if (!isNaN(amountUsed) && amountUsed > 0) {
+        usedIP += amountUsed;
+      }
+    });
+
+    api.setValues({ "data.usedIP": usedIP });
+  }
+
+  function onReputationEventChange() {
+    // Set the character's reputation to the highest value in the list
+    // (or the lowest if negative)
+    let highestRep = 0;
+    let curHighestRep = 0;
+    const repEventList = record.data.repEventList || [];
+    repEventList.forEach((repEvent) => {
+      const repValue = parseInt(repEvent.data?.reputation, 10);
+      if (!isNaN(repValue) && Math.abs(repValue) > Math.abs(curHighestRep)) {
+        curHighestRep = Math.abs(repValue);
+        highestRep = repValue;
+      } else if (
+        !isNaN(repValue) &&
+        Math.abs(repValue) === Math.abs(curHighestRep)
+      ) {
+        if (repValue > 0) {
+          highestRep = repValue;
+        }
+      }
+    });
+
+    api.setValues({ "data.reputation": highestRep });
+  }
+
+  function onReputationCheck() {
+    api.closeOpenedPopovers();
+  }
+
+  function onReputationFaceDown() {
+    api.closeOpenedPopovers();
+  }
+</script>
+
+<div style="display: flex; flex-direction: row; gap: 4px; width: 100%">
+  <!-- IP -->
+  <div style="display: flex; flex-direction: column; gap: 4px; width: 100%">
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        width: 100%;
+        align-items: flex-end;
+      "
+    >
+      <numberfield
+        field="usedIP"
+        label="Used I.P."
+        placeholder="0"
+        editable="false"
+        size="sm"
+        hidecontrols="true"
+      ></numberfield>
+      <label variant="bold" size="sm" label="of"></label>
+      <numberfield
+        field="IP"
+        label="Total I.P."
+        placeholder="0"
+        size="sm"
+        hidecontrols="true"
+      ></numberfield>
+    </div>
+
+    <label variant="bold" size="sm" label="I.P. Spending Tracker"></label>
+    <div style="width: 100%; height: 25px">
+      <progressbar
+        field="usedIP"
+        label="Used IP"
+        width="100%"
+        height="100%"
+        currentvaluefield="usedIP"
+        color="secondary"
+        maxvaluefield="IP"
+        size="xl"
+      ></progressbar>
+    </div>
+    <list
+      field="ipSpent"
+      listtype="ip_used_list"
+      variant="outline-striped"
+      onchange="onUsedIPChange()"
+    ></list>
+  </div>
+
+  <!-- Aliases and Rep -->
+  <div style="display: flex; flex-direction: column; gap: 4px; width: 100%">
+    <stringfield
+      field="aliases"
+      label="Aliases"
+      placeholder="Enter aliases..."
+      size="xs"
+    ></stringfield>
+
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        width: 100%;
+        align-items: flex-end;
+      "
+    >
+      <numberfield
+        field="reputation"
+        label="Reputation"
+        placeholder="0"
+        width="100%"
+        size="xs"
+        editable="false"
+        hidecontrols="true"
+      ></numberfield>
+      <popover>
+        <popover.target>
+          <button
+            size="xs"
+            field="targetedLocation"
+            variant="outline"
+            color="secondary"
+            label="Roll Reputation"
+          ></button>
+        </popover.target>
+        <popover.dropdown>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <button
+              size="xs"
+              field="targetedLocation"
+              variant="outline"
+              color="secondary"
+              icon="D10"
+              label="Reputation Check"
+              onclick="onReputationCheck()"
+            ></button>
+            <button
+              size="xs"
+              field="targetedLocation"
+              variant="outline"
+              color="tertiary"
+              icon="D10"
+              label="Face Down"
+              onclick="onReputationFaceDown()"
+            ></button>
+          </div>
+        </popover.dropdown>
+      </popover>
+    </div>
+    <list
+      field="repEventList"
+      listtype="reputation_event_list"
+      variant="outline-striped"
+      onchange="onReputationEventChange()"
+    ></list>
+  </div>
+</div>
+
+<label variant="bold" textalign="left" size="sm" label="Notes"></label>
+<richtextfield
+  field="notes"
+  placeholder="Enter notes..."
+  disablecontrols="true"
+></richtextfield>
