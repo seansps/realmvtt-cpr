@@ -1,0 +1,329 @@
+<!-- Exec Properties -->
+
+<box field="execProperties" hidden="true">
+  <label
+    label="Exec Properties"
+    size="md"
+    variant="bold"
+    textalign="center"
+  ></label>
+  <label label="Features" size="sm" variant="bold"></label>
+  <div style="display: flex; flex-direction: row; gap: 4px">
+    <div style="width: 64px">
+      <label label="Rank" size="xs" variant="bold"></label>
+    </div>
+    <div>
+      <label label="Feature" size="xs" variant="bold"></label>
+    </div>
+  </div>
+  <list variant="striped" field="features" listtype="basic_features"></list>
+  <div
+    style="
+      display: flex;
+      flex-direction: row;
+      gap: 4px;
+      width: 100%;
+      margin-top: 4px;
+    "
+  >
+    <div style="width: 100%">
+      <label label="Gaining Loyalty" size="sm" variant="bold"></label>
+      <div style="display: flex; flex-direction: row; gap: 4px">
+        <div style="width: 64px">
+          <label label="Amount" size="xs" variant="bold"></label>
+        </div>
+        <div>
+          <label label="Description" size="xs" variant="bold"></label>
+        </div>
+      </div>
+      <list
+        variant="striped"
+        field="loyaltyLosses"
+        listtype="exec_loyalty_changes"
+      ></list>
+    </div>
+    <div style="width: 100%">
+      <label label="Losing Loyalty" size="sm" variant="bold"></label>
+      <div style="display: flex; flex-direction: row; gap: 4px">
+        <div style="width: 64px">
+          <label label="Amount" size="xs" variant="bold"></label>
+        </div>
+        <div>
+          <label label="Description" size="xs" variant="bold"></label>
+        </div>
+      </div>
+      <list
+        variant="striped"
+        field="loyaltyGains"
+        listtype="exec_loyalty_changes"
+      ></list>
+    </div>
+  </div>
+</box>
+
+<!-- Fixer Properties -->
+
+<box field="fixerProperties" hidden="true">
+  <label
+    label="Fixer Properties"
+    size="md"
+    variant="bold"
+    textalign="center"
+  ></label>
+  <div style="display: flex; flex-direction: column; gap: 4px">
+    <label label="Contacts & Clients" size="sm" variant="bold"></label>
+    <div style="display: flex; flex-direction: column; width: 100%">
+      <div style="display: flex; flex-direction: row; width: 100%">
+        <div style="width: 64px">
+          <label label="Rank" size="xs" variant="bold"></label>
+        </div>
+        <div>
+          <label label="Feature" size="xs" variant="bold"></label>
+        </div>
+      </div>
+      <list variant="striped" field="contacts" listtype="basic_features"></list>
+    </div>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 4px">
+    <label label="Reach" size="sm" variant="bold"></label>
+    <div style="display: flex; flex-direction: column; width: 100%">
+      <div style="display: flex; flex-direction: row; width: 100%">
+        <div style="width: 64px">
+          <label label="Rank" size="xs" variant="bold"></label>
+        </div>
+        <div>
+          <label label="Feature" size="xs" variant="bold"></label>
+        </div>
+      </div>
+      <list variant="striped" field="reach" listtype="basic_features"></list>
+    </div>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 4px">
+    <label label="Haggle" size="sm" variant="bold"></label>
+    <div style="display: flex; flex-direction: column; width: 100%">
+      <div style="display: flex; flex-direction: row; width: 100%">
+        <div style="width: 64px">
+          <label label="Rank" size="xs" variant="bold"></label>
+        </div>
+        <div>
+          <label label="Feature" size="xs" variant="bold"></label>
+        </div>
+      </div>
+      <list variant="striped" field="haggle" listtype="basic_features"></list>
+    </div>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 4px">
+    <label label="Grease" size="sm" variant="bold"></label>
+    <div style="display: flex; flex-direction: column; width: 100%">
+      <div style="display: flex; flex-direction: row; width: 100%">
+        <div style="width: 64px">
+          <label label="Rank" size="xs" variant="bold"></label>
+        </div>
+        <div>
+          <label label="Feature" size="xs" variant="bold"></label>
+        </div>
+      </div>
+      <list variant="striped" field="grease" listtype="basic_features"></list>
+    </div>
+  </div>
+</box>
+
+<!-- Lawman Properties -->
+
+<box field="lawmanProperties" hidden="true">
+  <label
+    label="Lawman Properties"
+    size="md"
+    variant="bold"
+    textalign="center"
+  ></label>
+  <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px">
+    <label label="Backup Options by Rank" size="sm" variant="bold"></label>
+    <div style="display: flex; flex-direction: column; width: 100%">
+      <div style="display: flex; flex-direction: row; width: 100%">
+        <div style="width: 64px">
+          <label label="Rank" size="xs" variant="bold"></label>
+        </div>
+        <div>
+          <label label="Backup" size="xs" variant="bold"></label>
+        </div>
+      </div>
+      <list variant="striped" field="backup" listtype="lawman_features"></list>
+    </div>
+  </div>
+</box>
+
+<!-- Media Properties -->
+
+<box field="mediaProperties" hidden="true"> </box>
+
+<!-- Medtech Properties -->
+
+<box field="medtechProperties" hidden="true"> </box>
+
+<!-- Netrunner Properties -->
+
+<box field="netrunnerProperties" hidden="true">
+  <label
+    label="Netrunner Properties"
+    size="md"
+    variant="bold"
+    textalign="center"
+  ></label>
+  <div style="display: flex; flex-direction: column; gap: 4px">
+    <stringfield
+      label="ZAP Damage"
+      size="sm"
+      field="zapDamage"
+      placeholder="Enter ZAP damage..."
+    ></stringfield>
+    <label label="NET Actions by Rank" size="sm" variant="bold"></label>
+    <table style="width: 250px">
+      <thead>
+        <tr>
+          <th style="text-align: center; font-size: 14px">Rank</th>
+          <th style="font-size: 14px">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: center"><strong>1</strong></td>
+          <td>
+            <numberfield
+              field="netActionsRank1"
+              minvalue="0"
+              placeholder="Enter amount..."
+            ></numberfield>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center"><strong>2</strong></td>
+          <td>
+            <numberfield
+              field="netActionsRank2"
+              minvalue="0"
+              placeholder="Enter amount..."
+            ></numberfield>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center"><strong>3</strong></td>
+          <td>
+            <numberfield
+              field="netActionsRank3"
+              minvalue="0"
+              placeholder="Enter amount..."
+            ></numberfield>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center"><strong>4</strong></td>
+          <td>
+            <numberfield
+              field="netActionsRank4"
+              minvalue="0"
+              placeholder="Enter amount..."
+            ></numberfield>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center"><strong>5</strong></td>
+          <td>
+            <numberfield
+              field="netActionsRank5"
+              minvalue="0"
+              placeholder="Enter amount..."
+            ></numberfield>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center"><strong>6</strong></td>
+          <td>
+            <numberfield
+              field="netActionsRank6"
+              minvalue="0"
+              placeholder="Enter amount..."
+            ></numberfield>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center"><strong>7</strong></td>
+          <td>
+            <numberfield
+              field="netActionsRank7"
+              minvalue="0"
+              placeholder="Enter amount..."
+            ></numberfield>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center"><strong>8</strong></td>
+          <td>
+            <numberfield
+              field="netActionsRank8"
+              minvalue="0"
+              placeholder="Enter amount..."
+            ></numberfield>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center"><strong>9</strong></td>
+          <td>
+            <numberfield
+              field="netActionsRank9"
+              minvalue="0"
+              placeholder="Enter amount..."
+            ></numberfield>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center"><strong>10</strong></td>
+          <td>
+            <numberfield
+              field="netActionsRank10"
+              minvalue="0"
+              placeholder="Enter amount..."
+            ></numberfield>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</box>
+
+<!-- Nomad Properties -->
+
+<box field="nomadProperties" hidden="true"> </box>
+
+<!-- Rockerboy Properties -->
+
+<box field="rockerboyProperties" hidden="true"> </box>
+
+<!-- Solo Properties -->
+
+<box field="soloProperties" hidden="true"> </box>
+
+<!-- Tech Properties -->
+
+<box field="techProperties" hidden="true"> </box>
+
+<!-- Custom Properties -->
+
+<box field="customProperties" hidden="false">
+  <label
+    label="Custom Properties"
+    size="md"
+    variant="bold"
+    textalign="center"
+  ></label>
+  <label label="Features" size="sm" variant="bold"></label>
+  <div style="display: flex; flex-direction: row; gap: 4px">
+    <div style="width: 64px">
+      <label label="Rank" size="xs" variant="bold"></label>
+    </div>
+    <div>
+      <label label="Feature" size="xs" variant="bold"></label>
+    </div>
+  </div>
+  <list variant="striped" field="features" listtype="basic_features"></list>
+</box>

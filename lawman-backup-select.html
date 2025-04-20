@@ -1,0 +1,22 @@
+<script>
+  function onCallBackup() {
+    // TODO: Implement call backup
+  }
+</script>
+
+<div style="display: flex; gap: 4px; align-items: center">
+  <div>
+    <iconbutton
+      size="md"
+      hidden="false"
+      field="callBackupBtn"
+      color="primary"
+      variant="light"
+      options='[{"icon": "IconPhone", "label": "Call Backup", "value": "callBackup"}]'
+      onclick="onCallBackup()"
+    ></iconbutton>
+  </div>
+  <div style="flex-grow: 1">
+    <namefield size="xs" field="name" variant="standard"></namefield>
+  </div>
+</div>
