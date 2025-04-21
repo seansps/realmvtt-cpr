@@ -1,4 +1,14 @@
 <script>
+  function onDrop(type, recordLink) {
+    if (type === "roles") {
+      onDropRole(recordLink);
+    }
+  }
+
+  function onDropRole(recordLink) {
+    addRole(record, recordLink);
+  }
+
   function rollInitiative() {
     const roll = "1d10";
     // Get modifiers for initiative, which is REF

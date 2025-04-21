@@ -43,7 +43,7 @@ function checkForReplacements(value, replacements = {}, recordOverride = null) {
     const roleName = matchLevel[1];
     // Class specific half level
     const roleRanks =
-      (thisRecord?.data?.roleRanks || "").match(`${roleName} (\\d+)`)?.[1] || 0;
+      (thisRecord?.data?.role || "").match(`${roleName} (\\d+)`)?.[1] || 0;
     if (roleRanks) {
       value = value.replaceAll(
         matchLevel[0],
@@ -56,7 +56,7 @@ function checkForReplacements(value, replacements = {}, recordOverride = null) {
     const roleName = matchClassLevel[1];
     // Role specific rank
     const roleRanks =
-      (thisRecord?.data?.roleRanks || "").match(`${roleName} (\\d+)`)?.[1] || 0;
+      (thisRecord?.data?.role || "").match(`${roleName} (\\d+)`)?.[1] || 0;
     if (roleRanks) {
       value = value.replaceAll(
         matchClassLevel[0],
@@ -2933,6 +2933,81 @@ api.getRecordByTypeAndName('conditions', 'Broken Leg', (injuryRecord) => {
 \`\`\``;
 
   return brokenLegMacro;
+}
+
+// Adds a role the the NPC or Character
+function addRole(record, recordLink) {
+  const roleObj = {
+    ...recordLink.value,
+  };
+
+  // Get current roles on character if any
+  let roles = [...(record.data?.roles || [])];
+
+  const valuesToSet = {};
+  const existingRole = roles.find((role) => role.name === roleObj.name);
+
+  let initialRank = 1;
+  // If this is a character and they have no other roles,
+  // set the initial rank to 4
+  if (record.recordType === "characters" && roles.length === 0) {
+    initialRank = 4;
+  }
+
+  // Add the role to the character if not in the map
+  if (!existingRole) {
+    roles.push({
+      ...roleObj,
+      data: {
+        ...roleObj.data,
+        // Add an order field that we will use to sort the role panels by
+        order: roles.length + 1,
+        rank: initialRank,
+      },
+    });
+    valuesToSet["data.roles"] = roles;
+  } else {
+    // Max rank is 10
+    existingRole.data.rank = Math.min(existingRole.data.rank + 1, 10);
+    valuesToSet["data.roles"] = roles;
+  }
+
+  // Sort the roles by order
+  const rolesSorted = [...roles].sort((a, b) => a.data.order - b.data.order);
+  // Update the role string
+  let roleString = "";
+  for (const role of rolesSorted) {
+    if (roleString !== "") {
+      roleString = `${roleString} / `;
+    }
+    roleString = `${roleString}${role.name} ${role.data.rank}`;
+  }
+  valuesToSet["data.role"] = roleString;
+
+  // Set the new roles on the character
+  api.setValuesOnRecord(record, valuesToSet);
+}
+
+function updateRoles(record) {
+  // Get current roles on character if any
+  let roles = [...(record.data?.roles || [])];
+
+  const valuesToSet = {};
+
+  // Sort the roles by order
+  const rolesSorted = [...roles].sort((a, b) => a.data.order - b.data.order);
+  // Update the role string
+  let roleString = "";
+  for (const role of rolesSorted) {
+    if (roleString !== "") {
+      roleString = `${roleString} / `;
+    }
+    roleString = `${roleString}${role.name} ${role.data.rank}`;
+  }
+  valuesToSet["data.role"] = roleString;
+
+  // Set the new roles on the character
+  api.setValuesOnRecord(record, valuesToSet);
 }
 
 // Add a condition (injury, addiciton, cover) to a record

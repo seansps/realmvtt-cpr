@@ -124,11 +124,19 @@
   }
 
   function onDrop(type, recordLink) {
-    if (type === "role") {
-      // TODO role add
+    if (type === "roles") {
+      onDropRole(recordLink);
     } else if (type === "conditions") {
       onDropCondition(recordLink);
     }
+  }
+
+  function onDropRole(recordLink) {
+    addRole(record, recordLink);
+  }
+
+  function onRoleDelete() {
+    updateRoles(record);
   }
 
   function onDropCondition(recordLink) {
@@ -921,19 +929,23 @@
         display: flex;
         flex-direction: row;
         gap: 4px;
-        align-items: center;
+        align-items: flex-end;
         margin-bottom: 4px;
       "
     >
       <stringfield
-        placeholder="Drag and drop a Role to add a Rank"
+        placeholder="Drop a Role to add a Rank"
         size="sm"
         width="100%"
         field="role"
         label="Role and Rank"
       ></stringfield>
 
-      <!-- TODO add list here of roles similar to 5e classes list -->
+      <list
+        listtype="role_icon_list"
+        field="roles"
+        onchange="onRoleDelete()"
+      ></list>
     </div>
     <div style="display: flex; flex-direction: row; gap: 4px; width: 100%">
       <div style="display: flex; flex-direction: column; gap: 4px">

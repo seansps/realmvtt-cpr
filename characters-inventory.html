@@ -3,9 +3,14 @@
     // On initial load of inventory, make sure filterList is not null
     if (
       record?.data?.filterList === undefined ||
-      record?.data?.filterList === null
+      record?.data?.filterList === null ||
+      record?.data?.filterByLocation === undefined ||
+      record?.data?.filterByLocation === null
     ) {
-      api.setValue("data.filterList", "");
+      api.setValues({
+        "data.filterList": "",
+        "data.filterByLocation": "",
+      });
     }
   }
 
@@ -179,6 +184,25 @@
       setCyberwareSlotValues(record);
     }
   }
+
+  function getLocations() {
+    const inventory = record?.data?.inventory || [];
+    const locations = inventory.map((item) => item.data?.location || "");
+    // Filter out duplicates by creating a Set and converting back to array
+    // Also filter out empty strings
+    const uniqueLocations = [...new Set(locations)].filter(
+      (location) => location !== ""
+    );
+
+    // Always include the "All" option at the beginning
+    return [
+      { value: "", label: "All" },
+      ...uniqueLocations.map((location) => ({
+        value: location,
+        label: location,
+      })),
+    ];
+  }
 </script>
 
 <div>
@@ -188,11 +212,19 @@
 <div style="display: flex; flex-direction: row; gap: 4px">
   <dropdown
     field="filterList"
-    label="Filter Inventory"
+    label="Filter by Type"
     onload="onLoad()"
     size="xs"
     defaultvalue=""
     options='[{"label": "All", "value": ""}, {"label": "Agent App", "value": "agent app"}, {"label": "Ammo", "value": "ammo"}, {"label": "Armor", "value": "armor"}, {"label": "Black ICE", "value": "black ice"}, {"label": "Cyberdeck", "value": "cyberdeck"}, {"label": "Cyberware", "value": "cyberware"}, {"label": "Demon", "value": "demon"}, {"label": "Drone", "value": "drone"}, {"label": "Drug", "value": "drug"}, {"label": "Fashion", "value": "fashion"}, {"label": "Gear", "value": "gear"}, {"label": "Item Pack", "value": "pack"}, {"label": "Melee Weapon", "value": "melee weapon"}, {"label": "Program or Hardware", "value": "program or hardware"}, {"label": "Ranged Weapon", "value": "ranged weapon"}, {"label": "Vehicle", "value": "vehicle"}, {"label": "Vehicle Upgrade", "value": "vehicle upgrade"}, {"label": "Weapon Attachment", "value": "weapon attachment"}]'
+  ></dropdown>
+  <dropdown
+    field="filterByLocation"
+    label="Filter by Location"
+    size="xs"
+    defaultvalue=""
+    placeholder="Select Location..."
+    optionsFunction="return getLocations();"
   ></dropdown>
   <div
     style="
