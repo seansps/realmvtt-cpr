@@ -63,6 +63,10 @@
       return [{ value: "none", label: "None" }];
     }
   }
+
+  function onRoleDelete() {
+    updateRoles(record);
+  }
 </script>
 
 <div>
@@ -243,4 +247,21 @@
       <list listtype="ability_list" variant="striped" field="abilities"></list>
     </div>
   </div>
+</div>
+
+<!-- Role Panels -->
+<div style="margin-top: 8px">
+  <label
+    variant="bold"
+    label="Role Abilties"
+    size="md"
+    textalign="center"
+  ></label>
+
+  <list
+    listtype="role_panel_list"
+    variant="standard"
+    field="roles"
+    onchange="onRoleDelete();"
+  ></list>
 </div>

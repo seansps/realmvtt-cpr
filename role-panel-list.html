@@ -1,0 +1,104 @@
+<script>
+  function moveUp() {
+    const dataPathToRole = dataPath.replace(".data.moveUpBtn", "");
+    const role = api.getValue(dataPathToRole);
+    const thisOrder = role.data?.order || 1;
+
+    if (thisOrder === 1) {
+      return;
+    }
+
+    // Get all roles to find the one directly previous in order
+    const roles = record.data?.roles || [];
+
+    if (!roles || !Array.isArray(roles)) {
+      return;
+    }
+
+    // Find the role with the next lowest order (the one directly above this one)
+    let previousRole = null;
+    let previousRoleDataPath = "";
+    let previousOrder = 0;
+    roles.forEach((r, roleIndex) => {
+      const orderValue = r.data?.order || 0;
+      if (orderValue < thisOrder && orderValue > previousOrder) {
+        previousOrder = orderValue;
+        previousRole = r;
+        previousRoleDataPath = `data.roles.${roleIndex}`;
+      }
+    });
+
+    if (!previousRole) {
+      return; // No previous role found
+    }
+
+    // Swap the orders of the two roles
+    const valuesToSet = {
+      [`${dataPathToRole}.data.order`]: previousOrder,
+      [`${previousRoleDataPath}.data.order`]: thisOrder,
+    };
+
+    api.setValues(valuesToSet, (updatedRecord) => {
+      updateRoles(updatedRecord);
+    });
+  }
+</script>
+
+<div
+  style="
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    width: 100%;
+    align-items: center;
+  "
+>
+  <div style="width: 35px; height: 35px; min-height: 35px; min-width: 35px">
+    <portrait width="35px" height="35px" field="portrait"></portrait>
+    <numberfield field="order" hidden="true"></numberfield>
+  </div>
+  <div style="width: 100%">
+    <label textalign="left" variant="bold" size="md" field="namefield"></label>
+  </div>
+  <iconbutton
+    field="moveUpBtn"
+    onclick="moveUp()"
+    variant="outline"
+    options='[{"label": "Move Up in Order", "value": "moveUp", "icon": "IconArrowBigUp"}]'
+  ></iconbutton>
+</div>
+
+<!-- Exec Panel -->
+<box field="execProperties"> EXEC TODO </box>
+
+<!-- Fixer Panel -->
+<box field="fixerProperties"> FIXER TODO </box>
+
+<!-- Lawman Panel -->
+<box field="lawmanProperties"> LAWMAN TODO </box>
+
+<!-- Media Panel -->
+<box field="mediaProperties"> MEDIA TODO </box>
+
+<!-- Medtech Panel -->
+<box field="medtechProperties"> MEDTECH TODO </box>
+
+<!-- Netrunner Panel -->
+<box field="netrunnerProperties"> NETRUNNER TODO </box>
+
+<!-- Nomad Panel -->
+<box field="nomadProperties"> NOMAD TODO </box>
+
+<!-- Rockerboy Panel -->
+<box field="rockerboyProperties"> ROCKERBOY TODO </box>
+
+<!-- Solo Panel -->
+<box field="soloProperties"> SOLO TODO </box>
+
+<!-- Tech Panel -->
+<box field="techProperties"> TECH TODO </box>
+
+<!-- Custom Panel -->
+<box field="customProperties"> CUSTOM TODO </box>
+
+<numberfield field="order" hidden="true"></numberfield>
