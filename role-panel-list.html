@@ -42,8 +42,32 @@
       updateRoles(updatedRecord);
     });
   }
-</script>
 
+  function getFiltersForActiveFeaturesList() {
+    // Only show features where rank is <= our own rank
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    const rank = role.data?.rank || 1;
+
+    const filters = [...Array(rank).keys()].map((i) => ({
+      field: "rank",
+      operator: "equals",
+      value: i + 1,
+      isOr: true,
+    }));
+
+    return filters;
+  }
+
+  function updateRank() {
+    updateRoles(record);
+  }
+
+  function canAddExecTeamMember() {
+    return value?.data?.type === "team member";
+  }
+</script>
+<numberfield field="order" hidden="true"></numberfield>
 <div
   style="
     display: flex;
@@ -55,11 +79,34 @@
 >
   <div style="width: 35px; height: 35px; min-height: 35px; min-width: 35px">
     <portrait width="35px" height="35px" field="portrait"></portrait>
-    <numberfield field="order" hidden="true"></numberfield>
   </div>
-  <div style="width: 100%">
+  <div style="width: 40%">
     <label textalign="left" variant="bold" size="md" field="namefield"></label>
   </div>
+  <div
+    style="
+      display: flex;
+      flex-direction: row;
+      gap: 4px;
+      margin-left: 8px;
+      width: 60%;
+    "
+  >
+    <label textalign="left" variant="bold" size="md" label="Ability:"></label>
+    <label
+      textalign="left"
+      variant="bold"
+      size="md"
+      field="roleAbility"
+    ></label>
+  </div>
+  <label textalign="left" variant="bold" size="sm" label="Rank"></label>
+  <numberfield
+    onchange="updateRank()"
+    field="rank"
+    width="100px"
+    size="sm"
+  ></numberfield>
   <iconbutton
     field="moveUpBtn"
     onclick="moveUp()"
@@ -69,36 +116,105 @@
 </div>
 
 <!-- Exec Panel -->
-<box field="execProperties"> EXEC TODO </box>
+<div style="margin-top: 4px">
+  <box field="execProperties" variant="card" size="xs" hidden="true">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <label variant="bold" textalign="left" label="Features" size="sm"></label>
+      <list
+        listtype="active_features_list"
+        field="features"
+        variant="outline-striped"
+        getfilters="return getFiltersForActiveFeaturesList();"
+      ></list>
+      <label
+        textalign="left"
+        variant="bold"
+        size="sm"
+        label="Team Members"
+      ></label>
+      <list
+        listtype="exec_team_member_list"
+        field="teamMembers"
+        variant="outline-striped"
+        allowadd="return canAddExecTeamMember();"
+      ></list>
+    </div>
+    <div
+    style="
+      display: flex;
+      flex-direction: row;
+      gap: 4px;
+      width: 100%;
+      margin-top: 4px;
+    "
+  >
+    <div style="width: 100%">
+      <label label="Gaining Loyalty" size="sm" variant="bold"></label>
+      <div style="display: flex; flex-direction: row; gap: 4px">
+        <div style="width: 64px">
+          <label label="Amount" size="xs" variant="bold"></label>
+        </div>
+        <div>
+          <label label="Description" size="xs" variant="bold"></label>
+        </div>
+      </div>
+      <list
+        variant="striped"
+        field="loyaltyLosses"
+        listtype="exec_loyalty_changes"
+      ></list>
+    </div>
+    <div style="width: 100%">
+      <label label="Losing Loyalty" size="sm" variant="bold"></label>
+      <div style="display: flex; flex-direction: row; gap: 4px">
+        <div style="width: 64px">
+          <label label="Amount" size="xs" variant="bold"></label>
+        </div>
+        <div>
+          <label label="Description" size="xs" variant="bold"></label>
+        </div>
+      </div>
+      <list
+        variant="striped"
+        field="loyaltyGains"
+        listtype="exec_loyalty_changes"
+      ></list>
+    </div>
+  </box>
 
-<!-- Fixer Panel -->
-<box field="fixerProperties"> FIXER TODO </box>
+  <!-- Fixer Panel -->
+  <box field="fixerProperties" variant="card" size="xs"> FIXER TODO </box>
 
-<!-- Lawman Panel -->
-<box field="lawmanProperties"> LAWMAN TODO </box>
+  <!-- Lawman Panel -->
+  <box field="lawmanProperties" variant="card" size="xs"> LAWMAN TODO </box>
 
-<!-- Media Panel -->
-<box field="mediaProperties"> MEDIA TODO </box>
+  <!-- Media Panel -->
+  <box field="mediaProperties" variant="card" size="xs"> MEDIA TODO </box>
 
-<!-- Medtech Panel -->
-<box field="medtechProperties"> MEDTECH TODO </box>
+  <!-- Medtech Panel -->
+  <box field="medtechProperties" variant="card" size="xs"> MEDTECH TODO </box>
 
-<!-- Netrunner Panel -->
-<box field="netrunnerProperties"> NETRUNNER TODO </box>
+  <!-- Netrunner Panel -->
+  <box field="netrunnerProperties" variant="card" size="xs">
+    NETRUNNER TODO
+  </box>
 
-<!-- Nomad Panel -->
-<box field="nomadProperties"> NOMAD TODO </box>
+  <!-- Nomad Panel -->
+  <box field="nomadProperties" variant="card" size="xs"> NOMAD TODO </box>
 
-<!-- Rockerboy Panel -->
-<box field="rockerboyProperties"> ROCKERBOY TODO </box>
+  <!-- Rockerboy Panel -->
+  <box field="rockerboyProperties" variant="card" size="xs">
+    ROCKERBOY TODO
+  </box>
 
-<!-- Solo Panel -->
-<box field="soloProperties"> SOLO TODO </box>
+  <!-- Solo Panel -->
+  <box field="soloProperties" variant="card" size="xs"> SOLO TODO </box>
 
-<!-- Tech Panel -->
-<box field="techProperties"> TECH TODO </box>
+  <!-- Tech Panel -->
+  <box field="techProperties" variant="card" size="xs"> TECH TODO </box>
 
-<!-- Custom Panel -->
-<box field="customProperties"> CUSTOM TODO </box>
+  <!-- Custom Panel -->
+  <box field="customProperties" variant="card" size="xs"> CUSTOM TODO </box>
+</div>
 
 <numberfield field="order" hidden="true"></numberfield>
