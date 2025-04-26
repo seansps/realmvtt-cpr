@@ -47,6 +47,10 @@
     // Only show features where rank is <= our own rank
     const nearestParentDataPath = getNearestParentDataPath(dataPath);
     const role = api.getValue(nearestParentDataPath);
+    if (!role) {
+      return [];
+    }
+
     const rank = role.data?.rank || 1;
 
     const filters = [...Array(rank).keys()].map((i) => ({
@@ -240,18 +244,35 @@
         listtype="active_features_list"
         field="haggle"
         variant="outline-striped"
+        getfilters="return getFiltersForActiveFeaturesList();"
       ></list>
       <label variant="bold" textalign="left" label="Grease" size="sm"></label>
       <list
         listtype="active_features_list"
         field="grease"
         variant="outline-striped"
+        getfilters="return getFiltersForActiveFeaturesList();"
       ></list>
     </div>
   </box>
 
   <!-- Lawman Panel -->
-  <box field="lawmanProperties" variant="card" size="xs"> LAWMAN TODO </box>
+  <box field="lawmanProperties" variant="card" size="xs" hidden="true">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <label
+        variant="bold"
+        textalign="left"
+        label="Potential Backup"
+        size="sm"
+      ></label>
+      <list
+        listtype="lawman_backup_select"
+        field="backup"
+        variant="outline-striped"
+        getfilters="return getFiltersForActiveFeaturesList();"
+      ></list>
+    </div>
+  </box>
 
   <!-- Media Panel -->
   <box field="mediaProperties" variant="card" size="xs"> MEDIA TODO </box>

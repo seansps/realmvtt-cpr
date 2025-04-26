@@ -19,6 +19,7 @@ const defenderSkill = metadata?.defenderSkill;
 const roleAbility = metadata?.roleAbility;
 const isSeriouslyWounded = metadata?.isSeriouslyWounded || false;
 const isMortallyWounded = metadata?.isMortallyWounded || false;
+const recordLinks = metadata?.recordLinks || [];
 
 // If we used luck, we need to remove it from the token that rolled
 let usedLuck = false;
@@ -32,8 +33,15 @@ if (usedLuck && record !== undefined && record !== null) {
 }
 
 const dv = metadata?.dv;
+const rollUnderOrEqual = metadata?.rollUnderOrEqual;
 
-if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
+// Explode roll in 10 or 1, unless it is a rollUnderOrEqual roll
+if (
+  !rollUnderOrEqual &&
+  d10.value === 10 &&
+  !metadata.critSuccess &&
+  !metadata.critFail
+) {
   api.roll(
     `1d10`,
     {
@@ -43,7 +51,12 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
     },
     "skill"
   );
-} else if (d10.value === 1 && !metadata.critSuccess && !metadata.critFail) {
+} else if (
+  !rollUnderOrEqual &&
+  d10.value === 1 &&
+  !metadata.critSuccess &&
+  !metadata.critFail
+) {
   // On 1, roll again with - 1d10
   api.roll(
     `1d10`,
@@ -148,8 +161,16 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
   // If a DV check is provided, we check it
   if (dv !== undefined && dv !== null) {
     // Success or failure if DV was defined
-    // In Cyberpunk RED, you need to roll higher than the DV to succeed
-    if (roll.total > dv) {
+    let success = false;
+    if (rollUnderOrEqual) {
+      // Some abilities you roll under or equal to the DV to succeed
+      success = roll.total <= dv;
+    } else {
+      // In Cyberpunk RED, you normally need to roll higher than the DV to succeed
+      success = roll.total > dv;
+    }
+
+    if (success) {
       message = `\n\**[center][color=green]Success[/color] (vs DV ${dv})[/center]**\n${message}`;
     } else {
       message = `\n\n**[center][color=red]Failure[/color] (vs DV ${dv})[/center]**\n${message}`;
@@ -174,5 +195,5 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
     message += `\n${skillRollButton}`;
   }
 
-  api.sendMessage(message, roll, [], tags);
+  api.sendMessage(message, roll, recordLinks, tags);
 }
