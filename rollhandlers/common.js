@@ -2254,6 +2254,31 @@ function performSkillRoll(record, skillName, additionalMetadata = {}) {
   );
   skillModifiers.push(...additionalModifiers);
 
+  // Check if using role ability
+  const roleAbility = additionalMetadata?.roleAbility;
+  if (roleAbility) {
+    // Get the value for this role ability rank
+    // First check if there is a matching Role name
+    const roles = record.data?.roles || [];
+    const role = roles.find((r) => r.name === roleAbility);
+    const roleRank = role?.data?.rank || 0;
+    if (roleRank > 0) {
+      skillModifiers.push({
+        name: roleAbility,
+        value: roleRank,
+        active: true,
+        valueType: "number",
+      });
+    }
+    // Check for modifiers
+    const additionalModifiers = getEffectsAndModifiersForToken(
+      record,
+      ["roleAbilityBonus", "roleAbilityPenalty"],
+      roleAbility
+    );
+    skillModifiers.push(...additionalModifiers);
+  }
+
   const woundedPenalty = getWoundedPenalty(record);
   if (woundedPenalty) {
     skillModifiers.push(woundedPenalty);

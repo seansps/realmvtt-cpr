@@ -16,6 +16,7 @@ const skillName = metadata?.rollName;
 const tooltip = `Skill Roll for ${skillName}`;
 const overrideDescription = metadata?.overrideDescription;
 const defenderSkill = metadata?.defenderSkill;
+const roleAbility = metadata?.roleAbility;
 const isSeriouslyWounded = metadata?.isSeriouslyWounded || false;
 const isMortallyWounded = metadata?.isMortallyWounded || false;
 
@@ -164,6 +165,7 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
         isDodge: false,
         dv: ${roll.total},
         defenderSkill: "${defenderSkill}",
+        roleAbility: "${roleAbility}",
       };
   
       performSkillRoll(token, "${defenderSkill}", skillCheckMetadata);

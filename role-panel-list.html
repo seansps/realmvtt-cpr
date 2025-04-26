@@ -66,6 +66,20 @@
   function canAddExecTeamMember() {
     return value?.data?.type === "team member";
   }
+
+  function rollHaggle() {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+
+    // HAGGLE is COOL + Trading Skill + Operator Rank + 1d10 against
+    // NPC COOL + Trading Skill + Their Operator Rank (if they are a Fixer) + 1d10.
+    performSkillRoll(record, "Trading", {
+      isDodge: false,
+      defenderSkill: "Trading",
+      roleAbility: "Fixer",
+      abilityName: "Haggle",
+    });
+  }
 </script>
 <numberfield field="order" hidden="true"></numberfield>
 <div
@@ -140,50 +154,101 @@
       ></list>
     </div>
     <div
-    style="
-      display: flex;
-      flex-direction: row;
-      gap: 4px;
-      width: 100%;
-      margin-top: 4px;
-    "
-  >
-    <div style="width: 100%">
-      <label label="Gaining Loyalty" size="sm" variant="bold"></label>
-      <div style="display: flex; flex-direction: row; gap: 4px">
-        <div style="width: 64px">
-          <label label="Amount" size="xs" variant="bold"></label>
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        width: 100%;
+        margin-top: 4px;
+      "
+    >
+      <div style="width: 100%">
+        <label label="Gaining Loyalty" size="sm" variant="bold"></label>
+        <div style="display: flex; flex-direction: row; gap: 4px">
+          <div style="width: 64px">
+            <label label="Amount" size="xs" variant="bold"></label>
+          </div>
+          <div>
+            <label label="Description" size="xs" variant="bold"></label>
+          </div>
         </div>
-        <div>
-          <label label="Description" size="xs" variant="bold"></label>
-        </div>
+        <list
+          variant="striped"
+          field="loyaltyLosses"
+          listtype="exec_loyalty_changes"
+        ></list>
       </div>
-      <list
-        variant="striped"
-        field="loyaltyLosses"
-        listtype="exec_loyalty_changes"
-      ></list>
-    </div>
-    <div style="width: 100%">
-      <label label="Losing Loyalty" size="sm" variant="bold"></label>
-      <div style="display: flex; flex-direction: row; gap: 4px">
-        <div style="width: 64px">
-          <label label="Amount" size="xs" variant="bold"></label>
+      <div style="width: 100%">
+        <label label="Losing Loyalty" size="sm" variant="bold"></label>
+        <div style="display: flex; flex-direction: row; gap: 4px">
+          <div style="width: 64px">
+            <label label="Amount" size="xs" variant="bold"></label>
+          </div>
+          <div>
+            <label label="Description" size="xs" variant="bold"></label>
+          </div>
         </div>
-        <div>
-          <label label="Description" size="xs" variant="bold"></label>
-        </div>
+        <list
+          variant="striped"
+          field="loyaltyGains"
+          listtype="exec_loyalty_changes"
+        ></list>
       </div>
-      <list
-        variant="striped"
-        field="loyaltyGains"
-        listtype="exec_loyalty_changes"
-      ></list>
     </div>
   </box>
 
   <!-- Fixer Panel -->
-  <box field="fixerProperties" variant="card" size="xs"> FIXER TODO </box>
+  <box field="fixerProperties" variant="card" size="xs" hidden="true">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <label
+        variant="bold"
+        textalign="left"
+        label="Contacts & Clients"
+        size="sm"
+      ></label>
+      <list
+        listtype="active_features_list"
+        field="contacts"
+        variant="outline-striped"
+        getfilters="return getFiltersForActiveFeaturesList();"
+      ></list>
+      <label variant="bold" textalign="left" label="Reach" size="sm"></label>
+      <list
+        listtype="active_features_list"
+        field="reach"
+        variant="outline-striped"
+        getfilters="return getFiltersForActiveFeaturesList();"
+      ></list>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+        "
+      >
+        <label variant="bold" textalign="left" label="Haggle" size="sm"></label>
+        <button
+          variant="outline"
+          onclick="rollHaggle()"
+          field="rollHaggleBtn"
+          label="Roll Haggle"
+          size="xs"
+        ></button>
+      </div>
+      <list
+        listtype="active_features_list"
+        field="haggle"
+        variant="outline-striped"
+      ></list>
+      <label variant="bold" textalign="left" label="Grease" size="sm"></label>
+      <list
+        listtype="active_features_list"
+        field="grease"
+        variant="outline-striped"
+      ></list>
+    </div>
+  </box>
 
   <!-- Lawman Panel -->
   <box field="lawmanProperties" variant="card" size="xs"> LAWMAN TODO </box>
