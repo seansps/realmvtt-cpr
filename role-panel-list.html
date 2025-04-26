@@ -300,7 +300,17 @@
   <box field="techProperties" variant="card" size="xs"> TECH TODO </box>
 
   <!-- Custom Panel -->
-  <box field="customProperties" variant="card" size="xs"> CUSTOM TODO </box>
+  <box field="customProperties" variant="card" size="xs" hidden="true">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <label variant="bold" textalign="left" label="Features" size="sm"></label>
+      <list
+        listtype="active_features_list"
+        field="features"
+        variant="outline-striped"
+        getfilters="return getFiltersForActiveFeaturesList();"
+      ></list>
+    </div>
+  </box>
 </div>
 
 <numberfield field="order" hidden="true"></numberfield>
