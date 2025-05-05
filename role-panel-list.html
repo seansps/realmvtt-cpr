@@ -84,6 +84,53 @@
       abilityName: "Haggle",
     });
   }
+
+  function rollRumors(type) {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    const rumors = role.data?.rumors || [];
+
+    // Store possible results and associated DVs
+    const results = [];
+    rumors.forEach((rumor) => {
+      results.push({
+        result: `(${rumor.data?.rumorType}) ${rumor.data?.rumor}`,
+        type: "rumor",
+        dv: type === "passive" ? rumor.data?.passiveDV : rumor.data?.activeDV,
+      });
+    });
+
+    if (type === "passive") {
+      // Roll 1d10 + Role Rank against the table
+      performSkillRoll(record, "Passive Rumors", {
+        isDodge: false,
+        roleAbility: "Media",
+        dvTable: results,
+      });
+    } else if (type === "active") {
+      // Roll 1d10 + Chosen Skill against the table
+      performSkillRoll(record, "Library Search", {
+        isDodge: false,
+        abilityName: "Active Rumors",
+        dvTable: results,
+      });
+    }
+  }
+
+  function rollBelievability() {
+    // This is a roll under rank ability, using the evidence bonus
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    const evidenceBonus = role.data?.evidenceBonus || 0;
+
+    performSkillRoll(record, "Media", {
+      isDodge: false,
+      roleAbility: "Media",
+      abilityName: "Believability",
+      rollUnderOrEqual: true,
+      bonus: evidenceBonus,
+    });
+  }
 </script>
 <numberfield field="order" hidden="true"></numberfield>
 <div
@@ -275,7 +322,131 @@
   </box>
 
   <!-- Media Panel -->
-  <box field="mediaProperties" variant="card" size="xs"> MEDIA TODO </box>
+  <box field="mediaProperties" variant="card" size="xs" hidden="true">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <div style="display: flex; flex-direction: row; gap: 8px">
+        <label variant="bold" textalign="left" label="Rumors" size="sm"></label>
+        <button
+          variant="outline"
+          onclick="rollRumors('passive')"
+          size="xs"
+          field="rollRumorsBtn"
+          label="Passive"
+        ></button>
+        <button
+          variant="outline"
+          onclick="rollRumors('active')"
+          field="rollRumorsBtn"
+          label="Active"
+          size="xs"
+        ></button>
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            align-items: center;
+          "
+        >
+          <label
+            variant="bold"
+            textalign="left"
+            label="Relevant Skill"
+            size="xs"
+          ></label>
+          <stringfield
+            field="activeSkill"
+            defaultvalue="Library Search"
+            size="xs"
+            width="100px"
+            placeholder="Skill..."
+          ></stringfield>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: row; gap: 4px; width: 100%">
+        <div style="width: 120px">
+          <label label="Rumor" size="xs" variant="bold"></label>
+        </div>
+        <div style="width: 100%">
+          <label label="Description" size="xs" variant="bold"></label>
+        </div>
+        <div style="width: 120px">
+          <label label="Passive DV" size="xs" variant="bold"></label>
+        </div>
+        <div style="width: 120px">
+          <label label="Active DV" size="xs" variant="bold"></label>
+        </div>
+      </div>
+      <list
+        listtype="media_rumor_panel_list"
+        field="rumors"
+        variant="outline-striped"
+      ></list>
+    </div>
+    <label
+      variant="bold"
+      textalign="left"
+      label="Publishing Stories or Scoops"
+      size="sm"
+    ></label>
+    <div
+      style="display: flex; flex-direction: row; gap: 8px; align-items: center"
+    >
+      <label
+        variant="bold"
+        textalign="left"
+        label="Believability"
+        size="sm"
+      ></label>
+      <iconbutton
+        variant="outline"
+        onclick="rollBelievability()"
+        field="rollBelievabilityBtn"
+        options='[{"icon": "D10", "label": "Roll Believability", "value": "rollBelievability"}]'
+        size="sm"
+      ></iconbutton>
+      <label
+        variant="bold"
+        textalign="left"
+        label="Evidence Bonus"
+        size="xs"
+      ></label>
+      <numberfield
+        field="evidenceBonus"
+        size="xs"
+        width="60px"
+        minvalue="0"
+        showsign="true"
+        maxvalue="10"
+        placeholder="+0"
+      ></numberfield>
+    </div>
+    <label
+      variant="bold"
+      textalign="left"
+      label="Access/Sources"
+      size="sm"
+    ></label>
+    <list
+      listtype="active_features_list"
+      field="access"
+      variant="outline-striped"
+      getfilters="return getFiltersForActiveFeaturesList();"
+    ></list>
+    <label variant="bold" textalign="left" label="Audiences" size="sm"></label>
+    <list
+      listtype="active_features_list"
+      field="audiences"
+      variant="outline-striped"
+      getfilters="return getFiltersForActiveFeaturesList();"
+    ></list>
+    <label variant="bold" textalign="left" label="Impact" size="sm"></label>
+    <list
+      listtype="active_features_list"
+      field="impact"
+      variant="outline-striped"
+    ></list>
+  </box>
 
   <!-- Medtech Panel -->
   <box field="medtechProperties" variant="card" size="xs"> MEDTECH TODO </box>

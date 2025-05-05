@@ -2298,6 +2298,12 @@ function performSkillRoll(
         abilityName
       );
       skillModifiers.push(...abilityNameModifiers);
+
+      // For some abilities, we need to add the bonus
+      if (additionalMetadata.bonus && additionalMetadata.dv) {
+        additionalMetadata.dv =
+          additionalMetadata.dv + additionalMetadata.bonus;
+      }
     }
   }
 

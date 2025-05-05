@@ -20,6 +20,7 @@ const roleAbility = metadata?.roleAbility;
 const isSeriouslyWounded = metadata?.isSeriouslyWounded || false;
 const isMortallyWounded = metadata?.isMortallyWounded || false;
 const recordLinks = metadata?.recordLinks || [];
+const dvTable = metadata?.dvTable;
 
 // If we used luck, we need to remove it from the token that rolled
 let usedLuck = false;
@@ -193,6 +194,26 @@ if (
     }); 
   \`\`\``;
     message += `\n${skillRollButton}`;
+  }
+
+  // If a DV table was provided, we check our roll against all the DVs and find the greatest one that is less than our roll
+  if (dvTable) {
+    // First sort the table by DV in descending order
+    const sortedTable = [...dvTable].sort((a, b) => b.dv - a.dv);
+    // Then find the first (greatest) DV that is less than our roll
+    const result = sortedTable.find((result) => result.dv < roll.total);
+    const type = result?.type;
+    const resultText = result?.result;
+    if (result) {
+      message = `\n\n**[center][color=green]Success[/color] (vs DV ${result.dv})[/center]**\n${message}`;
+      message += `\n\n${
+        type === "rumor"
+          ? `[color=blue]Rumor: ${resultText}[/color]`
+          : `[color=blue]${resultText}[/color]`
+      }`;
+    } else {
+      message = `\n\n**[center][color=red]Failure[/color][/center]**\n${message}`;
+    }
   }
 
   api.sendMessage(message, roll, recordLinks, tags);
