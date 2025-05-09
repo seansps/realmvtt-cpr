@@ -2250,6 +2250,23 @@ function performSkillRoll(
         valueType: "number",
       },
     ];
+  } else if (additionalMetadata.skillLevel !== undefined) {
+    skillModifiers.push({
+      name: skillName,
+      value: additionalMetadata.skillLevel,
+      active: true,
+      valueType: "number",
+    });
+    if (additionalMetadata.statName) {
+      skillModifiers.push({
+        name: capitalize(additionalMetadata.statName),
+        value:
+          record?.data?.[`total${capitalize(additionalMetadata.statName)}`] ||
+          0,
+        active: true,
+        valueType: "number",
+      });
+    }
   }
 
   const additionalModifiers = getEffectsAndModifiersForToken(
@@ -2270,7 +2287,12 @@ function performSkillRoll(
     const role = roles.find((r) => r.name === roleAbility);
     const roleRank = role?.data?.rank || 0;
 
-    if (roleRank > 0 && !rollUnderOrEqual) {
+    if (
+      roleRank > 0 &&
+      !rollUnderOrEqual &&
+      // If skilLevel was passed, we don't need to add the role rank
+      additionalMetadata.skillLevel === undefined
+    ) {
       skillModifiers.push({
         name: roleAbility,
         value: roleRank,
@@ -3016,6 +3038,7 @@ function addRole(record, recordLink) {
         // Add an order field that we will use to sort the role panels by
         order: roles.length + 1,
         rank: initialRank,
+        unallocatedRanks: initialRank,
       },
     });
     valuesToSet["data.roles"] = roles;
@@ -3041,6 +3064,17 @@ function addRole(record, recordLink) {
   api.setValuesOnRecord(record, valuesToSet);
 }
 
+function getUsedRanks(role) {
+  let usedRanks = 0;
+  // MEDTECH
+  usedRanks += role.data.surgery || 0;
+  usedRanks += role.data.pharmaceuticals || 0;
+  usedRanks += role.data.cryosystemOperation || 0;
+  // TECH
+  // TODO
+  return usedRanks;
+}
+
 function updateRoles(record) {
   // Get current roles on character if any
   let roles = [...(record.data?.roles || [])];
@@ -3056,6 +3090,9 @@ function updateRoles(record) {
       roleString = `${roleString} / `;
     }
     roleString = `${roleString}${role.name} ${role.data.rank}`;
+    const roleIndex = rolesSorted.findIndex((r) => r._id === role._id);
+    valuesToSet[`data.roles.${roleIndex}.data.unallocatedRanks`] =
+      role.data.rank - getUsedRanks(role);
   }
   valuesToSet["data.role"] = roleString;
 

@@ -63,6 +63,37 @@
     return filters;
   }
 
+  function getFiltersForCryosystemFeaturesList() {
+    // Only show features where rank is <= our cryosystem operation
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    if (!role) {
+      return [];
+    }
+
+    const cryosystemOperation = role.data?.cryosystemOperation || 0;
+
+    if (cryosystemOperation === 0) {
+      return [
+        {
+          field: "rank",
+          operator: "equals",
+          value: 0,
+          isOr: true,
+        },
+      ];
+    }
+
+    const filters = [...Array(cryosystemOperation).keys()].map((i) => ({
+      field: "rank",
+      operator: "equals",
+      value: i + 1,
+      isOr: true,
+    }));
+
+    return filters;
+  }
+
   function updateRank() {
     updateRoles(record);
   }
@@ -123,13 +154,123 @@
     const role = api.getValue(nearestParentDataPath);
     const evidenceBonus = role.data?.evidenceBonus || 0;
 
-    performSkillRoll(record, "Media", {
+    performSkillRoll(record, "Believability", {
       isDodge: false,
       roleAbility: "Media",
       abilityName: "Believability",
       rollUnderOrEqual: true,
       bonus: evidenceBonus,
     });
+  }
+
+  function updateSurgery() {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    const roleRank = role.data?.rank || 0;
+    const surgery = role.data?.surgery || 0;
+    const pharmaceuticals = role.data?.pharmaceuticals || 0;
+    const cryosystemOperation = role.data?.cryosystemOperation || 0;
+    // Set surgey skill level to 2 * surgery
+    const surgerySkillLevel = surgery * 2;
+
+    // Set unallocated ranks to role rank - surgery - med tech - pharmaceuticals - cryosystem operation
+    const unallocatedRanks =
+      roleRank - surgery - pharmaceuticals - cryosystemOperation;
+
+    api.setValues({
+      [`${nearestParentDataPath}.data.surgerySkillLevel`]: surgerySkillLevel,
+      [`${nearestParentDataPath}.data.unallocatedRanks`]: unallocatedRanks,
+    });
+  }
+
+  function updatePharmaceuticals() {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    const roleRank = role.data?.rank || 0;
+    const surgery = role.data?.surgery || 0;
+    const pharmaceuticals = role.data?.pharmaceuticals || 0;
+    const cryosystemOperation = role.data?.cryosystemOperation || 0;
+
+    // Set unallocated ranks to role rank - surgery - med tech - pharmaceuticals - cryosystem operation
+    const unallocatedRanks =
+      roleRank - surgery - pharmaceuticals - cryosystemOperation;
+    // Set medical tech to pharmaceuticals + cryosystem operation
+    const medicalTech = pharmaceuticals + cryosystemOperation;
+
+    api.setValues({
+      [`${nearestParentDataPath}.data.unallocatedRanks`]: unallocatedRanks,
+      [`${nearestParentDataPath}.data.medicalTech`]: medicalTech,
+    });
+  }
+
+  function updateCryosystemOperation() {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    const roleRank = role.data?.rank || 0;
+    const surgery = role.data?.surgery || 0;
+    const pharmaceuticals = role.data?.pharmaceuticals || 0;
+    const cryosystemOperation = role.data?.cryosystemOperation || 0;
+
+    // Set unallocated ranks to role rank - surgery - med tech - pharmaceuticals - cryosystem operation
+    const unallocatedRanks =
+      roleRank - surgery - pharmaceuticals - cryosystemOperation;
+    // Set medical tech to pharmaceuticals + cryosystem operation
+    const medicalTech = pharmaceuticals + cryosystemOperation;
+
+    api.setValues({
+      [`${nearestParentDataPath}.data.unallocatedRanks`]: unallocatedRanks,
+      [`${nearestParentDataPath}.data.medicalTech`]: medicalTech,
+    });
+  }
+
+  function rollSurgery() {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    const surgery = role.data?.surgery || 0;
+    const surgerySkillLevel = role.data?.surgerySkillLevel || 0;
+
+    performSkillRoll(record, "Surgery", {
+      isDodge: false,
+      roleAbility: "Medtech",
+      abilityName: "Surgery",
+      skillLevel: surgerySkillLevel,
+      statName: "tech",
+    });
+  }
+
+  function rollMedicalTech() {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    const medicalTech = role.data?.medicalTech || 0;
+
+    performSkillRoll(record, "Medical Tech", {
+      isDodge: false,
+      roleAbility: "Medtech",
+      abilityName: "Medical Tech",
+      skillLevel: medicalTech,
+      statName: "tech",
+    });
+  }
+
+  function rollSynthesize() {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    // Synthesize is a DV 13 Medical Tech check
+    const medicalTech = role.data?.medicalTech || 0;
+    const dv = role.data?.synthesisDV || 13;
+
+    performSkillRoll(record, "Synthesize", {
+      isDodge: false,
+      roleAbility: "Medtech",
+      abilityName: "Medical Tech",
+      skillLevel: medicalTech,
+      statName: "tech",
+      dv: dv,
+    });
+  }
+
+  function isPharmaceutical(value) {
+    return value?.data?.type === "drug";
   }
 </script>
 <numberfield field="order" hidden="true"></numberfield>
@@ -449,7 +590,184 @@
   </box>
 
   <!-- Medtech Panel -->
-  <box field="medtechProperties" variant="card" size="xs"> MEDTECH TODO </box>
+  <box field="medtechProperties" variant="card" size="xs" hidden="true">
+    <numberfield
+      field="unallocatedRanks"
+      label="Unallocated Ranks"
+      hidecontrols="true"
+      width="110px"
+      size="xs"
+      placeholder="0"
+      editable="false"
+    ></numberfield>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        align-items: flex-end;
+      "
+    >
+      <numberfield
+        field="surgery"
+        label="Surgery"
+        size="xs"
+        width="110px"
+        placeholder="0"
+        onchange="updateSurgery()"
+      ></numberfield>
+      <iconbutton
+        variant="outline"
+        onclick="rollSurgery()"
+        field="rollSurgeryBtn"
+        options='[{"icon": "D10", "label": "Roll Surgery", "value": "rollSurgery"}]'
+        size="sm"
+      ></iconbutton>
+      <numberfield
+        field="surgerySkillLevel"
+        placeholder="0"
+        label="Surgery Skill Level"
+        editable="false"
+        width="110px"
+        hidecontrols="true"
+        size="xs"
+      ></numberfield>
+    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        align-items: flex-end;
+      "
+    >
+      <numberfield
+        field="medicalTech"
+        label="Medical Tech"
+        size="xs"
+        width="110px"
+        placeholder="0"
+        hidecontrols="true"
+        editable="false"
+      ></numberfield>
+      <iconbutton
+        variant="outline"
+        onclick="rollMedicalTech()"
+        field="rollMedicalTechBtn"
+        options='[{"icon": "D10", "label": "Roll Medical Tech", "value": "rollMedicalTech"}]'
+        size="sm"
+      ></iconbutton>
+    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        align-items: flex-start;
+      "
+    >
+      <iconbutton
+        variant="outline"
+        field="medtechIcon"
+        color="default"
+        options='[{"icon": "IconCornerDownRight", "label": "Medical Tech Sub-ability", "value": "medtechSubAbility"}]'
+      ></iconbutton>
+      <div style="display: flex; flex-direction: column; gap: 4px; width: 100%">
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            gap: 4px;
+            align-items: flex-end;
+          "
+        >
+          <numberfield
+            field="pharmaceuticals"
+            label="Pharmaceuticals"
+            size="xs"
+            width="110px"
+            placeholder="0"
+            onchange="updatePharmaceuticals()"
+          ></numberfield>
+          <iconbutton
+            variant="outline"
+            onclick="rollSynthesize()"
+            field="rollSynthesizeBtn"
+            options='[{"icon": "D10", "label": "Roll Synthesize", "value": "rollSynthesize"}]'
+            size="sm"
+          ></iconbutton>
+        </div>
+        <div
+          style="display: flex; flex-direction: column; gap: 4px; width: 100%"
+        >
+          <label
+            field="pharmaceuticalsLabel"
+            label="Chosen Pharmaceuticals"
+            size="xs"
+            variant="bold"
+            textalign="left"
+          ></label>
+          <list
+            listtype="items_pharmaceuticals_list"
+            field="chosenPharmaceuticals"
+            variant="outline"
+            allowadd="return isPharmaceutical(value);"
+          ></list>
+        </div>
+      </div>
+    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        align-items: flex-start;
+      "
+    >
+      <iconbutton
+        variant="outline"
+        field="medtechIcon"
+        color="default"
+        options='[{"icon": "IconCornerDownRight", "label": "Medical Tech Sub-ability", "value": "medtechSubAbility"}]'
+      ></iconbutton>
+      <div style="display: flex; flex-direction: column; gap: 4px; width: 100%">
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            gap: 4px;
+            align-items: flex-end;
+          "
+        >
+          <numberfield
+            field="cryosystemOperation"
+            label="Cryosystem Operation"
+            size="xs"
+            width="110px"
+            placeholder="0"
+            onchange="updateCryosystemOperation()"
+          ></numberfield>
+        </div>
+        <div
+          style="display: flex; flex-direction: column; gap: 4px; width: 100%"
+        >
+          <label
+            field="cryosystemFeaturesLabel"
+            label="Cryosystem Operation Features"
+            size="xs"
+            variant="bold"
+            textalign="left"
+          ></label>
+          <list
+            listtype="active_features_list"
+            field="cryosystemFeatures"
+            variant="outline-striped"
+            getfilters="return getFiltersForCryosystemFeaturesList();"
+          ></list>
+        </div>
+      </div>
+    </div>
+  </box>
 
   <!-- Netrunner Panel -->
   <box field="netrunnerProperties" variant="card" size="xs">
