@@ -2217,17 +2217,17 @@ api.getRecord('conditions', '${conditionID}', (conditionRecord) => {
 let targets = api.getSelectedOrDroppedToken();
 if (targets.length !== 1) {
     api.showNotification(
-      "Select Vehicle Token",
+      "You must select only one vehicle token to sync.",
       "red",
-      "You must select only one vehicle token to sync."
+      "Select Vehicle Token"
     );
     return;
 }
 else if (targets[0].data?.type !== "vehicle") {
     api.showNotification(
-      "Select Vehicle Token",
+      "Selected token is not a vehicle.",
       "red",
-      "Selected token is not a vehicle."
+      "Select Vehicle Token"
     );
     return;
 }
