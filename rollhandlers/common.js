@@ -150,6 +150,44 @@ function applyMath(value, math) {
   }
 }
 
+function convertToDataPaths(data) {
+  const result = {};
+
+  function processObject(obj, currentPath = "") {
+    // Exit early if obj is null or undefined
+    if (obj === null || obj === undefined) return;
+
+    // Handle arrays and objects differently
+    if (Array.isArray(obj)) {
+      // For arrays, we store the entire array at the current path
+      result[currentPath] = obj;
+    } else if (typeof obj === "object") {
+      // For objects, recursively process each property
+      Object.keys(obj).forEach((key) => {
+        const newPath = currentPath ? `${currentPath}.${key}` : key;
+
+        // If the value is a primitive or an array, add it directly to the result
+        if (
+          typeof obj[key] !== "object" ||
+          Array.isArray(obj[key]) ||
+          obj[key] === null
+        ) {
+          result[newPath] = obj[key];
+        } else {
+          // Otherwise, recursively process the nested object
+          processObject(obj[key], newPath);
+        }
+      });
+    } else {
+      // Handle primitive values
+      result[currentPath] = obj;
+    }
+  }
+
+  processObject(data);
+  return result;
+}
+
 function getDamageType(rollString) {
   const regex = /(?:\d*d\d+|\+\d+)?(?:\s*\+?-?\s*\d+)?(?:\s+([\w-_]+))?/;
   const match = rollString.match(regex);
@@ -2099,6 +2137,13 @@ function useItem(record, itemDataPath) {
     }
   }
 
+  if (itemType === "vehicle") {
+    const vehicle = api.getValueOnRecord(record, itemDataPath);
+    if (vehicle) {
+      linkedNpc = vehicle;
+    }
+  }
+
   const itemIcon = portrait
     ? `![${itemName}](${assetUrl}${portrait}?width=40&height=40) `
     : "";
@@ -2159,6 +2204,39 @@ api.getRecord('conditions', '${conditionID}', (conditionRecord) => {
     });
 
     markdownDescription += `\n${conditionButtons}`;
+  }
+
+  if (itemType === "vehicle" && linkedNpc) {
+    // Add a macro to apply the data of the linked vehicle to the NPC token
+    const linkedNpcData = JSON.stringify({
+      data: {
+        ...linkedNpc.data,
+      },
+    });
+    const syncVehicleTokenDataButton = `\`\`\`Sync_Vehicle_Token_Data
+let targets = api.getSelectedOrDroppedToken();
+if (targets.length !== 1) {
+    api.showNotification(
+      "Select Vehicle Token",
+      "red",
+      "You must select only one vehicle token to sync."
+    );
+    return;
+}
+else if (targets[0].data?.type !== "vehicle") {
+    api.showNotification(
+      "Select Vehicle Token",
+      "red",
+      "Selected token is not a vehicle."
+    );
+    return;
+}
+const vehicleData = JSON.parse('${linkedNpcData}');
+targets.forEach(target => {
+  api.setValuesOnRecord(target, convertToDataPaths(vehicleData));
+});
+\`\`\``;
+    markdownDescription += `\n${syncVehicleTokenDataButton}`;
   }
 
   // If we're using a potion with an effect or healing, add the buttons
@@ -2359,7 +2437,6 @@ performProgramDamageRoll('${itemName}', '${damage}')
   let recordLinks = [];
   const linkedNpcWithoutData = {
     ...linkedNpc,
-    data: undefined,
   };
   if (linkedNpc) {
     recordLinks.push({
@@ -2477,7 +2554,9 @@ function performSkillRoll(
     // Get the value for this role ability rank
     // First check if there is a matching Role name
     const roles = record.data?.roles || [];
-    const role = roles.find((r) => r.name === roleAbility);
+    const role =
+      roles.find((r) => r.name === roleAbility) ||
+      roles.find((r) => r.data?.roleAbility === roleAbility);
     const roleRank = role?.data?.rank || 0;
 
     if (

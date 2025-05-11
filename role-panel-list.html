@@ -334,6 +334,20 @@
       );
     }
   }
+
+  function rollVehicleFamiliarity(abilityName) {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    // The bonus is their rank in the Nomad Role
+    const vehicleFamiliarity = role.data?.rank || 0;
+
+    performSkillRoll(record, abilityName, {
+      isDodge: false,
+      roleAbility: "Moto",
+      abilityName: "Vehicle Familiarity",
+      bonus: vehicleFamiliarity,
+    });
+  }
 </script>
 <numberfield field="order" hidden="true"></numberfield>
 <div
@@ -832,7 +846,7 @@
   </box>
 
   <!-- Netrunner Panel -->
-  <box field="netrunnerProperties" variant="card" size="xs">
+  <box field="netrunnerProperties" variant="card" size="xs" hidden="true">
     <div
       style="display: flex; flex-direction: row; gap: 8px; align-items: center"
     >
@@ -1011,7 +1025,80 @@
   </box>
 
   <!-- Nomad Panel -->
-  <box field="nomadProperties" variant="card" size="xs"> NOMAD TODO </box>
+  <box field="nomadProperties" variant="card" size="xs" hidden="true">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <label
+        variant="bold"
+        textalign="left"
+        label="Vehicle Familiarity"
+        size="sm"
+      ></label>
+      <div
+        style="display: flex; flex-direction: row; gap: 4px; flex-wrap: wrap"
+      >
+        <button
+          variant="outline"
+          field="rollDriveLandVehicleBtn"
+          label="Drive Land Vehicle"
+          icon="D10"
+          size="xs"
+          onclick="rollVehicleFamiliarity('Drive Land Vehicle')"
+        ></button>
+        <button
+          variant="outline"
+          field="rollPilotAirVehicleBtn"
+          label="Pilot Air Vehicle"
+          icon="D10"
+          size="xs"
+          onclick="rollVehicleFamiliarity('Pilot Air Vehicle (x2)')"
+        ></button>
+        <button
+          variant="outline"
+          field="rollPilotSeaVehicleBtn"
+          label="Pilot Sea Vehicle"
+          icon="D10"
+          size="xs"
+          onclick="rollVehicleFamiliarity('Pilot Sea Vehicle')"
+        ></button>
+        <button
+          variant="outline"
+          field="rollLandVehicleTechBtn"
+          label="Land Vehicle Tech"
+          icon="D10"
+          size="xs"
+          onclick="rollVehicleFamiliarity('Land Vehicle Tech')"
+        ></button>
+        <button
+          variant="outline"
+          field="rollAirVehicleTechBtn"
+          label="Air Vehicle Tech"
+          icon="D10"
+          size="xs"
+          onclick="rollVehicleFamiliarity('Air Vehicle Tech')"
+        ></button>
+        <button
+          variant="outline"
+          field="rollSeaVehicleTechBtn"
+          label="Sea Vehicle Tech"
+          icon="D10"
+          size="xs"
+          onclick="rollVehicleFamiliarity('Sea Vehicle Tech')"
+        ></button>
+      </div>
+      <label
+        variant="bold"
+        textalign="left"
+        label="Family Motorpool"
+        size="sm"
+      ></label>
+      <list
+        listtype="nomad_vehicle_list"
+        field="vehicles"
+        allowadd="return isVehicle(value);"
+        variant="outline-striped"
+      ></list>
+    </div>
+  </box>
 
   <!-- Rockerboy Panel -->
   <box field="rockerboyProperties" variant="card" size="xs">
