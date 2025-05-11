@@ -215,6 +215,7 @@
     label="Filter by Type"
     onload="onLoad()"
     size="xs"
+    disablediflocked="false"
     defaultvalue=""
     options='[{"label": "All", "value": ""}, {"label": "Agent App", "value": "agent app"}, {"label": "Ammo", "value": "ammo"}, {"label": "Armor", "value": "armor"}, {"label": "Black ICE", "value": "black ice"}, {"label": "Cyberdeck", "value": "cyberdeck"}, {"label": "Cyberware", "value": "cyberware"}, {"label": "Demon", "value": "demon"}, {"label": "Drone", "value": "drone"}, {"label": "Drug", "value": "drug"}, {"label": "Fashion", "value": "fashion"}, {"label": "Gear", "value": "gear"}, {"label": "Item Pack", "value": "pack"}, {"label": "Melee Weapon", "value": "melee weapon"}, {"label": "Program or Hardware", "value": "program or hardware"}, {"label": "Ranged Weapon", "value": "ranged weapon"}, {"label": "Vehicle", "value": "vehicle"}, {"label": "Vehicle Upgrade", "value": "vehicle upgrade"}, {"label": "Weapon Attachment", "value": "weapon attachment"}]'
   ></dropdown>
@@ -225,6 +226,7 @@
     defaultvalue=""
     placeholder="Select Location..."
     optionsFunction="return getLocations();"
+    disablediflocked="false"
   ></dropdown>
   <div
     style="
@@ -250,17 +252,34 @@
   <div style="margin-left: 34px">
     <label variant="bold" size="xs" textalign="left" label="Count"></label>
   </div>
-  <div style="margin-left: 30px">
+  <div style="margin-left: 30px; flex-grow: 1">
     <label variant="bold" size="xs" textalign="left" label="Item"></label>
   </div>
-  <div style="margin-left: auto">
-    <label
-      variant="bold"
-      size="xs"
-      textalign="left"
-      label="Location / Equipped"
-    ></label>
+  <div
+    style="
+      margin-left: 4px;
+      max-width: 100px;
+      min-width: 68px;
+      flex: 1;
+      display: flex;
+    "
+  >
+    <label variant="bold" size="xs" textalign="left" label="Location"></label>
   </div>
+  <div
+    style="
+      margin-left: 4px;
+      max-width: 95px;
+      min-width: 65px;
+      flex: 1;
+      display: flex;
+    "
+  >
+    <label variant="bold" size="xs" textalign="left" label="Equipped"></label>
+  </div>
+  <box field="spacerRight" hideonlocked="true">
+    <div style="width: 16px"></div>
+  </box>
 </div>
 
 <div style="display: flex; flex-direction: column; flex-grow: 1">

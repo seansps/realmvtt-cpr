@@ -273,16 +273,25 @@
     return value?.data?.type === "drug";
   }
 
-  function rollInterface(value) {
+  function rollInterface(abilityName = "Interface") {
     const nearestParentDataPath = getNearestParentDataPath(dataPath);
     const role = api.getValue(nearestParentDataPath);
     const interface = role.data?.rank || 0;
 
+    let defenderSkill = undefined;
+    if (abilityName === "Zap") {
+      defenderSkill = "Interface or DEF";
+    } else if (abilityName === "Encounter ICE") {
+      defenderSkill = "SPD";
+    } else if (abilityName === "Slide") {
+      defenderSkill = "PER";
+    }
+
     performSkillRoll(record, "Interface", {
       isDodge: false,
       roleAbility: "Netrunner",
-      defenderSkill: "Interface",
-      abilityName: "Interface",
+      defenderSkill: defenderSkill,
+      abilityName: abilityName,
       skillLevel: interface,
     });
   }
@@ -842,19 +851,123 @@
         textalign="center"
         placeholder="0"
       ></numberfield>
+    </div>
+    <div style="margin-top: 4px">
       <label
         variant="bold"
         textalign="left"
-        label="Interface"
+        label="Interface Abilities"
         size="xs"
       ></label>
-      <iconbutton
+    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        align-items: center;
+        margin-top: 4px;
+      "
+    >
+      <button
         variant="outline"
         field="rollInterfaceBtn"
-        options='[{"icon": "D10", "label": "Roll Interface", "value": "rollInterface"}]'
-        onclick="rollInterface()"
-        size="sm"
-      ></iconbutton>
+        label="General"
+        icon="D10"
+        onclick="rollInterface('Interface')"
+        size="xs"
+      ></button>
+      <button
+        variant="outline"
+        field="rollInterfaceBtn"
+        label="Encounter ICE"
+        icon="D10"
+        onclick="rollInterface('Encounter ICE')"
+        size="xs"
+      ></button>
+    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        align-items: center;
+        margin-top: 4px;
+        flex-wrap: wrap;
+      "
+    >
+      <button
+        variant="outline"
+        field="rollScannerBtn"
+        color="secondary"
+        label="Scanner"
+        icon="D10"
+        onclick="rollInterface('Scanner')"
+        size="xs"
+      ></button>
+      <button
+        variant="outline"
+        field="rollBackdoorBtn"
+        color="secondary"
+        label="Backdoor"
+        icon="D10"
+        onclick="rollInterface('Backdoor')"
+        size="xs"
+      ></button>
+      <button
+        variant="outline"
+        color="secondary"
+        field="rollCloakBtn"
+        label="Cloak"
+        icon="D10"
+        onclick="rollInterface('Cloak')"
+        size="xs"
+      ></button>
+      <button
+        variant="outline"
+        field="rollControlBtn"
+        color="secondary"
+        label="Control"
+        icon="D10"
+        onclick="rollInterface('Control')"
+        size="xs"
+      ></button>
+      <button
+        variant="outline"
+        field="rollEyeDeeBtn"
+        color="secondary"
+        label="Eye-Dee"
+        icon="D10"
+        onclick="rollInterface('Eye-Dee')"
+        size="xs"
+      ></button>
+      <button
+        variant="outline"
+        field="rollPathfinderBtn"
+        color="secondary"
+        label="Pathfinder"
+        icon="D10"
+        onclick="rollInterface('Pathfinder')"
+        size="xs"
+      ></button>
+      <button
+        variant="outline"
+        field="rollSlideBtn"
+        color="secondary"
+        label="Slide"
+        icon="D10"
+        onclick="rollInterface('Slide')"
+        size="xs"
+      ></button>
+      <button
+        variant="outline"
+        field="rollVirusBtn"
+        color="secondary"
+        label="Virus"
+        icon="D10"
+        onclick="rollInterface('Virus')"
+        size="xs"
+      ></button>
     </div>
     <div
       style="
@@ -865,6 +978,15 @@
         align-items: center;
       "
     >
+      <button
+        variant="outline"
+        field="rollZapBtn"
+        color="secondary"
+        label="Zap"
+        icon="D10"
+        onclick="rollInterface('Zap')"
+        size="xs"
+      ></button>
       <label
         variant="bold"
         textalign="left"

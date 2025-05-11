@@ -214,6 +214,44 @@ if (
           skillLevel: interface,
         });
       }
+      // Special case for Encounter ICE
+      else if ('${defenderSkill}' === "SPD") {
+        // Black Ice use SPD
+        let rollName = "SPD";
+        let skillLevel = 0;
+        const isBlackIce = token.data?.type === "black ice";
+        if (isBlackIce) {
+          skillLevel = token.data?.spd || 0;
+        }
+
+        performSkillRoll(token, rollName, {
+          isDodge: false,
+          dv: ${roll.total},
+          roleAbility: "Netrunner",
+          defenderSkill: rollName,
+          abilityName: rollName,
+          skillLevel: skillLevel,
+        });
+      } 
+      // Special case for Slide
+      else if ('${defenderSkill}' === "PER") {
+         // Black Ice use PER
+        let rollName = "PER";
+        let skillLevel = 0;
+        const isBlackIce = token.data?.type === "black ice";
+        if (isBlackIce) {
+          skillLevel = token.data?.per || 0;
+        }
+
+        performSkillRoll(token, rollName, {
+          isDodge: false,
+          dv: ${roll.total},
+          roleAbility: "Netrunner",
+          defenderSkill: rollName,
+          abilityName: rollName,
+          skillLevel: skillLevel,
+        });
+      }
       else {
         performSkillRoll(token, "${defenderSkill}", skillCheckMetadata);
       }

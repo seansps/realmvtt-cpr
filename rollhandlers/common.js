@@ -1273,12 +1273,27 @@ function getEffectsAndModifiersForToken(
       weaponId: weapon?._id,
     }));
 
+  // If this is a cyberdeck, we check for active programs and hardware in it
+  const cyberdecks = equippedItems.filter(
+    (item) => item.data?.type === "cyberdeck"
+  );
+  let activePrograms = [];
+  if (cyberdecks.length > 0) {
+    cyberdecks.forEach((cyberdeck) => {
+      const installedProgramsAndHardware = (
+        cyberdeck.data?.installedProgramsAndHardware || []
+      ).filter((program) => program.data?.active);
+      activePrograms.push(...installedProgramsAndHardware);
+    });
+  }
+
   [
     ...features,
     ...criticalInjuries,
     ...addictions,
     ...equippedItems,
     ...activeAttachments,
+    ...activePrograms,
     ...(weapon ? [weapon] : []),
     ...(ammoItem ? [ammoItem] : []),
   ].forEach((feature) => {
@@ -2079,8 +2094,8 @@ function useItem(record, itemDataPath) {
         }
       }
     } else {
-      // Otherwise the "linked" NPC is the record itself
-      linkedNpc = record;
+      // Otherwise the "linked" NPC is the item itself
+      linkedNpc = api.getValueOnRecord(record, itemDataPath);
     }
   }
 
@@ -2473,11 +2488,16 @@ function performSkillRoll(
 
     // Check for ability name modifiers
     if (abilityName) {
+      let abilityNameField = abilityName;
+      if (abilityName === "Encounter ICE") {
+        abilityNameField = "speed";
+      }
       const abilityNameModifiers = getEffectsAndModifiersForToken(
         record,
         ["roleAbilityBonus", "roleAbilityPenalty"],
-        abilityName
+        abilityNameField
       );
+
       skillModifiers.push(...abilityNameModifiers);
 
       // For some abilities, we need to add the bonus
