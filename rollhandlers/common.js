@@ -2424,6 +2424,25 @@ function performSkillRoll(
         valueType: "number",
       },
     ];
+    // Check for penalties/bonuses for the stat
+    const statModifiers = getEffectsAndModifiersForToken(
+      record,
+      ["statBonusSkill", "statPenaltySkill"],
+      skill.data?.stat || "int"
+    );
+    // For penalties, assume minimum of 1
+    statModifiers.forEach((modifier) => {
+      const modStat = modifier.field;
+      let value = modifier.value;
+      const statValue = record?.data?.[`total${capitalize(modStat)}`] || 0;
+      if (modifier.isPenalty && statValue - Math.abs(modifier.value) < 1) {
+        value = -1 * (statValue - 1);
+      }
+      skillModifiers.push({
+        ...modifier,
+        value: value,
+      });
+    });
   } else if (additionalMetadata.skillLevel !== undefined) {
     skillModifiers.push({
       name: skillName,
@@ -2711,6 +2730,25 @@ function performAttackRoll(
       ammoItem
     );
     attackModifiers.push(...skillModifiers);
+    // Check for penalties/bonuses for the stat
+    const statModifiers = getEffectsAndModifiersForToken(
+      record,
+      ["statBonusSkill", "statPenaltySkill"],
+      attackSkill.data?.stat || "int"
+    );
+    // For penalties, assume minimum of 1
+    statModifiers.forEach((modifier) => {
+      const modStat = modifier.field;
+      let value = modifier.value;
+      const statValue = record?.data?.[`total${capitalize(modStat)}`] || 0;
+      if (modifier.isPenalty && statValue - Math.abs(modifier.value) < 1) {
+        value = -1 * (statValue - 1);
+      }
+      attackModifiers.push({
+        ...modifier,
+        value: value,
+      });
+    });
   }
 
   // Get Smart Ammo Mods
