@@ -189,8 +189,34 @@ if (
         defenderSkill: "${defenderSkill}",
         roleAbility: "${roleAbility}",
       };
-  
-      performSkillRoll(token, "${defenderSkill}", skillCheckMetadata);
+
+      // Special case for Interface
+      if ('${defenderSkill}' === "Interface or DEF") {
+        // Find NET Runner rank
+        const roles = token.data?.roles || [];
+        const netrunnerRole = roles.find(role => role.data?.panel === "netrunner");
+        let interface = netrunnerRole?.data?.rank || 0;
+
+        // Programs use DEF
+        let rollName = "Interface";
+        const isProgramOrIce = token.data?.type === "program" || token.data?.type === "black ice";
+        if (isProgramOrIce) {
+          rollName = "DEF";
+          interface = token.data?.def || 0;
+        }
+
+        performSkillRoll(token, rollName, {
+          isDodge: false,
+          dv: ${roll.total},
+          roleAbility: "Netrunner",
+          defenderSkill: rollName,
+          abilityName: rollName,
+          skillLevel: interface,
+        });
+      }
+      else {
+        performSkillRoll(token, "${defenderSkill}", skillCheckMetadata);
+      }
     }); 
   \`\`\``;
     message += `\n${skillRollButton}`;

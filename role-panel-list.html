@@ -272,6 +272,59 @@
   function isPharmaceutical(value) {
     return value?.data?.type === "drug";
   }
+
+  function rollInterface(value) {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    const interface = role.data?.rank || 0;
+
+    performSkillRoll(record, "Interface", {
+      isDodge: false,
+      roleAbility: "Netrunner",
+      defenderSkill: "Interface",
+      abilityName: "Interface",
+      skillLevel: interface,
+    });
+  }
+
+  function rollZapDamage() {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    const zapDamage = role.data?.zapDamage || "1d6";
+
+    const modifiers = [];
+    const damageMetadata = {
+      rollName: "Damage",
+      tooltip: "Damage with Zap",
+      weaponName: "Zap",
+      isMelee: false,
+      targetedLocation: "body",
+      ignoresArmorUnder: 100,
+      nonLethal: false,
+      nonLethalGreaterThanOne: false,
+      noArmorAblation: true,
+      noCriticalInjuries: true,
+    };
+
+    if (record.linked === undefined) {
+      api.promptRoll(
+        `ZAP Damage`,
+        zapDamage,
+        modifiers,
+        damageMetadata,
+        "damage"
+      );
+    } else {
+      api.promptRollForToken(
+        record,
+        `Damage with ${weapon.name}`,
+        damage,
+        modifiers,
+        damageMetadata,
+        "damage"
+      );
+    }
+  }
 </script>
 <numberfield field="order" hidden="true"></numberfield>
 <div
@@ -771,7 +824,68 @@
 
   <!-- Netrunner Panel -->
   <box field="netrunnerProperties" variant="card" size="xs">
-    NETRUNNER TODO
+    <div
+      style="display: flex; flex-direction: row; gap: 8px; align-items: center"
+    >
+      <label
+        variant="bold"
+        textalign="left"
+        label="NET Actions"
+        size="xs"
+      ></label>
+      <numberfield
+        field="netActions"
+        size="xs"
+        width="40px"
+        editable="false"
+        hidecontrols="true"
+        textalign="center"
+        placeholder="0"
+      ></numberfield>
+      <label
+        variant="bold"
+        textalign="left"
+        label="Interface"
+        size="xs"
+      ></label>
+      <iconbutton
+        variant="outline"
+        field="rollInterfaceBtn"
+        options='[{"icon": "D10", "label": "Roll Interface", "value": "rollInterface"}]'
+        onclick="rollInterface()"
+        size="sm"
+      ></iconbutton>
+    </div>
+    <div
+      style="
+        margin-top: 4px;
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        align-items: center;
+      "
+    >
+      <label
+        variant="bold"
+        textalign="left"
+        label="ZAP Damage"
+        size="xs"
+      ></label>
+      <stringfield
+        field="zapDamage"
+        size="xs"
+        width="60px"
+        placeholder="1d6"
+        defaultvalue="1d6"
+      ></stringfield>
+      <button
+        variant="light"
+        field="rollZapDamageBtn"
+        label="Damage"
+        onclick="rollZapDamage()"
+        size="xs"
+      ></button>
+    </div>
   </box>
 
   <!-- Nomad Panel -->

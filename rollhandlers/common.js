@@ -1966,6 +1966,30 @@ api.addEffectById('${effectID}', target);
   }
 }
 
+function performProgramDamageRoll(programName, damage) {
+  const modifiers = [];
+  const damageMetadata = {
+    rollName: "Damage",
+    tooltip: `Damage with ${programName}`,
+    weaponName: "${programName}",
+    isMelee: false,
+    targetedLocation: "body",
+    ignoresArmorUnder: 100,
+    nonLethal: false,
+    nonLethalGreaterThanOne: false,
+    noArmorAblation: true,
+    noCriticalInjuries: true,
+  };
+
+  api.promptRoll(
+    `Damage with ${programName}`,
+    damage,
+    modifiers,
+    damageMetadata,
+    "damage"
+  );
+}
+
 function useItem(record, itemDataPath) {
   // Deduct count by 1, delete item if count is 0,
   // and output the description to Chat
@@ -1981,6 +2005,7 @@ function useItem(record, itemDataPath) {
     api.getValueOnRecord(record, `${itemDataPath}.data.description`) || "";
   const effects =
     api.getValueOnRecord(record, `${itemDataPath}.data.effects`) || [];
+  const itemType = api.getValueOnRecord(record, `${itemDataPath}.data.type`);
 
   const checkSkill = api.getValueOnRecord(
     record,
@@ -1989,8 +2014,76 @@ function useItem(record, itemDataPath) {
   const checkDV = api.getValueOnRecord(record, `${itemDataPath}.data.checkDV`);
 
   const healing = api.getValueOnRecord(record, `${itemDataPath}.data.healing`);
-  const damage = api.getValueOnRecord(record, `${itemDataPath}.data.useDamage`);
+  let damage = api.getValueOnRecord(record, `${itemDataPath}.data.useDamage`);
+  let damageIce = null;
   const portrait = api.getValueOnRecord(record, `${itemDataPath}.portrait`);
+
+  // For programs and ICE we show interface roll if the NPC is an attacker
+  // and always link the NPC to the chat
+  let showInterfaceRoll = false;
+  let interfaceRollName = "Interface";
+  let linkedNpc = null;
+  let programATK = 0;
+
+  // If this is a program or ICE, we need to get both damage from the program/ice
+  if (
+    itemType === "program or hardware" ||
+    itemType === "program" ||
+    itemType === "black ice"
+  ) {
+    damage = api.getValueOnRecord(record, `${itemDataPath}.data.damage`);
+    damageIce = api.getValueOnRecord(record, `${itemDataPath}.data.iceDamage`);
+    programATK = api.getValueOnRecord(record, `${itemDataPath}.data.atk`) || 0;
+    if (
+      api
+        .getValueOnRecord(record, `${itemDataPath}.data.programHardwareType`)
+        ?.includes("Attacker")
+    ) {
+      showInterfaceRoll = true;
+      interfaceRollName = "Program Attack";
+    } else if (
+      api
+        .getValueOnRecord(record, `${itemDataPath}.data.blackICEType`)
+        ?.includes("Anti-")
+    ) {
+      showInterfaceRoll = true;
+      interfaceRollName = "Black ICE Attack";
+    }
+    if (!damage && !damageIce) {
+      // Check if there's a linked NPC
+      const linkedIce = api.getValueOnRecord(
+        record,
+        `${itemDataPath}.data.blackICE`
+      );
+      const linkedProgram = api.getValueOnRecord(
+        record,
+        `${itemDataPath}.data.program`
+      );
+      if (linkedIce && linkedIce.length > 0) {
+        linkedNpc = linkedIce[0];
+        damage = linkedNpc.data?.damage || null;
+        damageIce = linkedNpc.data?.iceDamage || null;
+        programATK = linkedNpc.data?.atk || 0;
+        if (linkedNpc.data?.programHardwareType?.includes("Anti-")) {
+          interfaceRollName = "Black ICE Attack";
+          showInterfaceRoll = true;
+        }
+      } else if (linkedProgram && linkedProgram.length > 0) {
+        linkedNpc = linkedProgram[0];
+        damage = linkedNpc.data?.damage || null;
+        damageIce = linkedNpc.data?.iceDamage || null;
+        programATK = linkedNpc.data?.atk || 0;
+        if (linkedNpc.data?.programHardwareType?.includes("Attacker")) {
+          interfaceRollName = "Program Attack";
+          showInterfaceRoll = true;
+        }
+      }
+    } else {
+      // Otherwise the "linked" NPC is the record itself
+      linkedNpc = record;
+    }
+  }
+
   const itemIcon = portrait
     ? `![${itemName}](${assetUrl}${portrait}?width=40&height=40) `
     : "";
@@ -2093,7 +2186,7 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
   }
 
   // Macros to roll damage
-  if (damage) {
+  if (damage && !linkedNpc) {
     const damageButton = `\`\`\`Roll_Damage
 // Requery the record and get the weapon
 api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
@@ -2102,6 +2195,59 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
     performDamageRoll(updatedRecord, weapon, "single")
   }
 });
+\`\`\``;
+    markdownDescription += `\n${damageButton}`;
+  }
+
+  // If we're using an attacker program, show roll interface
+  if (showInterfaceRoll) {
+    const rollInterfaceButton = `\`\`\`Roll_${interfaceRollName.replace(
+      / /g,
+      "_"
+    )}
+// Find NET Runner rank
+// Requery the record and get the rank
+api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
+  const roles = updatedRecord.data?.roles || [];
+  const netrunnerRole = roles.find(role => role.data?.panel === "netrunner");
+  let interface = netrunnerRole?.data?.rank || 0;
+  
+  // If it's a program attack we also add the program's ATK to the roll
+  let skillName = "Interface + ATK";
+  let abilityName = "Interface";
+  if ('${interfaceRollName}' === "Program Attack") {
+    interface += ${programATK};
+  }
+    else if ('${interfaceRollName}' === "Black ICE Attack") {
+    // Black ICE is just ATK + 1d10
+    interface = ${programATK};
+    skillName = "Attack";
+    abilityName = "Black ICE";
+  }
+
+  performSkillRoll(updatedRecord, skillName, {
+    isDodge: false,
+    roleAbility: "Netrunner",
+    defenderSkill: "Interface or DEF",
+    abilityName: abilityName,
+    skillLevel: interface,
+  });
+});
+\`\`\``;
+    markdownDescription += `\n${rollInterfaceButton}`;
+  }
+
+  // Macros to roll damage
+  if (damage && linkedNpc) {
+    const damageButton = `\`\`\`Roll_Damage
+performProgramDamageRoll('${itemName}', '${damage}')
+  \`\`\``;
+    markdownDescription += `\n${damageButton}`;
+  }
+
+  if (damageIce) {
+    const damageButton = `\`\`\`Roll_ICE_Damage
+    performProgramDamageRoll('${itemName}', '${damageIce}')
 \`\`\``;
     markdownDescription += `\n${damageButton}`;
   }
@@ -2195,7 +2341,20 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
     markdownDescription += `\n${secondaryLossButton}`;
   }
 
-  api.sendMessage(markdownDescription, undefined, []);
+  let recordLinks = [];
+  const linkedNpcWithoutData = {
+    ...linkedNpc,
+    data: undefined,
+  };
+  if (linkedNpc) {
+    recordLinks.push({
+      value: linkedNpcWithoutData,
+      type: "npcs",
+      tooltip: linkedNpc.name || "NPC",
+    });
+  }
+
+  api.sendMessage(markdownDescription, undefined, recordLinks);
 
   // If consumable, deduct count by 1, delete item if count is 0
   if (isConsumable) {
@@ -3029,23 +3188,37 @@ function addRole(record, recordLink) {
     initialRank = 4;
   }
 
+  let roleData = {
+    ...roleObj.data,
+    // Add an order field that we will use to sort the role panels by
+    order: roles.length + 1,
+    rank: initialRank,
+    unallocatedRanks: initialRank,
+  };
+
+  if (roleObj.data?.netActionsRank1) {
+    roleData.netActions = roleObj.data[`netActionsRank${initialRank}`];
+  }
+
   // Add the role to the character if not in the map
   if (!existingRole) {
     roles.push({
       ...roleObj,
-      data: {
-        ...roleObj.data,
-        // Add an order field that we will use to sort the role panels by
-        order: roles.length + 1,
-        rank: initialRank,
-        unallocatedRanks: initialRank,
-      },
+      data: roleData,
     });
     valuesToSet["data.roles"] = roles;
   } else {
     // Max rank is 10
     existingRole.data.rank = Math.min(existingRole.data.rank + 1, 10);
     valuesToSet["data.roles"] = roles;
+  }
+
+  // Determine if we have a netrunner role added
+  const netrunnerRole = roles.find((role) => role.data.netActionsRank1);
+  if (netrunnerRole) {
+    valuesToSet["fields.cyberdecks.hidden"] = false;
+  } else {
+    valuesToSet["fields.cyberdecks.hidden"] = true;
   }
 
   // Sort the roles by order
@@ -3093,8 +3266,22 @@ function updateRoles(record) {
     const roleIndex = rolesSorted.findIndex((r) => r._id === role._id);
     valuesToSet[`data.roles.${roleIndex}.data.unallocatedRanks`] =
       role.data.rank - getUsedRanks(role);
+
+    // Check if netactions defined
+    if (role.data.netActionsRank1) {
+      valuesToSet[`data.roles.${roleIndex}.data.netActions`] =
+        role.data[`netActionsRank${role.data.rank}`];
+    }
   }
   valuesToSet["data.role"] = roleString;
+
+  // Determine if we have a netrunner role added
+  const netrunnerRole = roles.find((role) => role.data.netActionsRank1);
+  if (netrunnerRole) {
+    valuesToSet["fields.cyberdecks.hidden"] = false;
+  } else {
+    valuesToSet["fields.cyberdecks.hidden"] = true;
+  }
 
   // Set the new roles on the character
   api.setValuesOnRecord(record, valuesToSet);
@@ -3444,4 +3631,39 @@ function setCyberwareSlotValues(record) {
   if (Object.keys(valuesToSet).length > 0) {
     api.setValuesOnRecord(record, valuesToSet);
   }
+}
+
+function isBlackICE(value) {
+  return value.data?.type === "black ice";
+}
+
+function isProgram(value) {
+  return value.data?.type === "program";
+}
+
+function isDemon(value) {
+  return value.data?.type === "demon";
+}
+
+function isDrone(value) {
+  return value.data?.type === "drone";
+}
+
+function isVehicle(value) {
+  return value.data?.type === "vehicle";
+}
+
+function isProgramOrHardware(value) {
+  return (
+    value.data?.type === "program" ||
+    value.data?.type === "program or hardware" ||
+    value.data?.programHardwareType === "program"
+  );
+}
+
+function isHardware(value) {
+  return (
+    value.data?.type === "program or hardware" &&
+    value.data?.programHardwareType === "hardware"
+  );
 }

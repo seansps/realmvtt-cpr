@@ -205,33 +205,6 @@
     );
   }
 
-  function isBlackICE(value) {
-    return value.data?.type === "black ice";
-  }
-
-  function isProgram(value) {
-    return value.data?.type === "program";
-  }
-
-  function isDemon(value) {
-    return value.data?.type === "demon";
-  }
-
-  function isDrone(value) {
-    return value.data?.type === "drone";
-  }
-
-  function isVehicle(value) {
-    return value.data?.type === "vehicle";
-  }
-
-  function isProgramOrHardware(value) {
-    return (
-      value.data?.type === "program" ||
-      value.data?.type === "program or hardware"
-    );
-  }
-
   function onHumanityLossChange(value) {
     // Sett the humanity loss button to unhidden
     const cyberwareDataPath = dataPath.replace(/data.humanityLoss[.]?/, "");
@@ -448,100 +421,36 @@
   }
 
   function onProgramsAndHardwareChange() {
-    // Requery the record to address race condition
-    const recordId = record._id;
-    const recordType = record.recordType;
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const cyberdeck = api.getValue(nearestParentDataPath);
+    const maxSlots = cyberdeck.data?.maxSlots || 3;
 
-    let programDataPath = dataPath;
-    let blackICEDataPath = dataPath.replace(
-      "data.installedProgramsAndHardware",
-      "data.installedBlackICE"
-    );
-    let maxSlotsDataPath = dataPath.replace(
-      "data.installedProgramsAndHardware",
-      "data.maxSlots"
-    );
-    let recordDataPath = dataPath.replace(
-      "data.installedProgramsAndHardware",
-      ""
-    );
+    const installedBlackICE = cyberdeck.data?.installedBlackICE || [];
+    const installedProgramsAndHardware =
+      cyberdeck.data?.installedProgramsAndHardware || [];
 
-    api.getRecord(recordType, recordId, (record) => {
-      const installedBlackICE = record.data?.installedBlackICE || [];
-      const installedProgramsAndHardware =
-        record.data?.installedProgramsAndHardware || [];
+    const valuesToSet = {};
 
-      const valuesToSet = {};
-
-      // Get slots used
-      let slotsUsed = 0;
-      installedBlackICE.forEach((blackICE) => {
-        // Black ICE always takes 2 slots (check field for future proofing if it takes more)
-        const slots = Math.max(blackICE.data?.slots || 0, 2);
-        slotsUsed += slots;
-      });
-
-      installedProgramsAndHardware.forEach((programOrHardware) => {
-        slotsUsed += programOrHardware.data?.slots || 0;
-      });
-
-      const maxSlots = record.data?.maxSlots || 3;
-      valuesToSet[`${recordDataPath}data.slotsUsed`] = Math.min(
-        slotsUsed,
-        maxSlots
-      );
-
-      if (Object.keys(valuesToSet).length > 0) {
-        api.setValues(valuesToSet);
-      }
+    // Get slots used
+    let slotsUsed = 0;
+    installedBlackICE.forEach((blackICE) => {
+      // Black ICE always takes 2 slots (check field for future proofing if it takes more)
+      const slots = Math.max(blackICE.data?.slots || 0, 2);
+      slotsUsed += slots;
     });
-  }
 
-  function onBlackICEChange() {
-    // Requery the record to address race condition
-    const recordId = record._id;
-    const recordType = record.recordType;
-
-    let blackICEDataPath = dataPath;
-    let programsDataPath = dataPath.replace(
-      "data.installedBlackICE",
-      "data.installedProgramsAndHardware"
-    );
-    let maxSlotsDataPath = dataPath.replace(
-      "data.installedBlackICE",
-      "data.maxSlots"
-    );
-    let recordDataPath = dataPath.replace("data.installedBlackICE", "");
-
-    api.getRecord(recordType, recordId, (record) => {
-      const installedBlackICE = record.data?.installedBlackICE || [];
-      const installedProgramsAndHardware =
-        record.data?.installedProgramsAndHardware || [];
-      // Make sure all attachemetns are of type "weapon attachment"
-      const valuesToSet = {};
-
-      // Get slots used
-      let slotsUsed = 0;
-      installedBlackICE.forEach((blackICE) => {
-        // Black ICE always takes 2 slots (check field for future proofing if it takes more)
-        const slots = Math.max(blackICE.data?.slots || 0, 2);
-        slotsUsed += slots;
-      });
-
-      installedProgramsAndHardware.forEach((programOrHardware) => {
-        slotsUsed += programOrHardware.data?.slots || 0;
-      });
-
-      const maxSlots = record.data?.maxSlots || 3;
-      valuesToSet[`${recordDataPath}data.slotsUsed`] = Math.min(
-        slotsUsed,
-        maxSlots
-      );
-
-      if (Object.keys(valuesToSet).length > 0) {
-        api.setValues(valuesToSet);
-      }
+    installedProgramsAndHardware.forEach((programOrHardware) => {
+      slotsUsed += programOrHardware.data?.slots || 0;
     });
+
+    valuesToSet[`${nearestParentDataPath}.data.slotsUsed`] = Math.min(
+      slotsUsed,
+      maxSlots
+    );
+
+    if (Object.keys(valuesToSet).length > 0) {
+      api.setValues(valuesToSet);
+    }
   }
 
   function onArmorLocationChange(value) {
@@ -949,6 +858,13 @@
 
   <!-- Black ICE Properties -->
   <box field="blackICEProperties" hidden="true" hidewhenidentified="false">
+    <dropdown
+      width="100%"
+      field="blackICEType"
+      label="Class"
+      placeholder="Select Class..."
+      options='[{"label": "Anti-Personnel Black ICE", "value": "Anti-Personnel Black ICE"}, {"label": "Anti-Program Black ICE", "value": "Anti-Program Black ICE"}]'
+    ></dropdown>
     <label
       field="blackICELabel"
       label="Black ICE"
@@ -1021,10 +937,10 @@
       <dropdown
         width="100%"
         field="programHardwareType"
-        label="Select Type"
-        placeholder="Select Type..."
+        label="Class"
+        placeholder="Select Class..."
         onchange="onProgramHardwareTypeChange(value);"
-        options='[{"label": "Anti-Personnel Attacker", "value": "anti-personnel attacker"}, {"label": "Anti-Program Attacker", "value": "anti-program attacker"}, {"label": "Booster", "value": "booster"}, {"label": "Defender", "value": "defender"}, {"label": "Hardware", "value": "hardware"}, {"label": "Quickhack", "value": "quickhack"}]'
+        options='[{"label": "Anti-Personnel Attacker", "value": "Anti-Personnel Attacker"}, {"label": "Anti-Program Attacker", "value": "Anti-Program Attacker"}, {"label": "Booster", "value": "Booster"}, {"label": "Defender", "value": "Defender"}, {"label": "Hardware", "value": "Hardware"}, {"label": "Quickhack", "value": "Quickhack"}]'
       ></dropdown>
       <numberfield
         width="100%"
@@ -1298,7 +1214,7 @@
         field="installedBlackICE"
         variant="outline-striped"
         allowadd="return isBlackICE(value);"
-        onchange="onBlackICEChange();"
+        onchange="onProgramsAndHardwareChange();"
       ></list>
     </div>
   </box>
