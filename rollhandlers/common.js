@@ -1467,6 +1467,72 @@ function getEffectsAndModifiersForToken(
     }
   });
 
+  // Check for Solo modifiers
+  const roles = target?.data?.roles || [];
+  roles.forEach((role) => {
+    if (role.data?.panel === "solo") {
+      const initiativeReactionRank = role.data?.initiativeReactionRank || 0;
+      const attackBonus = role.data?.attackBonus || 0;
+      const spotWeaknessRank = role.data?.spotWeaknessRank || 0;
+      const threatDetectionRank = role.data?.threatDetectionRank || 0;
+
+      // Add initiative reaction rank
+      if (initiativeReactionRank) {
+        results.push({
+          name: "Initiative Reaction",
+          value: initiativeReactionRank,
+          modifierType: "initiativeBonus",
+          field: "",
+          valueType: "number",
+          isPenalty: false,
+          isEffect: false,
+          active: true,
+        });
+      }
+
+      // Add attack bonus from precision attack rank
+      if (attackBonus) {
+        results.push({
+          name: "Precision Attack",
+          value: attackBonus,
+          modifierType: "attackBonus",
+          field: "",
+          valueType: "number",
+          isPenalty: false,
+          isEffect: false,
+          active: true,
+        });
+      }
+
+      // Add modifiers
+      if (spotWeaknessRank) {
+        results.push({
+          name: "Spot Weakness",
+          value: spotWeaknessRank,
+          modifierType: "damageBonus",
+          field: "",
+          valueType: "number",
+          isPenalty: false,
+          isEffect: false,
+          active: false,
+        });
+      }
+
+      if (threatDetectionRank) {
+        results.push({
+          name: "Threat Detection",
+          value: threatDetectionRank,
+          modifierType: "skillBonus",
+          field: "Perception",
+          valueType: "number",
+          isPenalty: false,
+          isEffect: false,
+          active: true,
+        });
+      }
+    }
+  });
+
   // Remove modifiers that are in the modifiersToRemove array
   results = results.filter((r) => !modifiersToRemove.includes(r._id));
 
@@ -2231,9 +2297,16 @@ else if (targets[0].data?.type !== "vehicle") {
     );
     return;
 }
+const callback = () => {  
+  api.showNotification(
+    "Vehicle token data synced.",
+    "green",
+    "Sync Vehicle Token Data"
+  );
+}
 const vehicleData = JSON.parse('${linkedNpcData}');
 targets.forEach(target => {
-  api.setValuesOnRecord(target, convertToDataPaths(vehicleData));
+  api.setValuesOnRecord(target, convertToDataPaths(vehicleData), callback);
 });
 \`\`\``;
     markdownDescription += `\n${syncVehicleTokenDataButton}`;
@@ -2625,12 +2698,21 @@ function performSkillRoll(
     }
   }
 
+  // Check for 4 points in fumbleRecovery if solo role
+  let fumbleRecovery = false;
+  (record.data?.roles || []).forEach((role) => {
+    if (role.data?.fumbleRecoveryRank >= 4) {
+      fumbleRecovery = true;
+    }
+  });
+
   const metadata = {
     rollName: skillName,
     modifiers: skillModifiers,
     isSeriouslyWounded: woundedPenalty && woundedPenalty.value === -2,
     isMortallyWounded: woundedPenalty && woundedPenalty.value === -4,
     ...additionalMetadata,
+    fumbleRecovery: fumbleRecovery,
   };
 
   if (record.linked === undefined) {
@@ -2908,6 +2990,14 @@ function performAttackRoll(
     icon = "GiGrenade";
   }
 
+  // Check for 4 points in fumbleRecovery if solo role
+  let fumbleRecovery = false;
+  (record.data?.roles || []).forEach((role) => {
+    if (role.data?.fumbleRecoveryRank >= 4) {
+      fumbleRecovery = true;
+    }
+  });
+
   const attackMetadata = {
     rollName: "Attack",
     tooltip: weapon ? `Attack with ${weapon?.name}` : "Attack with Object",
@@ -2928,6 +3018,7 @@ function performAttackRoll(
     targetName: "",
     isSeriouslyWounded: false,
     isMortallyWounded: false,
+    fumbleRecovery: fumbleRecovery,
   };
 
   // Always true for Melee since it doesn't use ammo
@@ -3051,6 +3142,15 @@ function performFaceDownRoll(record) {
     },
   ];
   const woundedPenalty = getWoundedPenalty(record);
+
+  // Check for 4 points in fumbleRecovery if solo role
+  let fumbleRecovery = false;
+  (record.data?.roles || []).forEach((role) => {
+    if (role.data?.fumbleRecoveryRank >= 4) {
+      fumbleRecovery = true;
+    }
+  });
+
   api.promptRoll(
     `Facedown`,
     "1d10",
@@ -3058,6 +3158,7 @@ function performFaceDownRoll(record) {
     {
       isMortallyWounded: woundedPenalty?.value === -4,
       isSeriouslyWounded: woundedPenalty?.value === -2,
+      fumbleRecovery: fumbleRecovery,
     },
     "facedown"
   );
@@ -3333,7 +3434,16 @@ function addRole(record, recordLink) {
     unallocatedRanks: initialRank,
   };
 
-  if (roleObj.data?.netActionsRank1) {
+  if (roleObj.data?.panel === "solo") {
+    roleData.maxDamageDeflection = initialRank;
+    roleData.maxFumbleRecovery = Math.min(4, initialRank);
+    roleData.maxInitiativeReaction = initialRank;
+    roleData.maxPrecisionAttack = Math.min(9, initialRank);
+    roleData.maxSpotWeakness = initialRank;
+    roleData.maxThreatDetection = initialRank;
+  }
+
+  if (roleObj.data?.panel === "netrunner") {
     roleData.netActions = roleObj.data[`netActionsRank${initialRank}`];
   }
 
@@ -3380,6 +3490,13 @@ function getUsedRanks(role) {
   usedRanks += role.data.surgery || 0;
   usedRanks += role.data.pharmaceuticals || 0;
   usedRanks += role.data.cryosystemOperation || 0;
+  // SOLO
+  usedRanks += role.data.damageDeflectionRank || 0;
+  usedRanks += role.data.fumbleRecoveryRank || 0;
+  usedRanks += role.data.initiativeReactionRank || 0;
+  usedRanks += role.data.precisionAttackRank || 0;
+  usedRanks += role.data.spotWeaknessRank || 0;
+  usedRanks += role.data.threatDetectionRank || 0;
   // TECH
   // TODO
   return usedRanks;
@@ -3403,6 +3520,30 @@ function updateRoles(record) {
     const roleIndex = rolesSorted.findIndex((r) => r._id === role._id);
     valuesToSet[`data.roles.${roleIndex}.data.unallocatedRanks`] =
       role.data.rank - getUsedRanks(role);
+
+    // If solo set max values
+    if (role.data.panel === "solo") {
+      const unallocatedRanks =
+        valuesToSet[`data.roles.${roleIndex}.data.unallocatedRanks`] || 0;
+      valuesToSet[`data.roles.${roleIndex}.data.maxDamageDeflection`] =
+        (role.data?.damageDeflectionRank || 0) + unallocatedRanks;
+      // Fumble recovery is capped at 4
+      valuesToSet[`data.roles.${roleIndex}.data.maxFumbleRecovery`] = Math.min(
+        4,
+        (role.data?.fumbleRecoveryRank || 0) + unallocatedRanks
+      );
+      valuesToSet[`data.roles.${roleIndex}.data.maxInitiativeReaction`] =
+        (role.data?.initiativeReactionRank || 0) + unallocatedRanks;
+      // Precision attack is capped at 9
+      valuesToSet[`data.roles.${roleIndex}.data.maxPrecisionAttack`] = Math.min(
+        9,
+        (role.data?.precisionAttackRank || 0) + unallocatedRanks
+      );
+      valuesToSet[`data.roles.${roleIndex}.data.maxSpotWeakness`] =
+        (role.data?.spotWeaknessRank || 0) + unallocatedRanks;
+      valuesToSet[`data.roles.${roleIndex}.data.maxThreatDetection`] =
+        (role.data?.threatDetectionRank || 0) + unallocatedRanks;
+    }
 
     // Check if netactions defined
     if (role.data.netActionsRank1) {

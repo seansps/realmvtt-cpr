@@ -25,6 +25,7 @@ let smartAmmoValue = metadata?.smartAmmoValue;
 let smartBonus = metadata?.smartBonus || 10;
 let isSmartReroll = metadata?.isSmartReroll || false; // Don't show the smart ammo re-roll if this is true
 let showSmartAmmoReRoll = false;
+const fumbleRecovery = metadata?.fumbleRecovery || false;
 
 // Get the record ID and type
 const recordId = metadata?.recordId || metadata?.priorRoll?.metadata?.recordId;
@@ -57,8 +58,13 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
     },
     "attack"
   );
-} else if (d10.value === 1 && !metadata.critSuccess && !metadata.critFail) {
-  // On 1, roll again with - 1d10
+} else if (
+  d10.value === 1 &&
+  !metadata.critSuccess &&
+  !metadata.critFail &&
+  !fumbleRecovery
+) {
+  // On 1, roll again with - 1d10 (unless we have fumble recovery)
   api.roll(
     `1d10`,
     {

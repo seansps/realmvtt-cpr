@@ -216,7 +216,8 @@ targets.forEach(target => {
     let armorAblated = false;
     let coverDamage = 0;
     let shieldDamage = 0;
-    
+    let usedDamageReduction = 0;
+
     // Get all equipped armor from inventory
     const equippedArmor = getBestEquippedArmor(target);
     
@@ -339,6 +340,18 @@ targets.forEach(target => {
           armorProtected = true;
         }
       }
+
+      // Apply damage reduction if not already used
+      usedDamageReduction = 0;
+      (target?.data?.roles || []).forEach((role, index) => {
+        if (!role.data?.usedDamageReduction && role.data?.damageReduction > 0) {
+          usedDamageReduction = role.data.damageReduction;
+          // Reduce damage by damage reduction
+          damage = Math.max(damage - role.data.damageReduction, 0);
+          // Mark as used
+          valuesToSet[\`data.roles.\${index}.data.usedDamageReduction\`] = true;
+        }
+      });
       
       // Apply remaining damage to HP
       if (damage > 0) {
@@ -424,9 +437,24 @@ targets.forEach(target => {
           }.\\n\`;
         }
       }
+      if (usedDamageReduction > 0) {
+        message += \`Damage Deflection reduced the damage by \${usedDamageReduction}.\\n\`;
+      }
     } else {
       if (armorProtected) {
         message = \`Armor blocked the damage.\\n\`;
+      } else if (usedDamageReduction > 0) {
+        if (armorAblated) {
+          api.floatText(
+            target, 
+            \`-\${damage}\\n\${ablationLocation.charAt(0).toUpperCase() + ablationLocation.slice(1)} Armor Ablated by \${${ablationAmount}}\`, 
+            "#FF0000"
+          );
+          message = \`Damage Deflection prevented the damage, but armor was ablated.\\n\`;
+        }
+        else {
+          message = \`Damage Deflection prevented the damage.\\n\`;
+        }
       } else {
         message = \`No damage was applied to.\`;
       }

@@ -29,6 +29,14 @@
       modifiers.push(modifier);
     });
 
+    // Check for 4 points in fumbleRecovery if solo role
+    let fumbleRecovery = false;
+    (record.data?.roles || []).forEach((role) => {
+      if (role.data?.fumbleRecoveryRank >= 4) {
+        fumbleRecovery = true;
+      }
+    });
+
     api.promptRoll(
       "Initiative",
       roll,
@@ -37,6 +45,7 @@
         rollName: "Initiative",
         recordType: "characters",
         tooltip: "Initiative Roll",
+        fumbleRecovery: fumbleRecovery,
       },
       "initiative"
     );

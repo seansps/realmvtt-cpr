@@ -30,7 +30,7 @@ if (dv !== undefined && dv !== null) {
     message += `\n\n**[center]They have heard of you.[/center]**\n`;
   } else {
     message = `\n\n**[center][color=red]Failure[/color] (vs DV ${dv})[/center]**\n`;
-    message += `\n\n**[center]They have not heard of you.[/center]**\n$`;
+    message += `\n\n**[center]They have not heard of you.[/center]**\n`;
   }
 }
 

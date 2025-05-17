@@ -348,6 +348,103 @@
       bonus: vehicleFamiliarity,
     });
   }
+
+  function rollCharismaticImpact(groupSize) {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+
+    let dv = role.data?.singleImpactDV || 0;
+    if (groupSize === "small") {
+      dv = role.data?.groupImpactDV || 0;
+    } else if (groupSize === "huge") {
+      dv = role.data?.hugeGroupImpactDV || 0;
+    }
+
+    performSkillRoll(record, "Charismatic Impact", {
+      isDodge: false,
+      roleAbility: "Rockerboy",
+      abilityName: "Charismatic Impact",
+      dv: dv,
+    });
+  }
+
+  function updateSoloRanks() {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    const roleRank = role.data?.rank || 0;
+    const damageDeflectionRank = role.data?.damageDeflectionRank || 0;
+    const fumbleRecoveryRank = role.data?.fumbleRecoveryRank || 0;
+    const initiativeReactionRank = role.data?.initiativeReactionRank || 0;
+    const precisionAttackRank = role.data?.precisionAttackRank || 0;
+    const spotWeaknessRank = role.data?.spotWeaknessRank || 0;
+    const threatDetectionRank = role.data?.threatDetectionRank || 0;
+
+    // Set unallocated ranks to role rank - all others
+    const unallocatedRanks =
+      roleRank -
+      damageDeflectionRank -
+      fumbleRecoveryRank -
+      initiativeReactionRank -
+      precisionAttackRank -
+      spotWeaknessRank -
+      threatDetectionRank;
+
+    // Set the max value fields on each
+    const maxDamageDeflection = damageDeflectionRank + unallocatedRanks;
+    // Fumble recovery is capped at 4
+    const maxFumbleRecovery = Math.min(
+      4,
+      fumbleRecoveryRank + unallocatedRanks
+    );
+    const maxInitiativeReaction = initiativeReactionRank + unallocatedRanks;
+    // Precision attack is capped at 9
+    const maxPrecisionAttack = Math.min(
+      9,
+      precisionAttackRank + unallocatedRanks
+    );
+    const maxSpotWeakness = spotWeaknessRank + unallocatedRanks;
+    const maxThreatDetection = threatDetectionRank + unallocatedRanks;
+
+    // Set damage reduction by damage deflection rank
+    let damageReduction = 0;
+    if (damageDeflectionRank >= 10) {
+      damageReduction = 5;
+    } else if (damageDeflectionRank >= 8) {
+      damageReduction = 4;
+    } else if (damageDeflectionRank >= 6) {
+      damageReduction = 3;
+    } else if (damageDeflectionRank >= 4) {
+      damageReduction = 2;
+    } else if (damageDeflectionRank >= 2) {
+      damageReduction = 1;
+    }
+
+    // Set the attack bonus
+    let attackBonus = role.data?.attackBonus || 0;
+    if (precisionAttackRank >= 9) {
+      attackBonus = 3;
+    } else if (precisionAttackRank >= 6) {
+      attackBonus = 2;
+    } else if (precisionAttackRank >= 3) {
+      attackBonus = 1;
+    } else {
+      attackBonus = 0;
+    }
+
+    api.setValues({
+      [`${nearestParentDataPath}.data.unallocatedRanks`]: unallocatedRanks,
+      [`${nearestParentDataPath}.data.maxDamageDeflection`]:
+        maxDamageDeflection,
+      [`${nearestParentDataPath}.data.damageReduction`]: damageReduction,
+      [`${nearestParentDataPath}.data.maxFumbleRecovery`]: maxFumbleRecovery,
+      [`${nearestParentDataPath}.data.maxInitiativeReaction`]:
+        maxInitiativeReaction,
+      [`${nearestParentDataPath}.data.maxPrecisionAttack`]: maxPrecisionAttack,
+      [`${nearestParentDataPath}.data.maxSpotWeakness`]: maxSpotWeakness,
+      [`${nearestParentDataPath}.data.maxThreatDetection`]: maxThreatDetection,
+      [`${nearestParentDataPath}.data.attackBonus`]: attackBonus,
+    });
+  }
 </script>
 <numberfield field="order" hidden="true"></numberfield>
 <div
@@ -362,7 +459,7 @@
   <div style="width: 35px; height: 35px; min-height: 35px; min-width: 35px">
     <portrait width="35px" height="35px" field="portrait"></portrait>
   </div>
-  <div style="width: 40%">
+  <div style="width: 30%">
     <label textalign="left" variant="bold" size="md" field="namefield"></label>
   </div>
   <div
@@ -370,8 +467,8 @@
       display: flex;
       flex-direction: row;
       gap: 4px;
-      margin-left: 8px;
-      width: 60%;
+      margin-left: auto;
+      width: 70%;
     "
   >
     <label textalign="left" variant="bold" size="md" label="Ability:"></label>
@@ -499,6 +596,7 @@
         <button
           variant="outline"
           onclick="rollHaggle()"
+          icon="D10"
           field="rollHaggleBtn"
           label="Roll Haggle"
           size="xs"
@@ -1101,12 +1199,367 @@
   </box>
 
   <!-- Rockerboy Panel -->
-  <box field="rockerboyProperties" variant="card" size="xs">
-    ROCKERBOY TODO
+  <box field="rockerboyProperties" variant="card" size="xs" hidden="true">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <label
+        variant="bold"
+        textalign="left"
+        label="Roll Ability by Group Size"
+        size="sm"
+      ></label>
+      <div style="display: flex; flex-direction: row; gap: 8px">
+        <button
+          variant="outline"
+          field="rollSingleGroupBtn"
+          label="Single"
+          icon="D10"
+          size="xs"
+          onclick="rollCharismaticImpact('single')"
+        ></button>
+        <button
+          variant="outline"
+          field="rollSmallGroupBtn"
+          label="Small Group"
+          icon="D10"
+          size="xs"
+          onclick="rollCharismaticImpact('small')"
+        ></button>
+        <button
+          variant="outline"
+          field="rollHugeGroupBtn"
+          label="Huge Group"
+          icon="D10"
+          size="xs"
+          onclick="rollCharismaticImpact('huge')"
+        ></button>
+      </div>
+      <label
+        variant="bold"
+        textalign="left"
+        label="Venues You Can Play"
+        size="sm"
+      ></label>
+      <list
+        listtype="active_features_list"
+        field="venues"
+        variant="outline-striped"
+        getfilters="return getFiltersForActiveFeaturesList();"
+      ></list>
+      <label
+        variant="bold"
+        textalign="left"
+        label="Impact on a Single Fan"
+        size="sm"
+      ></label>
+      <list
+        listtype="active_features_list"
+        field="impactSingleFan"
+        variant="outline-striped"
+        getfilters="return getFiltersForActiveFeaturesList();"
+      ></list>
+      <label
+        variant="bold"
+        textalign="left"
+        label="Impact on a Group of Fans"
+        size="sm"
+      ></label>
+      <list
+        listtype="active_features_list"
+        field="impactSmallGroup"
+        variant="outline-striped"
+        getfilters="return getFiltersForActiveFeaturesList();"
+      ></list>
+      <label
+        variant="bold"
+        textalign="left"
+        label="Impact on a Huge Group of Fans"
+        size="sm"
+      ></label>
+      <list
+        listtype="active_features_list"
+        field="impactHugeGroup"
+        variant="outline-striped"
+        getfilters="return getFiltersForActiveFeaturesList();"
+      ></list>
+    </div>
   </box>
 
   <!-- Solo Panel -->
-  <box field="soloProperties" variant="card" size="xs"> SOLO TODO </box>
+  <box field="soloProperties" variant="card" size="xs">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <numberfield
+        field="unallocatedRanks"
+        label="Unallocated Ranks"
+        size="xs"
+        width="110px"
+        placeholder="0"
+        editable="false"
+      ></numberfield>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+        "
+      >
+        <label
+          variant="bold"
+          textalign="left"
+          label="Damage Deflection"
+          size="sm"
+        ></label>
+        <counter
+          field="damageDeflectionRank"
+          size="xs"
+          width="110px"
+          maxvaluefield="maxDamageDeflection"
+          onchange="updateSoloRanks()"
+          editable="false"
+        ></counter>
+      </div>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+        "
+      >
+        <label
+          variant="bold"
+          textalign="left"
+          label="Damage Reduction"
+          size="xs"
+        ></label>
+        <numberfield
+          field="damageReduction"
+          size="xs"
+          width="60px"
+          hidecontrols="true"
+          editable="false"
+          placeholder="0"
+        ></numberfield>
+        <label
+          variant="bold"
+          textalign="left"
+          label="Used this Round"
+          size="xs"
+        ></label>
+        <checkbox
+          field="usedDamageReduction"
+          size="xs"
+          editable="true"
+        ></checkbox>
+      </div>
+      <accordion
+        field="damageDeflectionAccordion"
+        label="Description"
+        size="xs"
+        variant="contained"
+      >
+        <richtextfield
+          field="damageDeflection"
+          disablecontrols="true"
+        ></richtextfield>
+      </accordion>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+          margin-top: 4px;
+        "
+      >
+        <label
+          variant="bold"
+          textalign="left"
+          label="Fumble Recovery"
+          size="sm"
+        ></label>
+        <counter
+          field="fumbleRecoveryRank"
+          size="xs"
+          width="110px"
+          maxvaluefield="maxFumbleRecovery"
+          onchange="updateSoloRanks()"
+          editable="false"
+        ></counter>
+      </div>
+      <accordion
+        field="fumbleRecoveryAccordion"
+        label="Description"
+        size="xs"
+        variant="contained"
+      >
+        <richtextfield
+          field="fumbleRecovery"
+          disablecontrols="true"
+        ></richtextfield>
+      </accordion>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+          margin-top: 4px;
+        "
+      >
+        <label
+          variant="bold"
+          textalign="left"
+          label="Initiative Reaction"
+          size="sm"
+        ></label>
+        <counter
+          field="initiativeReactionRank"
+          size="xs"
+          width="110px"
+          maxvaluefield="maxInitiativeReaction"
+          onchange="updateSoloRanks()"
+          editable="false"
+        ></counter>
+      </div>
+      <accordion
+        field="initiativeReactionAccordion"
+        label="Description"
+        size="xs"
+        variant="contained"
+      >
+        <richtextfield
+          field="initiativeReaction"
+          disablecontrols="true"
+        ></richtextfield>
+      </accordion>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+        "
+      >
+        <label
+          variant="bold"
+          textalign="left"
+          label="Precision Attack"
+          size="sm"
+        ></label>
+        <counter
+          field="precisionAttackRank"
+          size="xs"
+          width="110px"
+          maxvaluefield="maxPrecisionAttack"
+          onchange="updateSoloRanks()"
+          editable="false"
+        ></counter>
+      </div>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+        "
+      >
+        <label
+          variant="bold"
+          textalign="left"
+          label="Attack Bonus"
+          size="xs"
+        ></label>
+        <numberfield
+          field="attackBonus"
+          size="xs"
+          width="60px"
+          hidecontrols="true"
+          editable="false"
+          placeholder="0"
+        ></numberfield>
+      </div>
+      <accordion
+        field="precisionAttackAccordion"
+        label="Description"
+        size="xs"
+        variant="contained"
+      >
+        <richtextfield
+          field="precisionAttack"
+          disablecontrols="true"
+        ></richtextfield>
+      </accordion>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+        "
+      >
+        <label
+          variant="bold"
+          textalign="left"
+          label="Spot Weakness"
+          size="sm"
+        ></label>
+        <counter
+          field="spotWeaknessRank"
+          size="xs"
+          width="110px"
+          maxvaluefield="maxSpotWeakness"
+          onchange="updateSoloRanks()"
+          editable="false"
+        ></counter>
+      </div>
+      <accordion
+        field="spotWeaknessAccordion"
+        label="Description"
+        size="xs"
+        variant="contained"
+      >
+        <richtextfield
+          field="spotWeakness"
+          disablecontrols="true"
+        ></richtextfield>
+      </accordion>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+        "
+      >
+        <label
+          variant="bold"
+          textalign="left"
+          label="Threat Detection"
+          size="sm"
+        ></label>
+        <counter
+          field="threatDetectionRank"
+          size="xs"
+          width="110px"
+          maxvaluefield="maxThreatDetection"
+          onchange="updateSoloRanks()"
+          editable="false"
+        ></counter>
+      </div>
+      <accordion
+        field="threatDetectionAccordion"
+        label="Description"
+        size="xs"
+        variant="contained"
+      >
+        <richtextfield
+          field="threatDetection"
+          disablecontrols="true"
+        ></richtextfield>
+      </accordion>
+    </div>
+  </box>
 
   <!-- Tech Panel -->
   <box field="techProperties" variant="card" size="xs"> TECH TODO </box>

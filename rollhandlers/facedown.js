@@ -14,7 +14,7 @@ const metadata = data?.roll?.metadata;
 const modifiers = metadata?.modifiers || [];
 const isSeriouslyWounded = metadata?.isSeriouslyWounded || false;
 const isMortallyWounded = metadata?.isMortallyWounded || false;
-
+const fumbleRecovery = metadata?.fumbleRecovery || false;
 // If we used luck, we need to remove it from the token that rolled
 let usedLuck = false;
 if (modifiers.find((m) => m.name === "Luck Used")) {
@@ -38,8 +38,13 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
     },
     "facedown"
   );
-} else if (d10.value === 1 && !metadata.critSuccess && !metadata.critFail) {
-  // On 1, roll again with - 1d10
+} else if (
+  d10.value === 1 &&
+  !metadata.critSuccess &&
+  !metadata.critFail &&
+  !fumbleRecovery
+) {
+  // On 1, roll again with - 1d10 (unless we have fumble recovery)
   api.roll(
     `1d10`,
     {

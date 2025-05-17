@@ -21,6 +21,7 @@ const isSeriouslyWounded = metadata?.isSeriouslyWounded || false;
 const isMortallyWounded = metadata?.isMortallyWounded || false;
 const recordLinks = metadata?.recordLinks || [];
 const dvTable = metadata?.dvTable;
+const fumbleRecovery = metadata?.fumbleRecovery || false;
 
 // If we used luck, we need to remove it from the token that rolled
 let usedLuck = false;
@@ -56,9 +57,10 @@ if (
   !rollUnderOrEqual &&
   d10.value === 1 &&
   !metadata.critSuccess &&
-  !metadata.critFail
+  !metadata.critFail &&
+  !fumbleRecovery
 ) {
-  // On 1, roll again with - 1d10
+  // On 1, roll again with - 1d10 (unless we have fumble recovery)
   api.roll(
     `1d10`,
     {
