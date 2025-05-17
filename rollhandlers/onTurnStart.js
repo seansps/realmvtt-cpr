@@ -1,7 +1,5 @@
 const token = data?.token;
 
-// TODO persistant damage effects like On Fire
-
 const valuesToSet = {};
 
 // Check if usedDamageReduction is true and reset it to false
