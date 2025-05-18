@@ -445,6 +445,85 @@
       [`${nearestParentDataPath}.data.attackBonus`]: attackBonus,
     });
   }
+
+  function updateTechRanks() {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    const roleRank = role.data?.rank || 0;
+
+    // Techs get to allocate 2 ranks in 2 differenet tech skills per role
+    // Set unallocated ranks to (role rank * 2) - all tech ranks
+    let unallocatedRanks = roleRank * 2;
+
+    const fieldExpertiseRank = role.data?.fieldExpertiseRank || 0;
+    const upgradeExpertiseRank = role.data?.upgradeExpertiseRank || 0;
+    const fabricationExpertiseRank = role.data?.fabricationExpertiseRank || 0;
+    const inventionExpertiseRank = role.data?.inventionExpertiseRank || 0;
+
+    unallocatedRanks =
+      unallocatedRanks -
+      fieldExpertiseRank -
+      upgradeExpertiseRank -
+      fabricationExpertiseRank -
+      inventionExpertiseRank;
+
+    api.setValues({
+      [`${nearestParentDataPath}.data.unallocatedRanks`]: unallocatedRanks,
+      [`${nearestParentDataPath}.data.maxFieldExpertise`]:
+        fieldExpertiseRank + unallocatedRanks,
+      [`${nearestParentDataPath}.data.maxUpgradeExpertise`]:
+        upgradeExpertiseRank + unallocatedRanks,
+      [`${nearestParentDataPath}.data.maxFabricationExpertise`]:
+        fabricationExpertiseRank + unallocatedRanks,
+      [`${nearestParentDataPath}.data.maxInventionExpertise`]:
+        inventionExpertiseRank + unallocatedRanks,
+    });
+  }
+
+  function rollTechSkill(makerSkill) {
+    const nearestParentDataPath = getNearestParentDataPath(dataPath);
+    const role = api.getValue(nearestParentDataPath);
+    const techSkill = role.data?.techSkill || "Basic Tech";
+
+    // Get bonus by skill, unless Field Expertise which adds it by the effects mod
+    let bonus = role.data?.fieldExpertiseRank || 0;
+    if (makerSkill === "Upgrade Exertise") {
+      bonus = role.data?.upgradeExpertiseRank || 0;
+    } else if (makerSkill === "Invention Expertise") {
+      bonus = role.data?.inventionExpertiseRank || 0;
+    } else if (makerSkill === "Fabrication Expertise") {
+      bonus = role.data?.fabricationExpertiseRank || 0;
+    }
+
+    // Get DV by cost category
+    let dv = role.data?.dvCheapEveryday || 9;
+    if (
+      role.data?.costCategory === "CheapEveryday" ||
+      !role.data?.costCategory
+    ) {
+      dv = role.data?.dvCheapEveryday;
+    } else if (role.data?.costCategory === "Costly") {
+      dv = role.data?.dvCostly;
+    } else if (role.data?.costCategory === "Premium") {
+      dv = role.data?.dvPremium;
+    } else if (role.data?.costCategory === "Expensive") {
+      dv = role.data?.dvExpensive;
+    } else if (role.data?.costCategory === "Very Expensive") {
+      dv = role.data?.dvVeryExpensive;
+    } else if (role.data?.costCategory === "Luxary") {
+      dv = role.data?.dvLuxary;
+    } else if (role.data?.costCategory === "Super Luxary") {
+      dv = role.data?.dvSuperLuxary;
+    }
+
+    performSkillRoll(record, techSkill, {
+      isDodge: false,
+      roleAbility: "Tech",
+      abilityName: makerSkill,
+      subRoleRank: bonus,
+      dv: dv,
+    });
+  }
 </script>
 <numberfield field="order" hidden="true"></numberfield>
 <div
@@ -1285,7 +1364,7 @@
   </box>
 
   <!-- Solo Panel -->
-  <box field="soloProperties" variant="card" size="xs">
+  <box field="soloProperties" variant="card" size="xs" hidden="true">
     <div style="display: flex; flex-direction: column; gap: 4px">
       <numberfield
         field="unallocatedRanks"
@@ -1562,7 +1641,379 @@
   </box>
 
   <!-- Tech Panel -->
-  <box field="techProperties" variant="card" size="xs"> TECH TODO </box>
+  <box field="techProperties" variant="card" size="xs">
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 8px;
+      "
+    >
+      <numberfield
+        field="unallocatedRanks"
+        label="Unallocated Ranks"
+        size="xs"
+        width="110px"
+        placeholder="0"
+        editable="false"
+      ></numberfield>
+      <label
+        variant="bold"
+        textalign="left"
+        label="Skill for Repair, Upgrade, Fabrication or Invention"
+        size="sm"
+      ></label>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+        "
+      >
+        <dropdown
+          field="techSkill"
+          size="xs"
+          defaultvalue="Basic Tech"
+          width="180px"
+          label="Skill"
+          disablediflocked="false"
+          options='[{"label": "Basic Tech","value": "Basic Tech"}, {"label": "Cybertech","value": "Cybertech"}, {"label": "Electronics/Security Tech","value": "Electronics/Security Tech (x2)"}, {"label": "Weaponstech","value": "Weaponstech"}, {"label": "Land Vehicle Tech","value": "Land Vehicle Tech"}, {"label": "Sea Vehicle Tech","value": "Sea Vehicle Tech"}, {"label": "Air Vehicle Tech","value": "Air Vehicle Tech"}]'
+        ></dropdown>
+        <dropdown
+          field="costCategory"
+          size="xs"
+          defaultvalue="CheapEveryday"
+          width="180px"
+          label="Cost Category"
+          disablediflocked="false"
+          options='[{"label": "Cheap/Everyday","value": "CheapEveryday"}, {"label": "Costly","value": "Costly"}, {"label": "Premium","value": "Premium"}, {"label": "Expensive","value": "Expensive"}, {"label": "Very Expensive","value": "Very Expensive"}, {"label": "Luxary","value": "Luxary"}, {"label": "Super Luxary","value": "Super Luxary"}]'
+        ></dropdown>
+      </div>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+        "
+      >
+        <label
+          variant="bold"
+          textalign="left"
+          label="Field Expertise"
+          size="sm"
+        ></label>
+        <numberfield
+          field="fieldExpertiseRank"
+          size="xs"
+          width="60px"
+          placeholder="0"
+          maxvaluefield="maxFieldExpertise"
+          onchange="updateTechRanks()"
+        ></numberfield>
+        <button
+          field="techSkillButton"
+          size="xs"
+          label="Roll Repair"
+          variant="outline"
+          icon="D10"
+          onclick="rollTechSkill('Field Expertise')"
+        ></button>
+      </div>
+      <accordion
+        field="fieldExpertiseAccordion"
+        label="Description"
+        size="xs"
+        variant="contained"
+      >
+        <richtextfield
+          field="fieldExpertise"
+          disablecontrols="true"
+        ></richtextfield>
+      </accordion>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+        "
+      >
+        <label
+          variant="bold"
+          textalign="left"
+          label="Upgrade Expertise"
+          size="sm"
+        ></label>
+        <numberfield
+          field="upgradeExpertiseRank"
+          size="xs"
+          width="60px"
+          placeholder="0"
+          maxvaluefield="maxUpgradeExpertise"
+          onchange="updateTechRanks()"
+        ></numberfield>
+        <button
+          field="techSkillButton"
+          size="xs"
+          label="Roll Upgrade"
+          variant="outline"
+          icon="D10"
+          onclick="rollTechSkill('Upgrade Expertise')"
+        ></button>
+      </div>
+      <accordion
+        field="upgradeExpertiseAccordion"
+        label="Description"
+        size="xs"
+        variant="contained"
+      >
+        <richtextfield
+          field="upgradeExpertise"
+          disablecontrols="true"
+        ></richtextfield>
+      </accordion>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+        "
+      >
+        <label
+          variant="bold"
+          textalign="left"
+          label="Fabrication Expertise"
+          size="sm"
+        ></label>
+        <numberfield
+          field="fabricationExpertiseRank"
+          size="xs"
+          width="60px"
+          placeholder="0"
+          maxvaluefield="maxFabricationExpertise"
+          onchange="updateTechRanks()"
+        ></numberfield>
+        <button
+          field="techSkillButton"
+          size="xs"
+          label="Roll Fabrication"
+          variant="outline"
+          icon="D10"
+          onclick="rollTechSkill('Fabrication Expertise')"
+        ></button>
+      </div>
+      <accordion
+        field="fabricationExpertiseAccordion"
+        label="Description"
+        size="xs"
+        variant="contained"
+      >
+        <richtextfield
+          field="fabricationExpertise"
+          disablecontrols="true"
+        ></richtextfield>
+      </accordion>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+        "
+      >
+        <label
+          variant="bold"
+          textalign="left"
+          label="Invention Expertise"
+          size="sm"
+        ></label>
+        <numberfield
+          field="inventionExpertiseRank"
+          size="xs"
+          width="60px"
+          placeholder="0"
+          maxvaluefield="maxInventionExpertise"
+          onchange="updateTechRanks()"
+        ></numberfield>
+        <button
+          field="techSkillButton"
+          size="xs"
+          label="Roll Invention"
+          variant="outline"
+          icon="D10"
+          onclick="rollTechSkill('Invention Expertise')"
+        ></button>
+      </div>
+      <accordion
+        field="inventionExpertiseAccordion"
+        label="Description"
+        size="xs"
+        variant="contained"
+      >
+        <richtextfield
+          field="inventionExpertise"
+          disablecontrols="true"
+        ></richtextfield>
+      </accordion>
+    </div>
+    <divider field="techDVDivider" size="xs"></divider>
+    <div style="margin-bottom: 8px"></div>
+    <accordion
+      field="techDVAccordion"
+      label="Repair / Upgrade / Fabrication / Invention DVs"
+      size="xs"
+      variant="contained"
+    >
+      <table style="width: 100%">
+        <thead>
+          <tr>
+            <th style="text-align: left; font-size: 14px">Category</th>
+            <th style="font-size: 14px">DV</th>
+            <th style="font-size: 14px">Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align: left; font-size: 14px">Cheap/Everyday</td>
+            <td>
+              <numberfield
+                field="dvCheapEveryday"
+                minvalue="0"
+                placeholder="Enter dv..."
+                size="xs"
+              ></numberfield>
+            </td>
+            <td>
+              <stringfield
+                field="timeCheapEveryday"
+                placeholder="Enter time..."
+                size="xs"
+                multiline="true"
+              ></stringfield>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: left; font-size: 14px">Costly</td>
+            <td>
+              <numberfield
+                field="dvCostly"
+                minvalue="0"
+                placeholder="Enter dv..."
+                size="xs"
+              ></numberfield>
+            </td>
+            <td>
+              <stringfield
+                field="timeCostly"
+                placeholder="Enter time..."
+                size="xs"
+                multiline="true"
+              ></stringfield>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: left; font-size: 14px">Premium</td>
+            <td>
+              <numberfield
+                field="dvPremium"
+                minvalue="0"
+                placeholder="Enter dv..."
+                size="xs"
+              ></numberfield>
+            </td>
+            <td>
+              <stringfield
+                field="timePremium"
+                placeholder="Enter time..."
+                size="xs"
+                multiline="true"
+              ></stringfield>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: left; font-size: 14px">Expensive</td>
+            <td>
+              <numberfield
+                field="dvExpensive"
+                minvalue="0"
+                placeholder="Enter dv..."
+                size="xs"
+              ></numberfield>
+            </td>
+            <td>
+              <stringfield
+                field="timeExpensive"
+                placeholder="Enter time..."
+                size="xs"
+                multiline="true"
+              ></stringfield>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: left; font-size: 14px">Very Expensive</td>
+            <td>
+              <numberfield
+                field="dvVeryExpensive"
+                minvalue="0"
+                placeholder="Enter dv..."
+                size="xs"
+              ></numberfield>
+            </td>
+            <td>
+              <stringfield
+                field="timeVeryExpensive"
+                placeholder="Enter time..."
+                size="xs"
+                multiline="true"
+              ></stringfield>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: left; font-size: 14px">Luxary</td>
+            <td>
+              <numberfield
+                field="dvLuxary"
+                minvalue="0"
+                placeholder="Enter dv..."
+                size="xs"
+              ></numberfield>
+            </td>
+            <td>
+              <stringfield
+                field="timeLuxary"
+                placeholder="Enter time..."
+                size="xs"
+                multiline="true"
+              ></stringfield>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: left; font-size: 14px">Super Luxary</td>
+            <td>
+              <numberfield
+                field="dvSuperLuxary"
+                minvalue="0"
+                placeholder="Enter dv..."
+                size="xs"
+              ></numberfield>
+            </td>
+            <td>
+              <stringfield
+                field="timeSuperLuxary"
+                placeholder="Enter time..."
+                size="xs"
+                multiline="true"
+              ></stringfield>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </accordion>
+  </box>
 
   <!-- Custom Panel -->
   <box field="customProperties" variant="card" size="xs" hidden="true">

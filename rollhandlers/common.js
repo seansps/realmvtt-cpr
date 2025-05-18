@@ -1171,7 +1171,8 @@ function getEffectsAndModifiersForToken(
   // If Weapon is provided, we also look on it and attachments on it
   weapon = undefined,
   // If Ammo is provided, we also look for modifiers on it
-  ammoItem = undefined
+  ammoItem = undefined,
+  subField = ""
 ) {
   if (!target) {
     return [];
@@ -1467,7 +1468,7 @@ function getEffectsAndModifiersForToken(
     }
   });
 
-  // Check for Solo modifiers
+  // Check for Solo and Tech modifiers
   const roles = target?.data?.roles || [];
   roles.forEach((role) => {
     if (role.data?.panel === "solo") {
@@ -1528,6 +1529,35 @@ function getEffectsAndModifiersForToken(
           isPenalty: false,
           isEffect: false,
           active: true,
+        });
+      }
+    } else if (role.data?.panel === "tech") {
+      const fieldExpertiseRank = role.data?.fieldExpertiseRank || 0;
+      if (fieldExpertiseRank) {
+        // Add skill bonus for field expertise to  Basic Tech, Cybertech,
+        // Electronics/Security Tech, Weaponstech, Land, Sea, or Air Vehicle Tech
+        [
+          "Basic Tech",
+          "Cybertech",
+          "Electronics/Security Tech (x2)",
+          "Weaponstech",
+          "Land Vehicle Tech",
+          "Sea Vehicle Tech",
+          "Air Vehicle Tech",
+        ].forEach((field) => {
+          results.push({
+            name: "Field Expertise",
+            value: fieldExpertiseRank,
+            modifierType: "skillBonus",
+            field: field,
+            // So we can differentiate between field expertise and upgrade/fabrication/invention
+            // skills later on
+            subField: "Field Expertise",
+            valueType: "number",
+            isPenalty: false,
+            isEffect: false,
+            active: true,
+          });
         });
       }
     }
@@ -2623,6 +2653,7 @@ function performSkillRoll(
   const roleAbility = additionalMetadata?.roleAbility;
   const abilityName = additionalMetadata?.abilityName;
   const rollUnderOrEqual = additionalMetadata?.rollUnderOrEqual;
+  const subRoleRank = additionalMetadata?.subRoleRank;
   if (roleAbility) {
     // Get the value for this role ability rank
     // First check if there is a matching Role name
@@ -2635,6 +2666,7 @@ function performSkillRoll(
     if (
       roleRank > 0 &&
       !rollUnderOrEqual &&
+      subRoleRank === undefined &&
       // If skilLevel was passed, we don't need to add the role rank
       additionalMetadata.skillLevel === undefined
     ) {
@@ -2647,6 +2679,18 @@ function performSkillRoll(
     } else if (roleRank > 0 && rollUnderOrEqual) {
       // In this case it is a DV
       additionalMetadata.dv = roleRank;
+    } else if (
+      subRoleRank !== undefined &&
+      // This is handled by skills by default
+      abilityName !== "Field Expertise"
+    ) {
+      // In this case it is a DV
+      skillModifiers.push({
+        name: abilityName,
+        value: subRoleRank,
+        active: true,
+        valueType: "number",
+      });
     }
 
     // Check for modifiers
@@ -2676,6 +2720,13 @@ function performSkillRoll(
         additionalMetadata.dv =
           additionalMetadata.dv + additionalMetadata.bonus;
       }
+    }
+
+    // If abilityName provided, filter out modifiers with subfield !== to it
+    if (abilityName) {
+      skillModifiers = skillModifiers.filter(
+        (m) => m.subField === abilityName || !m.subField
+      );
     }
   }
 
@@ -3443,6 +3494,14 @@ function addRole(record, recordLink) {
     roleData.maxThreatDetection = initialRank;
   }
 
+  if (roleObj.data?.panel === "tech") {
+    roleData.unallocatedRanks = initialRank * 2;
+    roleData.maxFieldExpertise = initialRank * 2;
+    roleData.maxUpgradeExpertise = initialRank * 2;
+    roleData.maxFabricationExpertise = initialRank * 2;
+    roleData.maxInventionExpertise = initialRank * 2;
+  }
+
   if (roleObj.data?.panel === "netrunner") {
     roleData.netActions = roleObj.data[`netActionsRank${initialRank}`];
   }
@@ -3498,7 +3557,10 @@ function getUsedRanks(role) {
   usedRanks += role.data.spotWeaknessRank || 0;
   usedRanks += role.data.threatDetectionRank || 0;
   // TECH
-  // TODO
+  usedRanks += role.data.fieldExpertiseRank || 0;
+  usedRanks += role.data.upgradeExpertiseRank || 0;
+  usedRanks += role.data.fabricationExpertiseRank || 0;
+  usedRanks += role.data.inventionExpertiseRank || 0;
   return usedRanks;
 }
 
@@ -3518,8 +3580,12 @@ function updateRoles(record) {
     }
     roleString = `${roleString}${role.name} ${role.data.rank}`;
     const roleIndex = rolesSorted.findIndex((r) => r._id === role._id);
+
+    // Set unallocated ranks - techs get to allocate 2 ranks in 2 differenet tech skills per role
     valuesToSet[`data.roles.${roleIndex}.data.unallocatedRanks`] =
-      role.data.rank - getUsedRanks(role);
+      role.data.panel === "tech"
+        ? role.data.rank * 2 - getUsedRanks(role)
+        : role.data.rank - getUsedRanks(role);
 
     // If solo set max values
     if (role.data.panel === "solo") {
@@ -3543,6 +3609,20 @@ function updateRoles(record) {
         (role.data?.spotWeaknessRank || 0) + unallocatedRanks;
       valuesToSet[`data.roles.${roleIndex}.data.maxThreatDetection`] =
         (role.data?.threatDetectionRank || 0) + unallocatedRanks;
+    }
+
+    // If tech set max values
+    if (role.data.panel === "tech") {
+      const unallocatedRanks =
+        valuesToSet[`data.roles.${roleIndex}.data.unallocatedRanks`] || 0;
+      valuesToSet[`data.roles.${roleIndex}.data.maxFieldExpertise`] =
+        (role.data?.fieldExpertiseRank || 0) + unallocatedRanks;
+      valuesToSet[`data.roles.${roleIndex}.data.maxUpgradeExpertise`] =
+        (role.data?.upgradeExpertiseRank || 0) + unallocatedRanks;
+      valuesToSet[`data.roles.${roleIndex}.data.maxFabricationExpertise`] =
+        (role.data?.fabricationExpertiseRank || 0) + unallocatedRanks;
+      valuesToSet[`data.roles.${roleIndex}.data.maxInventionExpertise`] =
+        (role.data?.inventionExpertiseRank || 0) + unallocatedRanks;
     }
 
     // Check if netactions defined
