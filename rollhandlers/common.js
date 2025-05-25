@@ -835,6 +835,33 @@ function getAllSkills() {
   ];
 }
 
+// Helper function to find skill stat
+function findSkillStat(skillName) {
+  const allSkills = getAllSkills();
+  for (const group of allSkills) {
+    for (const skill of group.skills) {
+      if (
+        skill.name.toLowerCase().replace("(x2)", "") ===
+        skillName.toLowerCase().replace("(x2)", "")
+      ) {
+        return skill.stat;
+      }
+      // Check subskills if they exist
+      if (skill.subSkills) {
+        for (const subSkill of skill.subSkills) {
+          if (
+            subSkill.name.toLowerCase().replace("(x2)", "") ===
+            skillName.toLowerCase().replace("(x2)", "")
+          ) {
+            return subSkill.stat;
+          }
+        }
+      }
+    }
+  }
+  return "int"; // Default to int if not found
+}
+
 function getDvForRange(item, range, attack) {
   if (item.data?.type === "ranged weapon" && attack !== "suppresive") {
     // We'll denote 99 as an impossible shot
@@ -1107,37 +1134,52 @@ function setStatsAndSkills(
       "emp",
     ].includes(statToCheck)
   ) {
-    const skillGroup1 = record?.data?.skillGroups1 || [];
-    const skillGroup2 = record?.data?.skillGroups2 || [];
-    [
-      { groups: skillGroup1, field: "skillGroups1" },
-      { groups: skillGroup2, field: "skillGroups2" },
-    ].forEach(({ groups, field }) => {
-      groups.forEach((group, groupIndex) => {
-        const skills = group.data?.skills || [];
-        skills.forEach((skill, skillIndex) => {
-          if (skill.data?.stat === statToCheck && !skill.data?.hasSubskills) {
-            // Set the Base to LVL + value
-            const lvl = skill.data?.lvl || 0;
-            const base = lvl + valuesToSet[`data.total${capitalize(stat)}`];
-            valuesToSet[
-              `data.${field}.${groupIndex}.data.skills.${skillIndex}.data.base`
-            ] = base;
-          }
-          const subSkills = skill.data?.subSkills || [];
-          subSkills.forEach((subSkill, subSkillIndex) => {
-            if (subSkill.data?.stat === statToCheck) {
+    // Characters use groups
+    if (record.recordType === "characters") {
+      const skillGroup1 = record?.data?.skillGroups1 || [];
+      const skillGroup2 = record?.data?.skillGroups2 || [];
+      [
+        { groups: skillGroup1, field: "skillGroups1" },
+        { groups: skillGroup2, field: "skillGroups2" },
+      ].forEach(({ groups, field }) => {
+        groups.forEach((group, groupIndex) => {
+          const skills = group.data?.skills || [];
+          skills.forEach((skill, skillIndex) => {
+            if (skill.data?.stat === statToCheck && !skill.data?.hasSubskills) {
               // Set the Base to LVL + value
-              const lvl = subSkill.data?.lvl || 0;
+              const lvl = skill.data?.lvl || 0;
               const base = lvl + valuesToSet[`data.total${capitalize(stat)}`];
               valuesToSet[
-                `data.${field}.${groupIndex}.data.skills.${skillIndex}.data.subSkills.${subSkillIndex}.data.base`
+                `data.${field}.${groupIndex}.data.skills.${skillIndex}.data.base`
               ] = base;
             }
+            const subSkills = skill.data?.subSkills || [];
+            subSkills.forEach((subSkill, subSkillIndex) => {
+              if (subSkill.data?.stat === statToCheck) {
+                // Set the Base to LVL + value
+                const lvl = subSkill.data?.lvl || 0;
+                const base = lvl + valuesToSet[`data.total${capitalize(stat)}`];
+                valuesToSet[
+                  `data.${field}.${groupIndex}.data.skills.${skillIndex}.data.subSkills.${subSkillIndex}.data.base`
+                ] = base;
+              }
+            });
           });
         });
       });
-    });
+    } else {
+      // NPCs get from `skills` list
+      const skills = record.data?.skills || [];
+      skills.forEach((skill, skillIndex) => {
+        const skillStat = skill.data?.stat || "int";
+        if (skillStat === statToCheck) {
+          // Set the Base to LVL + value
+          const lvl = skill.data?.lvl || 0;
+          const base = lvl + valuesToSet[`data.total${capitalize(stat)}`];
+          valuesToSet[`data.skills.${skillIndex}.data.base`] = base;
+        }
+      });
+    }
   }
 
   // Apply all the changes
@@ -2578,20 +2620,30 @@ function performSkillRoll(
   ];
 
   let skill = null;
-  skillGroups.forEach((group) => {
-    const skills = group.data?.skills || [];
+  if (record.recordType === "characters") {
+    skillGroups.forEach((group) => {
+      const skills = group.data?.skills || [];
+      skills.forEach((s) => {
+        if (s.name === skillName) {
+          skill = s;
+        } else if (s.data?.subSkills && s.data?.subSkills.length > 0) {
+          s.data?.subSkills.forEach((subSkill) => {
+            if (subSkill.name === skillName) {
+              skill = subSkill;
+            }
+          });
+        }
+      });
+    });
+  } else {
+    // NPCs get from `skills` list
+    const skills = record.data?.skills || [];
     skills.forEach((s) => {
       if (s.name === skillName) {
         skill = s;
-      } else if (s.data?.subSkills && s.data?.subSkills.length > 0) {
-        s.data?.subSkills.forEach((subSkill) => {
-          if (subSkill.name === skillName) {
-            skill = subSkill;
-          }
-        });
       }
     });
-  });
+  }
 
   let skillModifiers = [];
 
@@ -2858,37 +2910,51 @@ function performAttackRoll(
     ...(record?.data?.skillGroups2 || []),
   ];
   let attackSkillBase = 0;
-  skillGroups.forEach((group) => {
-    // We find the skill with the same name, or the Martial Arts skill with the highest base
-    let skill = (group?.data?.skills || []).find(
-      (s) =>
-        s.name === skillName ||
-        (skillName === "Martial Arts" && s.name.includes("Martial Arts"))
-    );
-    const subSkills = skill?.data?.subSkills || [];
-    // If it's a subskill, look there for highest skill
-    let highestSubSkill = 0;
-    let highestSubSkillName = "";
+  if (record.recordType === "characters") {
+    skillGroups.forEach((group) => {
+      // We find the skill with the same name, or the Martial Arts skill with the highest base
+      let skill = (group?.data?.skills || []).find(
+        (s) =>
+          s.name === skillName ||
+          (skillName === "Martial Arts" && s.name.includes("Martial Arts"))
+      );
+      const subSkills = skill?.data?.subSkills || [];
+      // If it's a subskill, look there for highest skill
+      let highestSubSkill = 0;
+      let highestSubSkillName = "";
 
-    // Find the subskill with highest base value
-    subSkills.forEach((subSkill) => {
-      const base = subSkill?.data?.base || 0;
-      if (base > highestSubSkill) {
-        highestSubSkill = base;
-        highestSubSkillName = subSkill?.name || "";
-        attackSkill = subSkill;
+      // Find the subskill with highest base value
+      subSkills.forEach((subSkill) => {
+        const base = subSkill?.data?.base || 0;
+        if (base > highestSubSkill) {
+          highestSubSkill = base;
+          highestSubSkillName = subSkill?.name || "";
+          attackSkill = subSkill;
+        }
+      });
+
+      if (highestSubSkill > 0) {
+        attackSkillBase = highestSubSkill;
+        skillName = highestSubSkillName;
+      } else if (skill && skill?.data?.base >= attackSkillBase) {
+        // We found the skill, so we can roll it
+        attackSkill = skill;
+        attackSkillBase = skill?.data?.base;
       }
     });
-
-    if (highestSubSkill > 0) {
-      attackSkillBase = highestSubSkill;
-      skillName = highestSubSkillName;
-    } else if (skill && skill?.data?.base >= attackSkillBase) {
-      // We found the skill, so we can roll it
-      attackSkill = skill;
-      attackSkillBase = skill?.data?.base;
+  } else {
+    // NPCs get from `skills` list
+    const skills = record.data?.skills || [];
+    skills.forEach((s) => {
+      if (s.name === skillName) {
+        attackSkill = s;
+      }
+    });
+    if (attackSkill) {
+      attackSkillBase = attackSkill?.data?.base || 0;
+      skillName = attackSkill?.name || "";
     }
-  });
+  }
 
   let attackModifiers = [
     {
