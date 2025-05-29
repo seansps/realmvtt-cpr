@@ -22,6 +22,9 @@ const isMortallyWounded = metadata?.isMortallyWounded || false;
 const recordLinks = metadata?.recordLinks || [];
 const dvTable = metadata?.dvTable;
 const fumbleRecovery = metadata?.fumbleRecovery || false;
+const animation = metadata?.animation;
+const tokenId = metadata?.tokenId;
+const targetId = metadata?.targetId;
 
 // If we used luck, we need to remove it from the token that rolled
 let usedLuck = false;
@@ -283,4 +286,8 @@ if (
   }
 
   api.sendMessage(message, roll, recordLinks, tags);
+
+  if (animation && tokenId) {
+    api.playAnimation(animation, tokenId, targetId);
+  }
 }

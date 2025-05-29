@@ -40,6 +40,7 @@
       [`${pathToFields}.drugProperties.hidden`]: true,
       [`${pathToFields}.consumableProperties.hidden`]:
         item?.data?.consumable || item?.data?.hasUseBtn ? false : true,
+      [`${pathToFields}.animationProps.hidden`]: true,
       // The below fields are only displayed on the attack list
       [`${pathToFields}.generalWeaponProperties.hidden`]: true,
       [`${pathToFields}.cyberwareWeaponProperties.hidden`]: true,
@@ -115,6 +116,7 @@
       valuesToSet[`${pathToFields}.attachmentsProperties.hidden`] = false;
       valuesToSet[`${pathToFields}.maxSlots.hidden`] = false;
       valuesToSet[`${pathToFields}.generalWeaponProperties.hidden`] = false;
+      valuesToSet[`${pathToFields}.animationProps.hidden`] = false;
       // Defaults for melee weapons
       valuesToSet[`${pathToData}.weaponSkill`] = "brawling";
       valuesToSet[`${pathToData}.rof`] = "1";
@@ -141,6 +143,7 @@
       valuesToSet[`${pathToFields}.reloadBtn.hidden`] = false;
       valuesToSet[`${pathToFields}.ammo.hidden`] = false;
       valuesToSet[`${pathToFields}.ammoCount.hidden`] = false;
+      valuesToSet[`${pathToFields}.animationProps.hidden`] = false;
       // Defaults for ranged weapons
       valuesToSet[`${pathToData}.weaponSkill`] = "archery";
       valuesToSet[`${pathToData}.rof`] = "1";

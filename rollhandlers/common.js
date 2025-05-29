@@ -1890,6 +1890,11 @@ function useAbility(record, abilityDataPath) {
     `${abilityDataPath}.data.isAttack`
   );
 
+  const animation = api.getValueOnRecord(
+    record,
+    `${abilityDataPath}.data.animation`
+  );
+
   // Get damage amount
   let damage = "";
   if (damageOverride) {
@@ -2131,6 +2136,10 @@ api.addEffectById('${effectID}', target);
       targetedLocation: isAttack ? targetedLocation : null,
       isAttack: isAttack,
       abilityName: abilityName,
+      animation: animation,
+      isMartialArts:
+        api.getValueOnRecord(record, `${abilityDataPath}.data.damageType`) ===
+        "Use Default Martial Arts Damage",
     });
   } else {
     // Otherwise we just output the description
@@ -2154,6 +2163,15 @@ api.addEffectById('${effectID}', target);
     }
 
     api.sendMessage(`${abilityHeader}\n${markdownDescription}`, undefined, []);
+
+    // Play animation if defined TODO
+    if (animation) {
+      const tokenId = api.getToken()?._id;
+      const targetId = api.getTargets()?.[0]?.token?._id;
+      if (tokenId) {
+        api.playAnimation(animation, tokenId, targetId);
+      }
+    }
   }
 }
 
@@ -2809,6 +2827,19 @@ function performSkillRoll(
     }
   });
 
+  // If this was an attack, we need to get the animation if null
+  if (additionalMetadata.isAttack && !additionalMetadata.animation) {
+    additionalMetadata.animation = getAnimationFor({
+      abilityName: skillName,
+      isAutofireOrSuppressiveFire: false,
+      isAttack: true,
+      isMartialArts: additionalMetadata.isMartialArts,
+      isBrawling: skillName === "Brawling",
+      isRanged: false,
+      isExplosive: false,
+    });
+  }
+
   const metadata = {
     rollName: skillName,
     modifiers: skillModifiers,
@@ -2816,6 +2847,8 @@ function performSkillRoll(
     isMortallyWounded: woundedPenalty && woundedPenalty.value === -4,
     ...additionalMetadata,
     fumbleRecovery: fumbleRecovery,
+    tokenId: api.getToken()?._id,
+    targetId: api.getTargets()?.[0]?.token?._id,
   };
 
   if (record.linked === undefined) {
@@ -2889,6 +2922,7 @@ function performAttackRoll(
     dvs.push({
       dv: getDvForRange(weapon, actualRange, type),
       targetName: "",
+      targetId: "",
     });
   }
   // Find the skill for the record by name. Use Autofire if type is autofire.
@@ -3049,7 +3083,7 @@ function performAttackRoll(
 
   if (range === "auto" && !isMelee && type !== "suppressive" && !isShell) {
     // Get targets, roll for each based on range to target (or just 1 if no targets)
-    const targets = api.getTargets(record);
+    const targets = api.getTargets();
     if (targets.length > 0) {
       targets.forEach((target) => {
         const distance = target?.distance || 0;
@@ -3065,6 +3099,7 @@ function performAttackRoll(
         dvs.push({
           dv: dv,
           targetName: targetName,
+          targetId: target?.token?._id,
         });
       });
     }
@@ -3073,6 +3108,7 @@ function performAttackRoll(
     dvs.push({
       dv: 13,
       targetName: "",
+      targetId: api.getTargets()?.[0]?.token?._id,
     });
   }
 
@@ -3115,6 +3151,32 @@ function performAttackRoll(
     }
   });
 
+  let animation = null;
+  if (weapon?.data?.animation) {
+    animation = weapon.data.animation;
+  } else {
+    let isExplosive = false;
+    // Is explosive if this an item that is explosive or if ammo is explosive
+    if (weapon.data.type === "ammo" && weapon.data?.isExplosive) {
+      isExplosive = true;
+    }
+    if (ammoItem && ammoItem.data?.isExplosive) {
+      isExplosive = true;
+    }
+
+    animation = getAnimationFor({
+      abilityName: weapon?.name,
+      isAutofireOrSuppressiveFire:
+        type === "autofire" || type === "suppressive",
+      isAttack: true,
+      isMartialArts:
+        skillName === "Martial Arts" || skillName === "Martial Arts (x2)",
+      isBrawling: skillName === "Brawling",
+      isRanged: weapon?.data?.type === "ranged weapon",
+      isExplosive: isExplosive,
+    });
+  }
+
   const attackMetadata = {
     rollName: "Attack",
     tooltip: weapon ? `Attack with ${weapon?.name}` : "Attack with Object",
@@ -3133,9 +3195,12 @@ function performAttackRoll(
     dv: 0,
     icon,
     targetName: "",
+    tokenId: api.getToken()?._id,
+    targetId: api.getTargets()?.[0]?.token?._id,
     isSeriouslyWounded: false,
     isMortallyWounded: false,
     fumbleRecovery: fumbleRecovery,
+    animation: animation,
   };
 
   // Always true for Melee since it doesn't use ammo
@@ -3222,6 +3287,7 @@ function performAttackRoll(
           ...attackMetadata,
           dv: dv.dv,
           targetName: dv.targetName,
+          targetId: dv.targetId,
         },
         "attack"
       );
@@ -4090,4 +4156,100 @@ function isHardware(value) {
     value.data?.type === "program or hardware" &&
     value.data?.programHardwareType === "hardware"
   );
+}
+
+// Automatically determine an animation based on the attack or ability
+function getAnimationFor({
+  abilityName,
+  isAutofireOrSuppressiveFire = false,
+  isAttack = false,
+  isMartialArts = false,
+  isBrawling = false,
+  isRanged = false,
+  isExplosive = false,
+}) {
+  if (!abilityName) return null;
+
+  const animation = {
+    moveToDestination: isRanged,
+    stretchToDestination: false,
+    destinationOnly: false,
+    startAtCenter: false,
+    count: 1,
+  };
+
+  // Based on the damage, set the animation name and props
+  if (isAutofireOrSuppressiveFire) {
+    animation.animationName = "bullet_2";
+    animation.sound = "gun_1";
+    animation.count = 3;
+    return animation;
+  }
+
+  if (!isAttack && !isMartialArts && !isBrawling) {
+    // We really don't know, so return null
+    return null;
+  }
+
+  if (isMartialArts || isBrawling) {
+    animation.animationName = "bludgeon_1";
+    animation.sound = "bludgeon_1";
+    return animation;
+  }
+
+  // If it's melee at this point return a slash...
+  if (!isRanged) {
+    animation.animationName = "slash_1";
+    animation.sound = "slash_1";
+    // Unless the item is named something that indicates a different animation
+    if (abilityName.toLowerCase().includes("sword")) {
+      animation.animationName = "slash_1";
+      animation.sound = "slash_1";
+    } else if (
+      abilityName.toLowerCase().includes("axe") ||
+      abilityName.toLowerCase().includes("sword") ||
+      abilityName.toLowerCase().includes("katana")
+    ) {
+      animation.animationName = "slash_1";
+      animation.sound = "slash_2";
+    } else if (abilityName.toLowerCase().includes("whip")) {
+      animation.animationName = "slash_1";
+      animation.sound = "whip_1";
+    } else if (
+      abilityName.toLowerCase().includes("club") ||
+      abilityName.toLowerCase().includes("mace") ||
+      abilityName.toLowerCase().includes("hammer") ||
+      abilityName.toLowerCase().includes("bat") ||
+      abilityName.toLowerCase().includes("flail") ||
+      abilityName.toLowerCase().includes("pipe") ||
+      abilityName.toLowerCase().includes("staff") ||
+      abilityName.toLowerCase().includes("pole") ||
+      abilityName.toLowerCase().includes("wood") ||
+      abilityName.toLowerCase().includes("lead")
+    ) {
+      animation.animationName = "bludgeon_1";
+      animation.sound = "bludgeon_1";
+    }
+    return animation;
+  }
+  // If it's ranged, we need to determine the animation based on the weapon
+  else {
+    // Default gun animation
+    animation.animationName = "bullet_2";
+    animation.sound = "gun_1";
+  }
+
+  // If it's explosive, we need to determine the animation based on the weapon
+  if (isExplosive) {
+    animation.animationName = "bludgeon_1";
+    animation.sound = "explosive_1";
+    animation.destinationOnly = true;
+  }
+
+  if (!animation.animationName) {
+    // If not a spell or ability, we can't determine an animation
+    return null;
+  }
+
+  return animation;
 }

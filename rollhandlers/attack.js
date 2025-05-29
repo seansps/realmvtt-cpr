@@ -26,6 +26,9 @@ let smartBonus = metadata?.smartBonus || 10;
 let isSmartReroll = metadata?.isSmartReroll || false; // Don't show the smart ammo re-roll if this is true
 let showSmartAmmoReRoll = false;
 const fumbleRecovery = metadata?.fumbleRecovery || false;
+const animation = metadata?.animation;
+const tokenId = metadata?.tokenId;
+const targetId = metadata?.targetId;
 
 // Get the record ID and type
 const recordId = metadata?.recordId || metadata?.priorRoll?.metadata?.recordId;
@@ -326,4 +329,8 @@ api.getRecord('${rollRecordType}', '${recordId}', (updatedRecord) => {
     [],
     tags
   );
+
+  if (animation && tokenId) {
+    api.playAnimation(animation, tokenId, targetId);
+  }
 }
