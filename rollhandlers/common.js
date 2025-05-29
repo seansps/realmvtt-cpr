@@ -3168,6 +3168,7 @@ function performAttackRoll(
       abilityName: weapon?.name,
       isAutofireOrSuppressiveFire:
         type === "autofire" || type === "suppressive",
+      isArrow: weapon?.data?.arrows === true,
       isAttack: true,
       isMartialArts:
         skillName === "Martial Arts" || skillName === "Martial Arts (x2)",
@@ -4162,6 +4163,7 @@ function isHardware(value) {
 function getAnimationFor({
   abilityName,
   isAutofireOrSuppressiveFire = false,
+  isArrow = false,
   isAttack = false,
   isMartialArts = false,
   isBrawling = false,
@@ -4230,13 +4232,17 @@ function getAnimationFor({
       animation.animationName = "bludgeon_1";
       animation.sound = "bludgeon_1";
     }
-    return animation;
   }
   // If it's ranged, we need to determine the animation based on the weapon
   else {
     // Default gun animation
     animation.animationName = "bullet_2";
     animation.sound = "gun_1";
+    // Unless it's a bow...
+    if (isArrow) {
+      animation.animationName = "arrow_1";
+      animation.sound = "arrow_1";
+    }
   }
 
   // If it's explosive, we need to determine the animation based on the weapon
