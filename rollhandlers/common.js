@@ -3672,6 +3672,11 @@ function addRole(record, recordLink) {
   }
   valuesToSet["data.role"] = roleString;
 
+  // If this is an NPC, show the role panels
+  if (record.data?.type === "mook") {
+    valuesToSet["fields.rolePanels.hidden"] = false;
+  }
+
   // Set the new roles on the character
   api.setValuesOnRecord(record, valuesToSet);
 }
@@ -3772,6 +3777,11 @@ function updateRoles(record) {
     valuesToSet["fields.cyberdecks.hidden"] = false;
   } else {
     valuesToSet["fields.cyberdecks.hidden"] = true;
+  }
+
+  // If this is an NPC, hide the role panels if no roles are left
+  if (record.data?.type === "mook") {
+    valuesToSet["fields.rolePanels.hidden"] = roles.length === 0;
   }
 
   // Set the new roles on the character

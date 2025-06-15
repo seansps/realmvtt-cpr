@@ -1,5 +1,6 @@
 <script>
   // TODO ONDROP CONDITIONS and List on new tab
+  // TODO death saves for npcs
 
   function onTypeChange(npcType) {
     const fieldsToHide = [];
@@ -39,7 +40,9 @@
   }
 
   function onDrop(type, recordLink) {
-    if (type === "roles") {
+    const npcType = record.data?.type || "mook";
+    if (type === "roles" && npcType === "mook") {
+      // Only mooks have roles
       onDropRole(recordLink);
     } else if (type === "items") {
       onDropItem(recordLink);
@@ -1032,6 +1035,43 @@
         field="inventory"
         onchange="onItemDeleted();"
       ></list>
+    </box>
+
+    <!-- Role Panels -->
+    <box field="rolePanels" hidden="true">
+      <div style="margin-top: 8px">
+        <label
+          variant="bold"
+          label="Role Abilities"
+          size="md"
+          textalign="center"
+        ></label>
+
+        <list
+          listtype="role_panel_list"
+          variant="standard"
+          field="roles"
+          onchange="onRoleDelete();"
+        ></list>
+      </div>
+    </box>
+
+    <!-- Cyberdeck Panels -->
+    <box field="cyberdecks" hidden="true">
+      <div style="margin-top: 8px">
+        <label
+          variant="bold"
+          label="Equipped Cyberdeck"
+          size="md"
+          textalign="center"
+        ></label>
+
+        <list
+          listtype="cyberdeck_panel_list"
+          variant="standard"
+          field="inventory"
+        ></list>
+      </div>
     </box>
   </div>
 </div>

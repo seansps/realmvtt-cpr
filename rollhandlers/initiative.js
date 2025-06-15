@@ -12,12 +12,9 @@ const d10 = (roll?.dice || []).find(
 // Preserve modifiers and metadata
 const metadata = data?.roll?.metadata;
 const modifiers = metadata?.modifiers || [];
-const recordId = metadata?.recordId || metadata?.priorRoll?.metadata?.recordId;
+const recordId = metadata?.priorRoll?.metadata?.recordId || metadata?.recordId;
 let rollRecordType =
-  metadata?.recordType || metadata?.priorRoll?.metadata?.recordType;
-if (rollRecordType === "npcs") {
-  rollRecordType = "tokens";
-}
+  metadata?.priorRoll?.metadata?.recordType || metadata?.recordType;
 
 const fumbleRecovery = metadata?.fumbleRecovery || false;
 

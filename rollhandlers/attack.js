@@ -31,12 +31,9 @@ const tokenId = metadata?.tokenId;
 const targetId = metadata?.targetId;
 
 // Get the record ID and type
-const recordId = metadata?.recordId || metadata?.priorRoll?.metadata?.recordId;
+const recordId = metadata?.priorRoll?.metadata?.recordId || metadata?.recordId;
 let rollRecordType =
-  metadata?.recordType || metadata?.priorRoll?.metadata?.recordType;
-if (rollRecordType === "npcs") {
-  rollRecordType = "tokens";
-}
+  metadata?.priorRoll?.metadata?.recordType || metadata?.recordType;
 
 // If we used luck, we need to remove it from the token that rolled
 let usedLuck = false;
