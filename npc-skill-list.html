@@ -36,6 +36,10 @@
     const skill = api.getValue(pathToSkill);
     let stat = skill.data?.stat;
 
+    if (stat === "" || stat === undefined || stat === null) {
+      stat = "int";
+    }
+
     // Get the base value
     if (stat === "emp") {
       // Special case for emp, we use curEmp instead of max emp
