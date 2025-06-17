@@ -5,14 +5,20 @@ const roll = "1d10";
 // Get modifiers for initiative, which is REF
 const modifiers = [];
 
-// Add ref
-// TODO use a different value here for Drones/Vehicles/Programs, etc. when added as NPCs later
-const ref = parseInt(token?.data?.totalRef || "0", 10);
-modifiers.push({
-  name: "REF",
-  value: ref,
-  active: true,
-});
+// Add ref if Mook or Team Member
+if (
+  token.data.type === undefined ||
+  token.data.type === "" ||
+  token.data.type === "mook" ||
+  token.data.type === "team member"
+) {
+  const ref = parseInt(token?.data?.totalRef || "0", 10);
+  modifiers.push({
+    name: "REF",
+    value: ref,
+    active: true,
+  });
+}
 
 // Check effects for all initiative bonuses and penalties
 const initiativeModifiers = getEffectsAndModifiersForToken(token, [

@@ -8,7 +8,7 @@ const roll = {
 };
 
 // Requery the record incase rolling multiple death saves
-api.getRecord("characters", recordId, (record) => {
+api.getRecord(recordType, recordId, (record) => {
   // Compare roll to DC
   const tags = [
     {

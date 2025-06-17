@@ -1036,6 +1036,12 @@ function setStatsAndSkills(
       stat === "will"
         ? valuesToSet[`data.actualWill`]
         : moreValuesToSet?.["data.actualWill"] || record.data.actualWill;
+    if (bodyValue === undefined) {
+      bodyValue = 0;
+    }
+    if (willValue === undefined) {
+      willValue = 0;
+    }
 
     // Calculate hitpoints using the formula: 10 + (5 * (average of BODY and WILL, rounded up))
     const average = Math.ceil((bodyValue + willValue) / 2);
@@ -1338,6 +1344,8 @@ function getEffectsAndModifiersForToken(
 
   const criticalInjuries = target?.data?.criticalInjuries || [];
   const addictions = target?.data?.addictions || [];
+  // Used by NPCs
+  const conditions = target?.data?.conditions || [];
 
   const attachments = weapon ? weapon?.data?.attachments || [] : [];
   // Filter attachments to only include attachments that are active
@@ -1372,6 +1380,7 @@ function getEffectsAndModifiersForToken(
     ...features,
     ...criticalInjuries,
     ...addictions,
+    ...conditions,
     ...equippedItems,
     ...activeAttachments,
     ...activePrograms,
@@ -2164,7 +2173,6 @@ api.addEffectById('${effectID}', target);
 
     api.sendMessage(`${abilityHeader}\n${markdownDescription}`, undefined, []);
 
-    // Play animation if defined TODO
     if (animation) {
       const tokenId = api.getToken()?._id;
       const targetId = api.getTargets()?.[0]?.token?._id;
@@ -2712,6 +2720,25 @@ function performSkillRoll(
     }
   }
 
+  // If this is an attack from an ability and this is a backup or defense, we add the combat number
+  if (record.data.type === "backup" || record.data.type === "defense") {
+    // If the skill is "Evasion" and there is an evasion field set, use that instead
+    // since Active drones will have a field for the controller's evasion
+    if (skillName === "Evasion" && record.data.evasion) {
+      skillModifiers.push({
+        name: "Evasion",
+        value: record.data.evasion || 0,
+        active: true,
+      });
+    } else {
+      skillModifiers.push({
+        name: "Combat Number",
+        value: record.data.combatNumber || 0,
+        active: true,
+      });
+    }
+  }
+
   const additionalModifiers = getEffectsAndModifiersForToken(
     record,
     ["skillBonus", "skillPenalty"],
@@ -2990,14 +3017,17 @@ function performAttackRoll(
     }
   }
 
-  let attackModifiers = [
-    {
-      name: skillName,
-      value: attackSkillBase || 0,
-      active: true,
-      valueType: "number",
-    },
-  ];
+  let attackModifiers =
+    record.data.type !== "backup" && record.data.type !== "defense"
+      ? [
+          {
+            name: skillName,
+            value: attackSkillBase || 0,
+            active: true,
+            valueType: "number",
+          },
+        ]
+      : [];
 
   // Get penalties for aimed shots (does not work for autofire or suppressive fire)
   let targetedLocation = record?.data?.targetedLocation || "body";
@@ -3060,6 +3090,15 @@ function performAttackRoll(
         ...modifier,
         value: value,
       });
+    });
+  }
+
+  // If this is a NPC of type backup or defense, we use the combat number
+  if (record.data.type === "backup" || record.data.type === "defense") {
+    attackModifiers.push({
+      name: "Combat Number",
+      value: record.data.combatNumber || 0,
+      active: true,
     });
   }
 
@@ -3794,8 +3833,7 @@ function addCondition(record, recordLink, deductHp = 0) {
     ...recordLink.value,
   };
 
-  const recordType =
-    record.recordType === "characters" ? "characters" : "tokens";
+  const recordType = record.recordType;
   const conditionType = conditionObj.data?.type || "critical_injury";
   const recordId = record._id;
 
@@ -3875,17 +3913,18 @@ function addCondition(record, recordLink, deductHp = 0) {
   };
 
   // Add the background to the the backgrounds list if needed
+  const isNpc = recordType === "npcs";
   if (conditionType === "critical_injury") {
     api.addValuesToRecord(
       record,
-      "data.criticalInjuries",
+      isNpc ? "data.conditions" : "data.criticalInjuries",
       [conditionObj],
       addEffects
     );
   } else if (conditionType === "addiction") {
     api.addValuesToRecord(
       record,
-      "data.addictions",
+      isNpc ? "data.conditions" : "data.addictions",
       [conditionObj],
       addEffects
     );
