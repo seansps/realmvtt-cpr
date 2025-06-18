@@ -1,0 +1,83 @@
+<script>
+  function onDrop(type, recordLink) {
+    const value = recordLink?.value;
+    if (type === "npcs" && value?.data?.type === "demon") {
+      onDemonDrop(value);
+    }
+  }
+
+  function onShowHideAllFloors() {
+    const floors = record?.data?.floors || [];
+    // Get the first floor's hidden value, and set all floors to that value's opposite
+    if (!floors || floors.length === 0) {
+      return;
+    }
+
+    const firstFloor = floors[0];
+    const hiddenValue = firstFloor?.data?.hidden === "true";
+
+    const valuesToSet = {};
+    floors.forEach((floor, index) => {
+      valuesToSet[`data.floors.${index}.data.hidden`] = Boolean(
+        !hiddenValue
+      ).toString();
+    });
+
+    api.setValues(valuesToSet);
+  }
+
+  function onDemonDrop(record) {
+    // Add the item and set the attunement hidden field to visible if requires attunement
+    const itemToAdd = {
+      ...record,
+      _id: generateUuid(),
+      icon: "IconRobot",
+      data: {
+        ...record?.data,
+        // Track old ID for count tracking
+        fromId: record._id,
+      },
+      fields: {
+        ...record?.fields,
+      },
+    };
+
+    const demons = record?.data?.installedDemons || [];
+
+    api.addValue(`data.installedDemons`, itemToAdd);
+  }
+</script>
+
+<div style="margin-top: 8px">
+  <label
+    variant="bold"
+    label="Installed Demons"
+    size="md"
+    textalign="center"
+  ></label>
+
+  <list
+    listtype="installed_demon_list"
+    variant="outline-striped"
+    field="installedDemons"
+  ></list>
+</div>
+
+<div style="margin-top: 4px; margin-bottom: 4px">
+  <divider color="primary" label="Floors"></divider>
+</div>
+
+<list
+  listtype="net_architecture_floor_list"
+  variant="standard"
+  field="floors"
+></list>
+
+<div style="margin-top: 4px; display: flex; flex-direction: row; gap: 4px">
+  <button
+    variant="outline"
+    size="sm"
+    label="Show/Hide All Floors"
+    onclick="onShowHideAllFloors()"
+  ></button>
+</div>

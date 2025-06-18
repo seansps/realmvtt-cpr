@@ -250,7 +250,10 @@
       [`${programDataPath}fields.programLabel.hidden`]: true,
     };
 
-    if (value === "hardware" || value === "quickhack") {
+    if (
+      value.toLowerCase() === "hardware" ||
+      value.toLowerCase() === "quickhack"
+    ) {
       valuesToSet[`${programDataPath}fields.program.hidden`] = true;
       valuesToSet[`${programDataPath}fields.programLabel.hidden`] = true;
     } else {

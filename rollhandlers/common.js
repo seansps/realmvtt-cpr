@@ -1755,6 +1755,17 @@ function updateAttributes(valuesToSet, highestPenalty) {
 }
 
 function getWoundedPenalty(record) {
+  // Only PCs / mooks / team members / and backup can be wounded
+  if (
+    record.recordType === "npcs" &&
+    (record.data?.type === "program" ||
+      record.data?.type === "black ice" ||
+      record.data?.type === "defense" ||
+      record.data?.type === "vehicle")
+  ) {
+    return null;
+  }
+
   // Check if the token is seriously wounded (HP <= 50% of max HP)
   const isSeriouslyWounded =
     record.data?.curhp <= Math.ceil(record.data?.hitpoints / 2);
@@ -2218,10 +2229,12 @@ function useItem(record, itemDataPath) {
     api.getValueOnRecord(record, `${itemDataPath}.data.consumable`) || false;
 
   // Output the description to Chat
-  const description =
+  let description =
     api.getValueOnRecord(record, `${itemDataPath}.data.description`) || "";
-  const effects =
+  let effects =
     api.getValueOnRecord(record, `${itemDataPath}.data.effects`) || [];
+  let conditions =
+    api.getValueOnRecord(record, `${itemDataPath}.data.conditions`) || [];
   const itemType = api.getValueOnRecord(record, `${itemDataPath}.data.type`);
 
   const checkSkill = api.getValueOnRecord(
@@ -2241,14 +2254,23 @@ function useItem(record, itemDataPath) {
   let interfaceRollName = "Interface";
   let linkedNpc = null;
   let programATK = 0;
+  let isProgramAtk = false;
 
   // If this is a program or ICE, we need to get both damage from the program/ice
   if (
     itemType === "program or hardware" ||
     itemType === "program" ||
-    itemType === "black ice"
+    itemType === "black ice" ||
+    record.recordType === "npcs" // For the use button ON the NPC
   ) {
-    damage = api.getValueOnRecord(record, `${itemDataPath}.data.damage`);
+    if (
+      api
+        .getValueOnRecord(record, `${itemDataPath}.data.programHardwareType`)
+        ?.toLowerCase() !== "quickhack"
+    ) {
+      // Quickhacks don't link to programs
+      damage = api.getValueOnRecord(record, `${itemDataPath}.data.damage`);
+    }
     damageIce = api.getValueOnRecord(record, `${itemDataPath}.data.iceDamage`);
     programATK = api.getValueOnRecord(record, `${itemDataPath}.data.atk`) || 0;
     if (
@@ -2258,6 +2280,7 @@ function useItem(record, itemDataPath) {
     ) {
       showInterfaceRoll = true;
       interfaceRollName = "Program Attack";
+      isProgramAtk = true;
     } else if (
       api
         .getValueOnRecord(record, `${itemDataPath}.data.blackICEType`)
@@ -2265,39 +2288,63 @@ function useItem(record, itemDataPath) {
     ) {
       showInterfaceRoll = true;
       interfaceRollName = "Black ICE Attack";
+      isProgramAtk = false;
+    } else if (
+      api
+        .getValueOnRecord(record, `${itemDataPath}.data.programHardwareType`)
+        ?.toLowerCase() === "quickhack"
+    ) {
+      showInterfaceRoll = true;
+      interfaceRollName = "Interface";
+      isProgramAtk = false;
     }
-    if (!damage && !damageIce) {
-      // Check if there's a linked NPC
-      const linkedIce = api.getValueOnRecord(
-        record,
-        `${itemDataPath}.data.blackICE`
-      );
-      const linkedProgram = api.getValueOnRecord(
-        record,
-        `${itemDataPath}.data.program`
-      );
-      if (linkedIce && linkedIce.length > 0) {
-        linkedNpc = linkedIce[0];
-        damage = linkedNpc.data?.damage || null;
-        damageIce = linkedNpc.data?.iceDamage || null;
-        programATK = linkedNpc.data?.atk || 0;
-        if (linkedNpc.data?.programHardwareType?.includes("Anti-")) {
-          interfaceRollName = "Black ICE Attack";
-          showInterfaceRoll = true;
-        }
-      } else if (linkedProgram && linkedProgram.length > 0) {
-        linkedNpc = linkedProgram[0];
-        damage = linkedNpc.data?.damage || null;
-        damageIce = linkedNpc.data?.iceDamage || null;
-        programATK = linkedNpc.data?.atk || 0;
-        if (linkedNpc.data?.programHardwareType?.includes("Attacker")) {
-          interfaceRollName = "Program Attack";
-          showInterfaceRoll = true;
-        }
-      }
+
+    // Check if there's a linked NPC - if so, we'll use these props instead
+    const linkedIce = api.getValueOnRecord(
+      record,
+      `${itemDataPath}.data.blackICE`
+    );
+    const linkedProgram = api.getValueOnRecord(
+      record,
+      `${itemDataPath}.data.program`
+    );
+    if (linkedIce && linkedIce.length > 0) {
+      linkedNpc = linkedIce[0];
+    } else if (linkedProgram && linkedProgram.length > 0) {
+      linkedNpc = linkedProgram[0];
     } else {
-      // Otherwise the "linked" NPC is the item itself
       linkedNpc = api.getValueOnRecord(record, itemDataPath);
+    }
+    if (linkedNpc) {
+      // Could also just be the item, but we want all the fields below regardless
+      damage = linkedNpc.data?.damage ? linkedNpc.data?.damage : damage;
+      damageIce = linkedNpc.data?.iceDamage
+        ? linkedNpc.data?.iceDamage
+        : damageIce;
+      programATK = linkedNpc.data?.atk ? linkedNpc.data?.atk : programATK;
+      if (linkedNpc.data?.blackICEType?.includes("Anti-")) {
+        interfaceRollName = "Black ICE Attack";
+        showInterfaceRoll = true;
+        isProgramAtk = false;
+      } else if (linkedNpc.data?.programHardwareType?.includes("Attacker")) {
+        interfaceRollName = "Program Attack";
+        showInterfaceRoll = true;
+        isProgramAtk = true;
+      }
+
+      if (linkedNpc.data?.effects) {
+        effects = linkedNpc.data?.effects;
+      }
+      if (linkedNpc.data?.conditions) {
+        conditions = linkedNpc.data?.conditions;
+      }
+      if (linkedNpc.data?.notes) {
+        description = linkedNpc.data?.notes;
+      }
+    }
+    if (linkedNpc && linkedNpc.recordType === "items") {
+      // We don't want to use the item as the linked NPC, so we set it to null
+      linkedNpc = null;
     }
   }
 
@@ -2320,10 +2367,6 @@ ${itemDescription}
 `;
 
   // Add macros to conditions (such as drug addictions) if any
-  const conditions = api.getValueOnRecord(
-    record,
-    `${itemDataPath}.data.conditions`
-  );
   if (conditions) {
     // Create macros for all Conditions that this action can apply
     let conditionButtons = "";
@@ -2450,7 +2493,7 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
   }
 
   // Macros to roll damage
-  if (damage && !linkedNpc) {
+  if (damage && !linkedNpc && !showInterfaceRoll) {
     const damageButton = `\`\`\`Roll_Damage
 // Requery the record and get the weapon
 api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
@@ -2477,17 +2520,19 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
   let interface = netrunnerRole?.data?.rank || 0;
   
   // If it's a program attack we also add the program's ATK to the roll
-  let skillName = "Interface + ATK";
+  let skillName = '${isProgramAtk ? "Interface + ATK" : "Interface"}';
   let abilityName = "Interface";
   if ('${interfaceRollName}' === "Program Attack") {
     interface += ${programATK};
   }
-    else if ('${interfaceRollName}' === "Black ICE Attack") {
+  else if ('${interfaceRollName}' === "Black ICE Attack") {
     // Black ICE is just ATK + 1d10
     interface = ${programATK};
     skillName = "Attack";
     abilityName = "Black ICE";
   }
+  
+  checkDV = ${checkDV};
 
   performSkillRoll(updatedRecord, skillName, {
     isDodge: false,
@@ -2495,6 +2540,7 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
     defenderSkill: "Interface or DEF",
     abilityName: abilityName,
     skillLevel: interface,
+    dv: checkDV ? checkDV : undefined,
   });
 });
 \`\`\``;
@@ -2502,9 +2548,9 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
   }
 
   // Macros to roll damage
-  if (damage && linkedNpc) {
+  if (damage && (linkedNpc || showInterfaceRoll)) {
     const damageButton = `\`\`\`Roll_Damage
-performProgramDamageRoll('${itemName}', '${damage}')
+    performProgramDamageRoll('${itemName}', '${damage}')
   \`\`\``;
     markdownDescription += `\n${damageButton}`;
   }
@@ -4307,4 +4353,150 @@ function getAnimationFor({
   }
 
   return animation;
+}
+
+// Used by Vehicle NPC records
+function onUpgradeChange() {
+  // Go through all upgrades and update vehicle stats as appropriate
+  const upgrades = record.data?.upgrades || [];
+  const vehicleStatsToUpdate = {};
+
+  let seatsCount = record.data?.baseSeats || 0;
+  let sdp = record.data?.baseSdp || 0;
+  let coverHp = record.data?.baseCoverHp || 0;
+  let bodyArmorSp = record.data?.baseBodyArmorSp || 0;
+
+  upgrades.forEach((upgrade) => {
+    if (upgrade.data?.type === "vehicle upgrade") {
+      const count = upgrade.data?.count !== undefined ? upgrade.data?.count : 1;
+      if (upgrade.data?.extraSeats) {
+        seatsCount += upgrade.data?.extraSeats * count;
+      }
+      if (upgrade.data?.additionalSdp) {
+        sdp += upgrade.data?.additionalSdp * count;
+      }
+      if (upgrade.data?.coverHp) {
+        coverHp += upgrade.data?.coverHp * count;
+      }
+      if (upgrade.data?.armorSp) {
+        bodyArmorSp += upgrade.data?.armorSp * count;
+      }
+    }
+  });
+
+  vehicleStatsToUpdate["data.seats"] = seatsCount;
+  vehicleStatsToUpdate["data.hitpoints"] = sdp;
+  vehicleStatsToUpdate["data.curhp"] = sdp;
+  vehicleStatsToUpdate["data.coverHp"] = coverHp;
+  vehicleStatsToUpdate["data.bodyArmorSP"] = bodyArmorSp;
+
+  api.setValues(vehicleStatsToUpdate);
+}
+
+function getLobbyFloorEncounter() {
+  // Roll 1d6
+  const roll = Math.floor(Math.random() * 6) + 1;
+
+  // Define the lobby encounter table
+  const lobbyEncounterTable = {
+    1: "File DV6",
+    2: "Password DV6",
+    3: "Password DV8",
+    4: "Skunk",
+    5: "Wisp",
+    6: "Killer",
+  };
+
+  // Return the encounter for the given roll
+  return lobbyEncounterTable[roll] || "No encounter found";
+}
+
+function getRandomFloorEncounter(floorType = "Standard Floor") {
+  // Roll 3d6
+  const roll =
+    Math.floor(Math.random() * 6) +
+    1 +
+    Math.floor(Math.random() * 6) +
+    1 +
+    Math.floor(Math.random() * 6) +
+    1;
+
+  // Define the encounter table
+  const encounterTable = {
+    "Basic Floor": {
+      3: "Hellhound",
+      4: "Sabertooth",
+      5: "Raven x2",
+      6: "Hellhound",
+      7: "Wisp",
+      8: "Raven",
+      9: "Password DV6",
+      10: "File DV6",
+      11: "Control Node DV6",
+      12: "Password DV6",
+      13: "Skunk",
+      14: "Asp",
+      15: "Scorpion",
+      16: "Killer, Skunk",
+      17: "Wisp x3",
+      18: "Liche",
+    },
+    "Standard Floor": {
+      3: "Hellhound x2",
+      4: "Hellhound, Killer",
+      5: "Skunk x2",
+      6: "Sabertooth",
+      7: "Scorpion",
+      8: "Hellhound",
+      9: "Password DV8",
+      10: "File DV8",
+      11: "Control Node DV8",
+      12: "Password DV8",
+      13: "Asp",
+      14: "Killer",
+      15: "Liche",
+      16: "Asp",
+      17: "Raven x3",
+      18: "Liche, Raven",
+    },
+    "Uncommon Floor": {
+      3: "Kraken",
+      4: "Hellhound, Scorpion",
+      5: "Hellhound, Killer",
+      6: "Raven x2",
+      7: "Sabertooth",
+      8: "Hellhound",
+      9: "Password DV10",
+      10: "File DV10",
+      11: "Control Node DV10",
+      12: "Password DV10",
+      13: "Killer",
+      14: "Liche",
+      15: "Dragon",
+      16: "Asp, Raven",
+      17: "Dragon, Wisp",
+      18: "Giant",
+    },
+    "Advanced Floor": {
+      3: "Hellhound x3",
+      4: "Asp x2",
+      5: "Hellhound, Liche",
+      6: "Wisp x3",
+      7: "Hellhound, Sabertooth",
+      8: "Kraken",
+      9: "Password DV12",
+      10: "File DV12",
+      11: "Control Node DV12",
+      12: "Password DV12",
+      13: "Giant",
+      14: "Dragon",
+      15: "Killer, Scorpion",
+      16: "Kraken",
+      17: "Raven, Wisp, Hellhound",
+      18: "Dragon x2",
+    },
+  };
+
+  // Return the encounter for the given roll and floor type
+  return encounterTable[floorType][roll] || "No encounter found";
 }

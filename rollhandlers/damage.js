@@ -189,6 +189,8 @@ targets.forEach(target => {
     let damage = ${
       isAutofire ? `${roll.total} * ${afMultiplier}` : `${roll.total}`
     };
+
+    let isVehicle = target.data?.type === "vehicle";
     
     // For undo functionality, create a map of original values
     const oldValues = {};
@@ -304,6 +306,11 @@ targets.forEach(target => {
             armorAblated = true;
             const newArmorSp = Math.max(0, oldValues[armorField] - ${ablationAmount});
             valuesToSet[armorField] = newArmorSp;
+            if (isVehicle) {
+              // For vehicles, we ablate both head and body armor
+              valuesToSet["data.headArmorSP"] = newArmorSp;
+              valuesToSet["data.bodyArmorSP"] = newArmorSp;
+            }
           
             // Ablate all armor items equipped in the target location
             const inventoryArray = target.data?.inventory || [];

@@ -13,12 +13,27 @@
         fieldsToShow.push("npcLevel");
         fieldsToShow.push("seriouslyWoundedAndDeathSave");
       }
+      fieldsToShow.push("additionalInfoLabel");
       fieldsToShow.push("healthAndCover");
       fieldsToShow.push("baseStats");
       fieldsToShow.push("attacks");
       fieldsToShow.push("inventoryProps");
+      fieldsToHide.push("vehicleBaseProps");
+      fieldsToHide.push("programBaseProps");
+      fieldsToHide.push("programProps");
+      fieldsToHide.push("programUseProps");
+      fieldsToHide.push("vehicleProps");
+      fieldsToHide.push("manufacturer");
+      fieldsToHide.push("additionalVehicleProps");
+      fieldsToHide.push("damage");
+      fieldsToHide.push("iceDamage");
+      fieldsToHide.push("useProgramBtn");
+      if (npcType === "mook") {
+        fieldsToShow.push("reputation");
+      }
       if (npcType === "team member") {
         fieldsToShow.push("teamMemberLoyalty");
+        fieldsToShow.push("reputation");
       } else {
         fieldsToHide.push("teamMemberLoyalty");
       }
@@ -113,11 +128,84 @@
         fieldsToHide.push("defenseProps");
       }
     } else if (npcType === "vehicle") {
+      fieldsToShow.push("vehicleBaseProps");
+      fieldsToShow.push("vehicleProps");
+      fieldsToShow.push("manufacturer");
+      fieldsToShow.push("additionalVehicleProps");
+      fieldsToHide.push("reputation");
+      fieldsToHide.push("damage");
+      fieldsToHide.push("iceDamage");
+      fieldsToHide.push("useProgramBtn");
+      fieldsToHide.push("baseStats");
+      fieldsToHide.push("skillProps");
+      fieldsToHide.push("inventoryProps");
+      fieldsToHide.push("programBaseProps");
+      fieldsToHide.push("programProps");
+      fieldsToHide.push("programUseProps");
+      fieldsToHide.push("conditionsList");
+      fieldsToHide.push("teamMemberLoyalty");
+      fieldsToHide.push("combatNumber");
+      fieldsToHide.push("npcLevel");
+      fieldsToHide.push("healthAndCover");
+      fieldsToHide.push("seriouslyWoundedAndDeathSave");
+      fieldsToHide.push("attacks");
+      fieldsToHide.push("evasion");
+      fieldsToHide.push("defenseType");
+      fieldsToHide.push("defenseProps");
+      fieldsToHide.push("additionalInfoLabel");
     } else if (
       npcType === "program" ||
       npcType === "black ice" ||
       npcType === "demon"
     ) {
+      fieldsToShow.push("programBaseProps");
+      fieldsToShow.push("programProps");
+      fieldsToShow.push("programUseProps");
+      fieldsToShow.push("useProgramBtn");
+      if (npcType === "black ice") {
+        fieldsToShow.push("per");
+        fieldsToShow.push("spd");
+        fieldsToShow.push("atk");
+        fieldsToShow.push("def");
+        fieldsToShow.push("damage");
+        fieldsToShow.push("blackICEType");
+        fieldsToShow.push("slots");
+        fieldsToHide.push("programHardwareType");
+        fieldsToHide.push("interface");
+        fieldsToHide.push("combatNumber");
+        fieldsToHide.push("netActions");
+        fieldsToHide.push("iceDamage");
+      } else if (npcType === "demon") {
+        fieldsToShow.push("interface");
+        fieldsToShow.push("combatNumber");
+        fieldsToShow.push("netActions");
+        fieldsToShow.push("damage");
+        fieldsToHide.push("iceDamage");
+        fieldsToHide.push("blackICEType");
+        fieldsToHide.push("slots");
+        fieldsToHide.push("programHardwareType");
+        fieldsToHide.push("per");
+        fieldsToHide.push("spd");
+        fieldsToHide.push("atk");
+        fieldsToHide.push("def");
+      } else {
+        fieldsToShow.push("atk");
+        fieldsToShow.push("def");
+        fieldsToShow.push("programHardwareType");
+        fieldsToShow.push("slots");
+        fieldsToShow.push("damage");
+        fieldsToShow.push("iceDamage");
+        fieldsToHide.push("blackICEType");
+        fieldsToHide.push("interface");
+        fieldsToHide.push("combatNumber");
+        fieldsToHide.push("netActions");
+        fieldsToHide.push("per");
+        fieldsToHide.push("spd");
+      }
+      fieldsToHide.push("vehicleBaseProps");
+      fieldsToHide.push("vehicleProps");
+      fieldsToHide.push("manufacturer");
+      fieldsToHide.push("additionalVehicleProps");
       fieldsToHide.push("combatNumber");
       fieldsToHide.push("npcLevel");
       fieldsToHide.push("healthAndCover");
@@ -128,6 +216,11 @@
       fieldsToHide.push("inventoryProps");
       fieldsToHide.push("conditionsList");
       fieldsToHide.push("teamMemberLoyalty");
+      fieldsToHide.push("evasion");
+      fieldsToHide.push("defenseType");
+      fieldsToHide.push("defenseProps");
+      fieldsToHide.push("reputation");
+      fieldsToHide.push("additionalInfoLabel");
     }
 
     api.setHidden(fieldsToHide, true, () => {
@@ -691,6 +784,130 @@
       processEffectsSequentially(deletedEffects, 0);
     }
   }
+
+  function onUpdateArmorSp(value) {
+    // Armor SP changes go to head armor too for vehicles (they are the same)
+    const newSp = value;
+    api.setValues({
+      [`data.bodyArmorSP`]: newSp,
+      [`data.baseBodyArmorSp`]: newSp,
+      [`data.headArmorSP`]: newSp,
+    });
+  }
+
+  function canAddVehicleUpgrade() {
+    return value?.data?.type === "vehicle upgrade";
+  }
+
+  function onMaxSdpChange(value) {
+    const newSdp = value;
+    api.setValues({
+      [`data.baseSdp`]: newSdp,
+    });
+  }
+
+  function onCoverHpChange(value) {
+    const newCoverHp = value;
+    api.setValues({
+      [`data.baseCoverHp`]: newCoverHp,
+    });
+  }
+
+  function onSeatsChange(value) {
+    const newSeats = value;
+
+    api.setValues({
+      [`data.baseSeats`]: newSeats,
+    });
+  }
+
+  function performRammingAbility() {
+    const rammingDamage = record.data?.rammingDamage || "6d6";
+
+    const damageMacro = `\`\`\`Roll_Damage
+  // Get the record again and then get the weapon by ID
+  const modifiers = [];
+  const damageMetadata = {
+    rollName: "Damage",
+    tooltip: "Ramming Damage",
+    weaponName: "Ramming",
+    isMelee: true,
+    targetedLocation: "body",
+    nonLethal: false,
+    nonLethalGreaterThanOne: false,
+    noArmorAblation: false,
+    noCriticalInjuries: false,
+  };
+
+  api.promptRoll(
+    "Ramming Damage",
+    '${rammingDamage}',
+    modifiers,
+    damageMetadata,
+    "damage"
+  );
+\`\`\``;
+
+    const evasionMacro = `\`\`\`Roll_Evasion
+  const selectedTokens = api.getSelectedOrDroppedToken();
+  selectedTokens.forEach(token => {
+    // Pass along the total of this roll as the DV for the evasion roll
+    const evasionMetadata = {
+      isDodge: true,
+      dv: 13,
+    };
+
+    performSkillRoll(token, "Evasion", evasionMetadata);
+  });
+\`\`\``;
+
+    const whiplashMacro = `
+\`\`\`Apply_Whiplash
+let targets = api.getSelectedOrDroppedToken();
+
+// If record is not null, check if we're the GM or owner and use it
+if (record) {
+  if (isGM || record?.record?.ownerId === userId) {
+    targets = [record];
+  }
+}
+
+// If we're a player and we did not drop on a record, get our owned tokens
+if (!isGM && targets.length === 0) {
+    targets = api.getSelectedOwnedTokens().map(target => target.token);
+}
+
+// First query the injury record
+api.getRecordByTypeAndName('conditions', 'Whiplash', (injuryRecord) => {
+  if (injuryRecord) {
+    const injuryRecordLink = {
+      value: injuryRecord,
+      tooltip: injuryRecord?.name || "Whiplash",
+    };
+    targets.forEach(target => {
+      const targetRecord = target.recordType === "characters" ? target.record : target;
+      addCondition(targetRecord, injuryRecordLink, 5);
+    });
+  }
+});
+\`\`\``;
+
+    // Send a message with macros to roll the damage, roll Evasion (DV13), and apply Whiplash
+    const message = `Ramming Attack\n\n---\n\n${damageMacro}
+${evasionMacro}
+${whiplashMacro}
+`;
+
+    api.sendMessage(message, undefined, [], []);
+  }
+
+  function onUseProgram() {
+    let itemDataPath = dataPath.replace(".data.useProgramBtn", "");
+    if (itemDataPath.trim() === "data.useProgramBtn") {
+      itemDataPath = "";
+    }
+    useItem(record, itemDataPath);
+  }
 </script>
 
 <div style="display: flex; margin-top: 4px; flex-direction: row">
@@ -857,6 +1074,180 @@
           </box>
         </div>
       </box>
+      <box field="vehicleBaseProps" width="100%" hidden="true">
+        <div
+          style="display: flex; flex-direction: column; flex: 1; width: 100%"
+        >
+          <div
+            style="display: flex; flex-direction: row; gap: 4px; width: 100%"
+          >
+            <numberfield
+              size="xs"
+              width="100%"
+              field="curhp"
+              color="pink"
+              icon="IconHeart"
+              label="SDP"
+              defaultvalue="0"
+              placeholder="0"
+            ></numberfield>
+            <numberfield
+              size="xs"
+              width="100%"
+              field="hitpoints"
+              color="green"
+              icon="IconHeartFilled"
+              onchange="onMaxSdpChange(value)"
+              label="Max SDP"
+              defaultvalue="0"
+              placeholder="0"
+            ></numberfield>
+            <numberfield
+              size="xs"
+              width="100%"
+              field="bodyArmorSP"
+              color="blue"
+              label="Armor SP"
+              icon="IconShieldFilled"
+              onchange="onUpdateArmorSp(value)"
+              defaultvalue="0"
+              placeholder="0"
+            ></numberfield>
+            <numberfield
+              size="xs"
+              width="100%"
+              field="coverHp"
+              color="blue"
+              label="Cover HP"
+              icon="IconShield"
+              onchange="onCoverHpChange(value)"
+              defaultvalue="0"
+              placeholder="0"
+            ></numberfield>
+          </div>
+          <div
+            style="
+              display: flex;
+              flex-direction: row;
+              gap: 4px;
+              width: 100%;
+              align-items: flex-end;
+            "
+          >
+            <numberfield
+              size="xs"
+              field="totalMove"
+              label="Combat Speed (MOVE)"
+              defaultvalue="0"
+              width="100%"
+              placeholder="0"
+            ></numberfield>
+            <numberfield
+              size="xs"
+              field="seats"
+              width="100%"
+              label="Seats"
+              defaultvalue="0"
+              placeholder="0"
+              onchange="onSeatsChange(value)"
+            ></numberfield>
+          </div>
+        </div>
+      </box>
+      <box field="programBaseProps" width="100%" hidden="true">
+        <div
+          style="display: flex; flex-direction: column; flex: 1; width: 100%"
+        >
+          <div
+            style="display: flex; flex-direction: row; gap: 4px; width: 100%"
+          >
+            <numberfield
+              size="xs"
+              width="100%"
+              field="per"
+              label="PER"
+              defaultvalue="0"
+              placeholder="0"
+            ></numberfield>
+            <numberfield
+              size="xs"
+              width="100%"
+              field="spd"
+              label="SPD"
+              defaultvalue="0"
+              placeholder="0"
+            ></numberfield>
+            <numberfield
+              size="xs"
+              width="100%"
+              field="atk"
+              label="ATK"
+              defaultvalue="0"
+              placeholder="0"
+            ></numberfield>
+            <numberfield
+              size="xs"
+              width="100%"
+              field="def"
+              label="DEF"
+              defaultvalue="0"
+              placeholder="0"
+            ></numberfield>
+            <numberfield
+              size="xs"
+              width="100%"
+              field="interface"
+              label="Interface"
+              defaultvalue="0"
+              placeholder="0"
+            ></numberfield>
+            <numberfield
+              size="xs"
+              width="100%"
+              field="netActions"
+              label="Net Actions"
+              defaultvalue="0"
+              placeholder="0"
+            ></numberfield>
+            <numberfield
+              size="xs"
+              width="100%"
+              field="combatNumber"
+              label="Combat Number"
+              defaultvalue="0"
+              placeholder="0"
+            ></numberfield>
+          </div>
+          <div
+            style="display: flex; flex-direction: row; gap: 4px; width: 100%"
+          >
+            <dropdown
+              width="100%"
+              field="programHardwareType"
+              label="Class"
+              size="xs"
+              placeholder="Select Class..."
+              options='[{"label": "Anti-Personnel Attacker", "value": "Anti-Personnel Attacker"}, {"label": "Anti-Program Attacker", "value": "Anti-Program Attacker"}, {"label": "Booster", "value": "Booster"}, {"label": "Defender", "value": "Defender"}]'
+            ></dropdown>
+            <dropdown
+              width="100%"
+              field="blackICEType"
+              label="Class"
+              size="xs"
+              placeholder="Select Class..."
+              options='[{"label": "Anti-Personnel Black ICE", "value": "Anti-Personnel Black ICE"}, {"label": "Anti-Program Black ICE", "value": "Anti-Program Black ICE"}]'
+            ></dropdown>
+            <numberfield
+              width="100%"
+              field="slots"
+              size="xs"
+              label="Slots Required"
+              placeholder="Enter Slots..."
+              minvalue="0"
+            ></numberfield>
+          </div>
+        </div>
+      </box>
     </div>
 
     <!-- Bottom section: Type, Size, and Health in two rows -->
@@ -913,9 +1304,62 @@
             ></numberfield>
           </div>
         </box>
+        <box field="vehicleProps" width="100%" hidden="true">
+          <div style="display: flex; flex-direction: row; gap: 4px">
+            <stringfield
+              size="xs"
+              width="100%"
+              field="narrativeSpeed"
+              label="Narrative Speed"
+              placeholder="Narrative Speed..."
+              multiline="true"
+            ></stringfield>
+            <stringfield
+              width="100%"
+              field="cost"
+              label="Cost"
+              placeholder="Enter cost..."
+              size="xs"
+            ></stringfield>
+          </div>
+        </box>
+        <box field="programProps" width="100%" hidden="true">
+          <div
+            style="display: flex; flex-direction: row; gap: 4px; width: 100%"
+          >
+            <numberfield
+              size="xs"
+              width="100%"
+              field="curhp"
+              color="pink"
+              icon="IconHeart"
+              label="REZ"
+              defaultvalue="0"
+              placeholder="0"
+            ></numberfield>
+            <numberfield
+              size="xs"
+              width="100%"
+              field="hitpoints"
+              color="green"
+              icon="IconHeartFilled"
+              onchange="onMaxSdpChange(value)"
+              label="Max REZ"
+              defaultvalue="0"
+              placeholder="0"
+            ></numberfield>
+          </div>
+        </box>
       </div>
       <!-- Second row: Size and rest of health fields -->
-      <div style="display: flex; flex-direction: row; gap: 4px">
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 4px;
+          align-items: flex-end;
+        "
+      >
         <stringfield
           size="xs"
           width="200px"
@@ -979,7 +1423,132 @@
             ></iconbutton>
           </div>
         </box>
+        <stringfield
+          size="xs"
+          width="100%"
+          field="manufacturer"
+          label="Manufacturer"
+          placeholder="Enter manufacturer..."
+          multiline="true"
+          hidden="true"
+        ></stringfield>
+        <stringfield
+          size="xs"
+          field="damage"
+          label="Damage"
+          hidden="true"
+          placeholder="Enter damage..."
+        ></stringfield>
+        <stringfield
+          size="xs"
+          field="iceDamage"
+          label="Black ICE Damage"
+          hidden="true"
+          placeholder="Enter Black ICE damage..."
+        ></stringfield>
+        <button
+          size="xs"
+          field="useProgramBtn"
+          label="Use Program"
+          color="primary"
+          hidden="true"
+          variant="light"
+          onclick="onUseProgram()"
+        ></button>
       </div>
+
+      <!-- Additional fields for vehicles -->
+      <box field="additionalVehicleProps" width="100%" hidden="true">
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <stringfield
+            size="xs"
+            width="100%"
+            field="powerPlant"
+            label="Power Plant"
+            placeholder="Enter power plant..."
+            multiline="true"
+          ></stringfield>
+          <stringfield
+            size="xs"
+            width="100%"
+            field="operationalRadius"
+            label="Operational Radius"
+            placeholder="Enter operational radius..."
+            multiline="true"
+          ></stringfield>
+          <div style="margin-top: 4px">
+            <label
+              variant="bold"
+              label="Abilities"
+              size="xs"
+              textalign="left"
+            ></label>
+            <div
+              style="
+                display: flex;
+                flex-direction: row;
+                gap: 4px;
+                align-items: flex-end;
+              "
+            >
+              <stringfield
+                size="xs"
+                field="rammingDamage"
+                label="Ramming Damage"
+                defaultvalue="6d6"
+                placeholder="Enter ramming damage..."
+              ></stringfield>
+              <button
+                size="xs"
+                label="Use"
+                variant="light"
+                color="primary"
+                onclick="performRammingAbility();"
+              ></button>
+            </div>
+          </div>
+          <div style="margin-top: 4px">
+            <label
+              variant="bold"
+              label="Upgrades"
+              size="xs"
+              textalign="left"
+            ></label>
+          </div>
+          <list
+            listtype="vehicle_item_list"
+            variant="outline-striped"
+            field="upgrades"
+            emptylisttext="Drag Upgrades Here"
+            allowadd="return canAddVehicleUpgrade();"
+            onchange="onUpgradeChange()"
+          ></list>
+        </div>
+      </box>
+
+      <!-- More fields for programs -->
+      <box field="programUseProps" width="100%" hidden="true">
+        <dropdown
+          width="100%"
+          field="conditions"
+          label="Conditions"
+          description="Conditions that can be applied when used"
+          placeholder="Select Conditions if Applicable..."
+          multiselect="10"
+          optionsquery='{"type": "conditions", "query": {}}'
+        >
+        </dropdown>
+        <dropdown
+          width="100%"
+          field="effects"
+          label="Effects"
+          description="Effects that can be applied when used"
+          placeholder="Select Effects if Applicable..."
+          multiselect="10"
+          optionsquery='{"type": "effects", "query": {}}'
+        >
+        </dropdown>
+      </box>
 
       <!-- More fields for defenses -->
       <box field="defenseProps" width="100%" hidden="true">
