@@ -11,6 +11,171 @@ function generateUuid() {
   });
 }
 
+// Updates skill points and errors for Edgerunner and Complete Package character creation modes
+function updateSkillPointsForEdgerunner() {
+  const creationMethod = api.getValue("data.wizard.creationMethod");
+  if (creationMethod !== "edgerunner" && creationMethod !== "complete") return;
+
+  const SKILL_POINTS = 86;
+  const skillGroups1 = api.getValue("data.wizard.skillGroups1") || [];
+  const skillGroups2 = api.getValue("data.wizard.skillGroups2") || [];
+
+  let usedPoints = 0;
+  let errors = [];
+
+  // Required default skills that must be at least level 2
+  const requiredDefaultSkills = [
+    "Athletics",
+    "Brawling",
+    "Concentration",
+    "Conversation",
+    "Education",
+    "Evasion",
+    "First Aid",
+    "Human Perception",
+    "Perception",
+    "Persuasion",
+    "Stealth",
+  ];
+
+  // Get cultural languages from lifepath
+  const lifepathLanguages = record.data?.wizard?.languages
+    ? [record.data.wizard.languages]
+    : [];
+
+  // Process all skill groups
+  [...skillGroups1, ...skillGroups2].forEach((group) => {
+    const skills = group.data?.skills || [];
+    skills.forEach((skill) => {
+      if (!skill.data?.hasSubskills) {
+        // Skip empty/blank skills
+        if (!skill.name || skill.name.trim() === "") {
+          return;
+        }
+
+        // Regular skill
+        const level = skill.data?.lvl || 0;
+        const isTimesTwo = skill.data?.isTimesTwo || false;
+        const pointCost = isTimesTwo ? 2 : 1;
+
+        // Check skill level requirements based on creation method
+        if (creationMethod === "edgerunner" && level < 2) {
+          errors.push(
+            `${skill.name} must be at least level 2 (Edgerunner mode)`
+          );
+        } else if (
+          creationMethod === "complete" &&
+          requiredDefaultSkills.includes(skill.name) &&
+          level > 0 &&
+          level < 2
+        ) {
+          errors.push(
+            `${skill.name} cannot be level 1 - must be 0 or at least 2`
+          );
+        }
+
+        // Calculate points used (all levels count towards 86 total)
+        usedPoints += level * pointCost;
+      } else {
+        // Skill with subskills
+        const subSkills = skill.data?.subSkills || [];
+        subSkills.forEach((subSkill) => {
+          // Skip empty/blank subskills
+          if (!subSkill.name || subSkill.name.trim() === "") {
+            return;
+          }
+
+          const level = subSkill.data?.lvl || 0;
+          const isTimesTwo = subSkill.data?.isTimesTwo || false;
+          const pointCost = isTimesTwo ? 2 : 1;
+
+          // Check if this is a cultural language (don't count first 4 levels)
+          let isCulturalLanguage = false;
+          if (skill.name === "Language") {
+            lifepathLanguages.forEach((lang) => {
+              if (subSkill.name && subSkill.name.includes(lang)) {
+                isCulturalLanguage = true;
+              }
+            });
+          }
+
+          // Check subskill level requirements based on creation method
+          if (creationMethod === "edgerunner" && level < 2) {
+            errors.push(
+              `${subSkill.name} must be at least level 2 (Edgerunner mode)`
+            );
+          } else if (creationMethod === "complete") {
+            if (
+              skill.name === "Language" &&
+              subSkill.name === "Streetslang" &&
+              level > 0 &&
+              level < 2
+            ) {
+              errors.push(
+                "Language (Streetslang) cannot be level 1 - must be 0 or at least 2"
+              );
+            }
+            if (
+              skill.name === "Local Expert" &&
+              subSkill.name === "Your Home" &&
+              level > 0 &&
+              level < 2
+            ) {
+              errors.push(
+                "Local Expert (Your Home) cannot be level 1 - must be 0 or at least 2"
+              );
+            }
+          }
+
+          // Calculate points used
+          if (isCulturalLanguage) {
+            // Don't count first 4 levels for cultural languages
+            if (level > 4) {
+              usedPoints += (level - 4) * pointCost;
+            }
+          } else {
+            // Count all levels for other subskills (all points count towards 86 total)
+            usedPoints += level * pointCost;
+          }
+        });
+      }
+    });
+  });
+
+  const remainingPoints = SKILL_POINTS - usedPoints;
+  const errorString = errors.length > 0 ? errors.join("; ") : "";
+  const hasNegativePoints = remainingPoints < 0;
+  const hasAllPointsAllocated = remainingPoints === 0 && errorString === "";
+
+  // Update the wizard data and UI visibility based on creation method
+  let valuesToSet = {
+    "data.wizard.skillPointsUsed": usedPoints,
+    "data.wizard.skillPointsRemaining": remainingPoints,
+    "data.wizard.skillErrors": errorString,
+  };
+
+  if (creationMethod === "edgerunner") {
+    valuesToSet["fields.edgerunnerInfo.hidden"] = false;
+    valuesToSet["fields.skillErrorsContainer.hidden"] = errorString === "";
+    valuesToSet["fields.edgerunnerNegativePointsContainer.hidden"] =
+      !hasNegativePoints;
+    valuesToSet["fields.edgerunnerAllPointsAllocatedContainer.hidden"] =
+      !hasAllPointsAllocated;
+    valuesToSet["fields.completePackageInfo.hidden"] = true;
+  } else if (creationMethod === "complete") {
+    valuesToSet["fields.completePackageInfo.hidden"] = false;
+    valuesToSet["fields.completeSkillErrorsContainer.hidden"] =
+      errorString === "";
+    valuesToSet["fields.completeNegativePointsContainer.hidden"] =
+      !hasNegativePoints;
+    valuesToSet["fields.completeAllPointsAllocatedContainer.hidden"] =
+      !hasAllPointsAllocated;
+    valuesToSet["fields.edgerunnerInfo.hidden"] = true;
+  }
+
+  api.setValues(valuesToSet);
+}
+
 const getNearestParentDataPath = (dataPath) => {
   const parts = dataPath.split(".data");
   return parts.length > 1 ? parts.slice(0, -1).join(".data") : "";
@@ -4397,18 +4562,20 @@ function getLobbyFloorEncounter() {
   // Roll 1d6
   const roll = Math.floor(Math.random() * 6) + 1;
 
-  // Define the lobby encounter table
+  // Define the lobby encounter table with separate encounter and DV values
   const lobbyEncounterTable = {
-    1: "File DV6",
-    2: "Password DV6",
-    3: "Password DV8",
-    4: "Skunk",
-    5: "Wisp",
-    6: "Killer",
+    1: { encounter: "File", dv: 6 },
+    2: { encounter: "Password", dv: 6 },
+    3: { encounter: "Password", dv: 8 },
+    4: { encounter: "Skunk", dv: null },
+    5: { encounter: "Wisp", dv: null },
+    6: { encounter: "Killer", dv: null },
   };
 
   // Return the encounter for the given roll
-  return lobbyEncounterTable[roll] || "No encounter found";
+  return (
+    lobbyEncounterTable[roll] || { encounter: "No encounter found", dv: null }
+  );
 }
 
 function getRandomFloorEncounter(floorType = "Standard Floor") {
@@ -4421,82 +4588,447 @@ function getRandomFloorEncounter(floorType = "Standard Floor") {
     Math.floor(Math.random() * 6) +
     1;
 
-  // Define the encounter table
+  // Define the encounter table with parsed encounter and DV values
   const encounterTable = {
     "Basic Floor": {
-      3: "Hellhound",
-      4: "Sabertooth",
-      5: "Raven x2",
-      6: "Hellhound",
-      7: "Wisp",
-      8: "Raven",
-      9: "Password DV6",
-      10: "File DV6",
-      11: "Control Node DV6",
-      12: "Password DV6",
-      13: "Skunk",
-      14: "Asp",
-      15: "Scorpion",
-      16: "Killer, Skunk",
-      17: "Wisp x3",
-      18: "Liche",
+      3: { encounter: "Hellhound", dv: null },
+      4: { encounter: "Sabertooth", dv: null },
+      5: { encounter: "Raven x2", dv: null },
+      6: { encounter: "Hellhound", dv: null },
+      7: { encounter: "Wisp", dv: null },
+      8: { encounter: "Raven", dv: null },
+      9: { encounter: "Password", dv: 6 },
+      10: { encounter: "File", dv: 6 },
+      11: { encounter: "Control Node", dv: 6 },
+      12: { encounter: "Password", dv: 6 },
+      13: { encounter: "Skunk", dv: null },
+      14: { encounter: "Asp", dv: null },
+      15: { encounter: "Scorpion", dv: null },
+      16: { encounter: "Killer, Skunk", dv: null },
+      17: { encounter: "Wisp x3", dv: null },
+      18: { encounter: "Liche", dv: null },
     },
     "Standard Floor": {
-      3: "Hellhound x2",
-      4: "Hellhound, Killer",
-      5: "Skunk x2",
-      6: "Sabertooth",
-      7: "Scorpion",
-      8: "Hellhound",
-      9: "Password DV8",
-      10: "File DV8",
-      11: "Control Node DV8",
-      12: "Password DV8",
-      13: "Asp",
-      14: "Killer",
-      15: "Liche",
-      16: "Asp",
-      17: "Raven x3",
-      18: "Liche, Raven",
+      3: { encounter: "Hellhound x2", dv: null },
+      4: { encounter: "Hellhound, Killer", dv: null },
+      5: { encounter: "Skunk x2", dv: null },
+      6: { encounter: "Sabertooth", dv: null },
+      7: { encounter: "Scorpion", dv: null },
+      8: { encounter: "Hellhound", dv: null },
+      9: { encounter: "Password", dv: 8 },
+      10: { encounter: "File", dv: 8 },
+      11: { encounter: "Control Node", dv: 8 },
+      12: { encounter: "Password", dv: 8 },
+      13: { encounter: "Asp", dv: null },
+      14: { encounter: "Killer", dv: null },
+      15: { encounter: "Liche", dv: null },
+      16: { encounter: "Asp", dv: null },
+      17: { encounter: "Raven x3", dv: null },
+      18: { encounter: "Liche, Raven", dv: null },
     },
     "Uncommon Floor": {
-      3: "Kraken",
-      4: "Hellhound, Scorpion",
-      5: "Hellhound, Killer",
-      6: "Raven x2",
-      7: "Sabertooth",
-      8: "Hellhound",
-      9: "Password DV10",
-      10: "File DV10",
-      11: "Control Node DV10",
-      12: "Password DV10",
-      13: "Killer",
-      14: "Liche",
-      15: "Dragon",
-      16: "Asp, Raven",
-      17: "Dragon, Wisp",
-      18: "Giant",
+      3: { encounter: "Kraken", dv: null },
+      4: { encounter: "Hellhound, Scorpion", dv: null },
+      5: { encounter: "Hellhound, Killer", dv: null },
+      6: { encounter: "Raven x2", dv: null },
+      7: { encounter: "Sabertooth", dv: null },
+      8: { encounter: "Hellhound", dv: null },
+      9: { encounter: "Password", dv: 10 },
+      10: { encounter: "File", dv: 10 },
+      11: { encounter: "Control Node", dv: 10 },
+      12: { encounter: "Password", dv: 10 },
+      13: { encounter: "Killer", dv: null },
+      14: { encounter: "Liche", dv: null },
+      15: { encounter: "Dragon", dv: null },
+      16: { encounter: "Asp, Raven", dv: null },
+      17: { encounter: "Dragon, Wisp", dv: null },
+      18: { encounter: "Giant", dv: null },
     },
     "Advanced Floor": {
-      3: "Hellhound x3",
-      4: "Asp x2",
-      5: "Hellhound, Liche",
-      6: "Wisp x3",
-      7: "Hellhound, Sabertooth",
-      8: "Kraken",
-      9: "Password DV12",
-      10: "File DV12",
-      11: "Control Node DV12",
-      12: "Password DV12",
-      13: "Giant",
-      14: "Dragon",
-      15: "Killer, Scorpion",
-      16: "Kraken",
-      17: "Raven, Wisp, Hellhound",
-      18: "Dragon x2",
+      3: { encounter: "Hellhound x3", dv: null },
+      4: { encounter: "Asp x2", dv: null },
+      5: { encounter: "Hellhound, Liche", dv: null },
+      6: { encounter: "Wisp x3", dv: null },
+      7: { encounter: "Hellhound, Sabertooth", dv: null },
+      8: { encounter: "Kraken", dv: null },
+      9: { encounter: "Password", dv: 12 },
+      10: { encounter: "File", dv: 12 },
+      11: { encounter: "Control Node", dv: 12 },
+      12: { encounter: "Password", dv: 12 },
+      13: { encounter: "Giant", dv: null },
+      14: { encounter: "Dragon", dv: null },
+      15: { encounter: "Killer, Scorpion", dv: null },
+      16: { encounter: "Kraken", dv: null },
+      17: { encounter: "Raven, Wisp, Hellhound", dv: null },
+      18: { encounter: "Dragon x2", dv: null },
     },
   };
 
   // Return the encounter for the given roll and floor type
-  return encounterTable[floorType][roll] || "No encounter found";
+  return (
+    encounterTable[floorType][roll] || {
+      encounter: "No encounter found",
+      dv: null,
+    }
+  );
+}
+
+function updateNetArchitectureBranchButtons(architecture, doUpdate = true) {
+  const valuesToSet = {};
+
+  // Process all floors and their branches recursively
+  function processFloors(floors, basePath) {
+    try {
+      // First hide all branch buttons
+      for (let i = 0; i < floors.length; i++) {
+        const path = `${basePath}${i}.fields.addBranchButton.hidden`;
+        valuesToSet[path] = true;
+      }
+
+      // Only show button on the last floor if it has no branches
+      if (floors.length > 0) {
+        const lastIndex = floors.length - 1;
+        const lastFloor = floors[lastIndex];
+        const branches = lastFloor?.data?.branches || [];
+        // Show button only if this is the last floor AND it has no branches
+        if (branches.length === 0) {
+          const path = `${basePath}${lastIndex}.fields.addBranchButton.hidden`;
+          valuesToSet[path] = false;
+        }
+      }
+
+      // Process branches recursively
+      for (let i = 0; i < floors.length; i++) {
+        const currentFloor = floors[i];
+        if (!currentFloor || !currentFloor.data) continue;
+
+        const branches = currentFloor.data.branches || [];
+
+        for (
+          let branchIndex = 0;
+          branchIndex < branches.length;
+          branchIndex++
+        ) {
+          const branch = branches[branchIndex];
+          if (!branch || !branch.data) continue;
+
+          // Process left branch
+          const leftBranch = branch.data.branch_left || [];
+          if (leftBranch.length > 0) {
+            const newPath = `${basePath}${i}.data.branches.${branchIndex}.data.branch_left.`;
+            processFloors(leftBranch, newPath);
+          }
+
+          // Process right branch
+          const rightBranch = branch.data.branch_right || [];
+          if (rightBranch.length > 0) {
+            const newPath = `${basePath}${i}.data.branches.${branchIndex}.data.branch_right.`;
+            processFloors(rightBranch, newPath);
+          }
+        }
+      }
+    } catch (error) {
+      // Do nothing
+    }
+  }
+
+  try {
+    // Start processing from the top-level floors
+    const floors = architecture?.data?.floors || [];
+    processFloors(floors, "data.floors.");
+
+    // Apply all changes at once
+    if (doUpdate) {
+      api.setValuesOnRecord(architecture, valuesToSet);
+    }
+  } catch (error) {
+    // Do nothing
+  }
+
+  return valuesToSet;
+}
+
+function rollOnTable(tableName, columnIndex = 0, callback) {
+  // Look up the table by name
+  api.getRecordByTypeAndName("tables", tableName, (table) => {
+    if (!table) {
+      api.showNotification(
+        `No table found for ${tableName}. You may need to import the module that contains this table.`,
+        "red",
+        "Table Not Found"
+      );
+      // Always call callback even when table is not found
+      if (callback) {
+        callback({
+          text: `[Table not found: ${tableName}]`,
+          recordLink: null,
+          roll: 0,
+          dieRoll: "N/A",
+          tableName: tableName,
+          error: true,
+        });
+      }
+      return;
+    }
+
+    // Parse the die roll string and generate a random result
+    const dieRoll = table.dieRoll || "1d6";
+    let total = 0;
+
+    try {
+      // Parse dice notation (e.g., "1d6", "2d6", "3d10+1")
+      const diceMatch = dieRoll.match(/(\d+)d(\d+)([+-]\d+)?/);
+      if (diceMatch) {
+        const numDice = parseInt(diceMatch[1], 10);
+        const dieSize = parseInt(diceMatch[2], 10);
+        const modifier = diceMatch[3] ? parseInt(diceMatch[3], 10) : 0;
+
+        // Roll the dice
+        for (let i = 0; i < numDice; i++) {
+          total += Math.floor(Math.random() * dieSize) + 1;
+        }
+        total += modifier;
+      } else {
+        // If we can't parse the die roll, default to 1d6
+        total = Math.floor(Math.random() * 6) + 1;
+      }
+    } catch (error) {
+      // If there's an error parsing, default to 1d6
+      total = Math.floor(Math.random() * 6) + 1;
+    }
+
+    // Get the result from the table using the existing function
+    const result = getResultFromTable(table, total);
+    if (!result || !result.columns || result.columns.length <= columnIndex) {
+      api.showNotification(
+        `Error finding result for ${tableName} with total ${total} and column ${columnIndex}.`,
+        "red",
+        "Invalid Table Result"
+      );
+      // Always call callback even when result is invalid
+      if (callback) {
+        callback({
+          text: `[Invalid result for ${tableName}]`,
+          recordLink: null,
+          roll: total,
+          dieRoll: dieRoll,
+          tableName: tableName,
+          error: true,
+        });
+      }
+      return;
+    }
+
+    // Get the text from the specified column
+    const columnResult = result.columns[columnIndex];
+    const resultText = columnResult?.text || "";
+    const recordLink = columnResult?.recordLink;
+
+    // Return the result via callback
+    if (callback) {
+      callback({
+        text: resultText,
+        recordLink: recordLink,
+        roll: total,
+        dieRoll: dieRoll,
+        tableName: tableName,
+        error: false,
+      });
+    }
+  });
+}
+
+function generateNetArchitecture(
+  architecture,
+  difficultyRating = "Standard Floor"
+) {
+  const valuesToSet = {};
+
+  // Step 1: Shape the Architecture
+  // Roll 3d6 for total number of floors
+  const totalFloors =
+    Math.floor(Math.random() * 6) +
+    1 +
+    Math.floor(Math.random() * 6) +
+    1 +
+    Math.floor(Math.random() * 6) +
+    1;
+
+  // Check if we have a branch - only one branch on the main level
+  let hasBranch = Math.floor(Math.random() * 10) + 1 >= 7;
+  let branchFloorIndex = null;
+  let leftBranchFloors = 0;
+  let rightBranchFloors = 0;
+
+  if (hasBranch) {
+    // Branch can't appear until after the second floor, and must leave at least 1 floor after
+    // So if we have 5 floors, branch can be on floor 3 or 4 (0-indexed: 2 or 3)
+    const minBranchFloor = 2; // After floor 2 (0-indexed)
+    const maxBranchFloor = totalFloors - 2; // Leave at least 1 floor after branch
+
+    if (maxBranchFloor >= minBranchFloor) {
+      branchFloorIndex =
+        Math.floor(Math.random() * (maxBranchFloor - minBranchFloor + 1)) +
+        minBranchFloor;
+
+      // Calculate how many floors are available for the branches
+      const floorsAfterBranch = totalFloors - branchFloorIndex - 1;
+
+      // Distribute floors between left and right branches
+      // Each branch needs at least 1 floor
+      if (floorsAfterBranch >= 2) {
+        leftBranchFloors =
+          Math.floor(Math.random() * (floorsAfterBranch - 1)) + 1;
+        rightBranchFloors = floorsAfterBranch - leftBranchFloors;
+      } else {
+        // Not enough floors for a proper branch, disable branching
+        hasBranch = false;
+      }
+    } else {
+      // Not enough floors for a branch, disable branching
+      hasBranch = false;
+    }
+  }
+
+  // Helper function to generate branch floors recursively
+  function generateBranchFloors(floorCount, branchPrefix, currentDepth = 0) {
+    const branchFloors = [];
+
+    for (let i = 0; i < floorCount; i++) {
+      const encounterData = getRandomFloorEncounter(difficultyRating);
+
+      const floor = {
+        _id: generateUuid(),
+        name: "Floor",
+        unidentifiedName: "Floor",
+        recordType: "records",
+        identified: true,
+        data: {
+          hidden: "true",
+          floor: `${branchPrefix}${i + 1}`,
+          encounter: encounterData.encounter,
+          dv: encounterData.dv,
+        },
+        fields: {
+          addBranchButton: {
+            hidden: true,
+          },
+        },
+      };
+
+      // Randomly add sub-branches (with decreasing probability at deeper levels)
+      const branchProbability = Math.max(0.1, 0.7 - currentDepth * 0.2);
+      if (Math.random() < branchProbability && i >= 1 && i < floorCount - 1) {
+        const remainingFloors = floorCount - i - 1;
+        if (remainingFloors >= 2) {
+          floor.data.branches = [];
+          floor.fields.branchBox = { hidden: false };
+
+          const subLeftFloors =
+            Math.floor(Math.random() * (remainingFloors - 1)) + 1;
+          const subRightFloors = remainingFloors - subLeftFloors;
+
+          const branchObj = {
+            _id: generateUuid(),
+            data: {
+              branch_left: generateBranchFloors(
+                subLeftFloors,
+                `${branchPrefix}L`,
+                currentDepth + 1
+              ),
+              branch_right: generateBranchFloors(
+                subRightFloors,
+                `${branchPrefix}R`,
+                currentDepth + 1
+              ),
+            },
+          };
+
+          floor.data.branches.push(branchObj);
+
+          // If we added a branch, we don't need more floors after this one
+          branchFloors.push(floor);
+          break;
+        }
+      }
+
+      branchFloors.push(floor);
+    }
+
+    return branchFloors;
+  }
+
+  // Step 2: Fill in the Architecture
+  // Generate the main branch floors
+  const floors = [];
+
+  // Determine how many floors to generate in the main branch
+  const mainFloorCount = hasBranch ? branchFloorIndex + 1 : totalFloors;
+
+  for (let i = 0; i < mainFloorCount; i++) {
+    let encounterData;
+
+    // First two floors use Lobby table
+    if (i < 2) {
+      encounterData = getLobbyFloorEncounter();
+    } else {
+      // Remaining floors use the appropriate difficulty table
+      encounterData = getRandomFloorEncounter(difficultyRating);
+    }
+
+    // Create the floor
+    const floor = {
+      _id: generateUuid(),
+      name: "Floor",
+      unidentifiedName: "Floor",
+      recordType: "records",
+      identified: true,
+      data: {
+        hidden: "true",
+        floor: `${i + 1}`,
+        encounter: encounterData.encounter,
+        dv: encounterData.dv,
+      },
+      fields: {
+        addBranchButton: {
+          hidden: true,
+        },
+      },
+    };
+
+    // If this is the branch floor, add the branch
+    if (hasBranch && i === branchFloorIndex) {
+      floor.data.branches = [];
+      floor.fields.branchBox = { hidden: false };
+
+      const branchObj = {
+        _id: generateUuid(),
+        data: {
+          branch_left: generateBranchFloors(leftBranchFloors, "L"),
+          branch_right: generateBranchFloors(rightBranchFloors, "R"),
+        },
+      };
+
+      floor.data.branches.push(branchObj);
+    }
+
+    floors.push(floor);
+  }
+
+  // Set the floors directly on the architecture
+  valuesToSet["data.floors"] = floors;
+
+  let tempArch = {
+    ...architecture,
+    data: { ...architecture.data, floors },
+  };
+
+  const buttonUpdates = updateNetArchitectureBranchButtons(tempArch, false);
+
+  // First set the floors, then the button updates
+  api.setValuesOnRecord(architecture, valuesToSet, (updatedRecord) => {
+    api.setValuesOnRecord(updatedRecord, buttonUpdates);
+  });
+
+  return valuesToSet;
 }

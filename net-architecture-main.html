@@ -15,14 +15,40 @@
 
     const firstFloor = floors[0];
     const hiddenValue = firstFloor?.data?.hidden === "true";
+    const newHiddenValue = Boolean(!hiddenValue).toString();
 
     const valuesToSet = {};
-    floors.forEach((floor, index) => {
-      valuesToSet[`data.floors.${index}.data.hidden`] = Boolean(
-        !hiddenValue
-      ).toString();
-    });
 
+    // Recursive function to process floors and their branches at any depth
+    function processFloors(floors, basePath) {
+      floors.forEach((floor, index) => {
+        // Set hidden value for this floor
+        valuesToSet[`${basePath}${index}.data.hidden`] = newHiddenValue;
+
+        // Process branches if any
+        const branches = floor?.data?.branches || [];
+        branches.forEach((branch, branchIndex) => {
+          // Process left branch
+          const leftBranch = branch?.data?.branch_left || [];
+          processFloors(
+            leftBranch,
+            `${basePath}${index}.data.branches.${branchIndex}.data.branch_left.`
+          );
+
+          // Process right branch
+          const rightBranch = branch?.data?.branch_right || [];
+          processFloors(
+            rightBranch,
+            `${basePath}${index}.data.branches.${branchIndex}.data.branch_right.`
+          );
+        });
+      });
+    }
+
+    // Start processing from the top-level floors
+    processFloors(floors, "data.floors.");
+
+    // Apply all changes at once
     api.setValues(valuesToSet);
   }
 
@@ -45,6 +71,10 @@
     const demons = record?.data?.installedDemons || [];
 
     api.addValue(`data.installedDemons`, itemToAdd);
+  }
+
+  function onFloorsChanged() {
+    updateNetArchitectureBranchButtons(record);
   }
 </script>
 
@@ -71,6 +101,7 @@
   listtype="net_architecture_floor_list"
   variant="standard"
   field="floors"
+  onchange="onFloorsChanged()"
 ></list>
 
 <div style="margin-top: 4px; display: flex; flex-direction: row; gap: 4px">

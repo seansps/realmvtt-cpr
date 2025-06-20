@@ -1,0 +1,1117 @@
+<script>
+  function onStepEnd(stepIndex) {
+    // This is called when the user goes to the next step.
+    // All fields in the wizard are available in the record's 'data.wizard' context.
+  }
+
+  function rollOnTables() {
+    // Get the current record to access wizard data
+    api.getRecord("characters", record._id, (currentRecord) => {
+      const valuesToSet = {};
+
+      // List of all tables expected in the module and mapping to the fields
+      const tableByField = {
+        culturalOrigins: {
+          table: "Lifepath - Cultural Origins",
+          column: 0,
+        },
+        clothingStyle: {
+          table: "Lifepath - Clothing Style",
+          column: 0,
+        },
+        languages: {
+          table: "Lifepath - Cultural Origins",
+          column: 1,
+        },
+        valueMost: {
+          table: "Lifepath - Values",
+          column: 0,
+        },
+        valuePerson: {
+          table: "Lifepath - Most Valued Person",
+          column: 0,
+        },
+        familyBackground: {
+          table: "Lifepath - Family Background",
+          column: 0,
+        },
+        familyCrisis: {
+          table: "Lifepath - Family Crisis",
+          column: 0,
+        },
+        friend1: {
+          table: "Lifepath - Friends",
+          column: 0,
+        },
+        friend2: {
+          table: "Lifepath - Friends",
+          column: 0,
+        },
+        friend3: {
+          table: "Lifepath - Friends",
+          column: 0,
+        },
+        tragicAffair1: {
+          table: "Lifepath - Tragic Love Affairs",
+          column: 0,
+        },
+        tragicAffair2: {
+          table: "Lifepath - Tragic Love Affairs",
+          column: 0,
+        },
+        tragicAffair3: {
+          table: "Lifepath - Tragic Love Affairs",
+          column: 0,
+        },
+        personality: {
+          table: "Lifepath - Personality",
+          column: 0,
+        },
+        hairStyle: {
+          table: "Lifepath - Hair Style",
+          column: 0,
+        },
+        feelingsPeople: {
+          table: "Lifepath - Feelings About People",
+          column: 0,
+        },
+        valuedPossessions: {
+          table: "Lifepath - Valued Possessions",
+          column: 0,
+        },
+        childhoodEnvironment: {
+          table: "Lifepath - Childhood Environment",
+          column: 0,
+        },
+        lifeGoals: {
+          table: "Lifepath - Life Goals",
+          column: 0,
+        },
+        enemy1: {
+          table: "Lifepath - Enemies",
+          column: 0,
+        },
+        enemyCause1: {
+          table: "Lifepath - Enemy Causes",
+          column: 0,
+        },
+        enemyThreat1: {
+          table: "Lifepath - Enemy Threats",
+          column: 0,
+        },
+        enemyOutcome1: {
+          table: "Lifepath - Enemy Outcomes",
+          column: 0,
+        },
+        enemy2: {
+          table: "Lifepath - Enemies",
+          column: 0,
+        },
+        enemyCause2: {
+          table: "Lifepath - Enemy Causes",
+          column: 0,
+        },
+        enemyThreat2: {
+          table: "Lifepath - Enemy Threats",
+          column: 0,
+        },
+        enemyOutcome2: {
+          table: "Lifepath - Enemy Outcomes",
+          column: 0,
+        },
+        enemy3: {
+          table: "Lifepath - Enemies",
+          column: 0,
+        },
+        enemyCause3: {
+          table: "Lifepath - Enemy Causes",
+          column: 0,
+        },
+        enemyThreat3: {
+          table: "Lifepath - Enemy Threats",
+          column: 0,
+        },
+        enemyOutcome3: {
+          table: "Lifepath - Enemy Outcomes",
+          column: 0,
+        },
+      };
+
+      const roleSpecificTables = {
+        rockerboy: [
+          {
+            table: "Lifepath - Rockerboy Type",
+            column: 0,
+            title: "What Kind of Rockerboy are You?",
+          },
+          {
+            type: "choice",
+            title: "Are You in a Group or a Solo Act?",
+            choices: ["Group", "Solo Act"],
+          },
+          {
+            type: "conditional",
+            title: "Where Do You Perform?",
+            dependsOn: 1,
+            conditions: {
+              Group: { table: "Lifepath - Rockerboy Venues", column: 0 },
+            },
+          },
+          {
+            type: "conditional",
+            title: "Why Did You Leave?",
+            dependsOn: 1,
+            conditions: {
+              "Solo Act": {
+                table: "Lifepath - Rockerboy Left Group",
+                column: 0,
+              },
+            },
+          },
+          {
+            type: "conditional",
+            title: "Where Do You Perform?",
+            dependsOn: 1,
+            conditions: {
+              "Solo Act": { table: "Lifepath - Rockerboy Venues", column: 0 },
+            },
+          },
+          {
+            type: "table",
+            table: "Lifepath - Rockerboy Enemies",
+            column: 0,
+            title: "Who's Gunning for You/Your Group?",
+          },
+        ],
+        solo: [
+          {
+            table: "Lifepath - Solo Type",
+            column: 0,
+            title: "What Kind of Solo are You?",
+          },
+          {
+            table: "Lifepath - Solo Moral Compass",
+            column: 0,
+            title: "What's Your Moral Compass Like?",
+          },
+          {
+            table: "Lifepath - Solo Territory",
+            column: 0,
+            title: "What's Your Operational Territory?",
+          },
+          {
+            table: "Lifepath - Solo Enemies",
+            column: 0,
+            title: "Who's Gunning for You?",
+          },
+        ],
+        netrunner: [
+          {
+            table: "Lifepath - Netrunner Type",
+            column: 0,
+            title: "What Kind of Runner are You?",
+          },
+          {
+            type: "choice",
+            title: "Got a Partner, or Do You Work Alone?",
+            choices: ["Got a Partner", "Work Alone"],
+          },
+          {
+            type: "conditional",
+            title: "If You Have a Partner, Who are They?",
+            dependsOn: 1,
+            conditions: {
+              "Got a Partner": {
+                table: "Lifepath - Netrunner Partner",
+                column: 0,
+              },
+            },
+          },
+          {
+            table: "Lifepath - Netrunner Workspace",
+            column: 0,
+            title: "What's Your Workspace Like?",
+          },
+          {
+            table: "Lifepath - Netrunner Clients",
+            column: 0,
+            title: "Who are Some of Your Other Clients?",
+          },
+          {
+            table: "Lifepath - Netrunner Programs",
+            column: 0,
+            title: "Where Do You Get Your Programs?",
+          },
+          {
+            table: "Lifepath - Netrunner Enemies",
+            column: 0,
+            title: "Who's Gunning for You?",
+          },
+        ],
+        tech: [
+          {
+            table: "Lifepath - Tech Type",
+            column: 0,
+            title: "What Kind of Tech are You?",
+          },
+          {
+            type: "choice",
+            title: "Got a Partner, or Do You Work Alone?",
+            choices: ["Got a Partner", "Work Alone"],
+          },
+          {
+            type: "conditional",
+            title: "If You Have a Partner, Who are They?",
+            dependsOn: 1,
+            conditions: {
+              "Got a Partner": { table: "Lifepath - Tech Partner", column: 0 },
+            },
+          },
+          {
+            table: "Lifepath - Tech Workspace",
+            column: 0,
+            title: "What's Your Workspace Like?",
+          },
+          {
+            table: "Lifepath - Tech Clients",
+            column: 0,
+            title: "Who are Your Main Clients?",
+          },
+          {
+            table: "Lifepath - Tech Supplies",
+            column: 0,
+            title: "Where Do You Get Your Supplies?",
+          },
+          {
+            table: "Lifepath - Tech Enemies",
+            column: 0,
+            title: "Who's Gunning For You?",
+          },
+        ],
+        medtech: [
+          {
+            table: "Lifepath - Medtech Type",
+            column: 0,
+            title: "What Kind of Medtech are You?",
+          },
+          {
+            type: "choice",
+            title: "Got a Partner, or Do You Work Alone?",
+            choices: ["Got a Partner", "Work Alone"],
+          },
+          {
+            type: "conditional",
+            title: "Tell Us About Your Partner(s)",
+            dependsOn: 1,
+            conditions: {
+              "Got a Partner": {
+                table: "Lifepath - Medtech Partner",
+                column: 0,
+              },
+            },
+          },
+          {
+            table: "Lifepath - Medtech Workspace",
+            column: 0,
+            title: "What's Your Workspace Like?",
+          },
+          {
+            table: "Lifepath - Medtech Clients",
+            column: 0,
+            title: "Who are Your Main Clients?",
+          },
+          {
+            table: "Lifepath - Medtech Supplies",
+            column: 0,
+            title: "Where Do You Get Your Supplies?",
+          },
+        ],
+        media: [
+          {
+            table: "Lifepath - Media Type",
+            column: 0,
+            title: "What Kind of Media are You?",
+          },
+          {
+            table: "Lifepath - Media Reach",
+            column: 0,
+            title: "How Does Your Work Reach the Public?",
+          },
+          {
+            table: "Lifepath - Media Ethics",
+            column: 0,
+            title: "How Ethical are You?",
+          },
+          {
+            table: "Lifepath - Media Stories",
+            column: 0,
+            title: "What Types of Stories Do You Want to Tell?",
+          },
+        ],
+        exec: [
+          {
+            table: "Lifepath - Exec Corp",
+            column: 0,
+            title: "What Kind of Corp Do You Work For?",
+          },
+          {
+            table: "Lifepath - Exec Division",
+            column: 0,
+            title: "What Division Do You Work In?",
+          },
+          {
+            table: "Lifepath - Exec Corp Quality",
+            column: 0,
+            title: "How Good/Bad is Your Corp?",
+          },
+          {
+            table: "Lifepath - Exec Corp Location",
+            column: 0,
+            title: "Where is Your Corp Based?",
+          },
+          {
+            table: "Lifepath - Exec Enemies",
+            column: 0,
+            title: "Who's Gunning for Your Group?",
+          },
+          {
+            table: "Lifepath - Exec Boss",
+            column: 0,
+            title: "Current State with Your Boss",
+          },
+        ],
+        lawman: [
+          {
+            table: "Lifepath - Lawman Position",
+            column: 0,
+            title: "What is Your Position on the Force?",
+          },
+          {
+            table: "Lifepath - Lawman Jurisdiction",
+            column: 0,
+            title: "How Wide is Your Group's Jurisdiction?",
+          },
+          {
+            table: "Lifepath - Lawman Corruption",
+            column: 0,
+            title: "How Corrupt is Your Group?",
+          },
+          {
+            table: "Lifepath - Lawman Enemies",
+            column: 0,
+            title: "Who's Gunning for Your Group?",
+          },
+          {
+            table: "Lifepath - Lawman Target",
+            column: 0,
+            title: "Who is Your Group's Major Target?",
+          },
+        ],
+        fixer: [
+          {
+            table: "Lifepath - Fixer Type",
+            column: 0,
+            title: "What Kind of Fixer are You?",
+          },
+          {
+            type: "choice",
+            title: "Got a Partner or Work Alone?",
+            choices: ["Got a Partner", "Work Alone"],
+          },
+          {
+            type: "conditional",
+            title: "Got a Partner? Who?",
+            dependsOn: 1,
+            conditions: {
+              "Got a Partner": { table: "Lifepath - Fixer Partner", column: 0 },
+            },
+          },
+          {
+            table: "Lifepath - Fixer Office",
+            column: 0,
+            title: 'What\'s Your "Office" Like?',
+          },
+          {
+            table: "Lifepath - Fixer Clients",
+            column: 0,
+            title: "Who are Your Side Clients?",
+          },
+          {
+            table: "Lifepath - Fixer Enemies",
+            column: 0,
+            title: "Who's Gunning for You?",
+          },
+        ],
+        nomad: [
+          {
+            table: "Lifepath - Nomad Pack Size",
+            column: 0,
+            title: "How Big is Your Pack?",
+          },
+          {
+            type: "choice",
+            title: "Is Your Pack Based on Land, Air, or Sea?",
+            choices: ["Land", "Air", "Sea"],
+          },
+          {
+            type: "conditional",
+            title: "What Do They Do?",
+            dependsOn: 1, // Index of the choice question above
+            conditions: {
+              Land: { table: "Lifepath - Land Nomads", column: 0 },
+              Air: { table: "Lifepath - Air Nomads", column: 0 },
+              Sea: { table: "Lifepath - Sea Nomads", column: 0 },
+            },
+          },
+          {
+            table: "Lifepath - Nomad Role",
+            column: 0,
+            title: "What Do You Do for Your Pack?",
+          },
+          {
+            table: "Lifepath - Nomad Philosophy",
+            column: 0,
+            title: "What's Your Pack's Overall Philosophy?",
+          },
+          {
+            table: "Lifepath - Nomad Enemies",
+            column: 0,
+            title: "Who's Gunning for Your Pack?",
+          },
+        ],
+      };
+
+      // Get all field names to process
+      const fieldNames = Object.keys(tableByField);
+      let completedFields = 0;
+      const totalFields = fieldNames.length + 1; // +1 for role-specific
+
+      // Function to check if all fields are complete and apply values
+      function checkComplete() {
+        completedFields++;
+        if (completedFields >= totalFields) {
+          // Set default housing and rent values based on role
+          if (selectedRole === "exec") {
+            valuesToSet["data.wizard.housing"] = "Corporate Conapt";
+            valuesToSet["data.wizard.rent"] = "Paid for by Corp";
+            valuesToSet["data.wizard.lifestyle"] = "Good Prepak";
+          } else {
+            valuesToSet["data.wizard.housing"] = "Cargo Container";
+            valuesToSet["data.wizard.rent"] = "1500 eb";
+            valuesToSet["data.wizard.lifestyle"] = "Kibble";
+          }
+
+          api.setValues(valuesToSet);
+        }
+      }
+
+      // Helper function to roll 1d10 - 7 (minimum 0)
+      function rollForCount() {
+        return Math.max(0, Math.floor(Math.random() * 10) + 1 - 7);
+      }
+
+      // Handle Friends, Enemies, and Tragic Love Affairs with proper count logic
+      function handleVariableCountFields() {
+        // Roll for number of friends
+        const friendCount = rollForCount();
+
+        // Roll for number of enemies
+        const enemyCount = rollForCount();
+
+        // Roll for number of tragic love affairs
+        const tragicAffairCount = rollForCount();
+
+        // Set friend fields based on count
+        for (let i = 1; i <= 3; i++) {
+          if (i <= friendCount) {
+            rollOnTable("Lifepath - Friends", 0, (result) => {
+              valuesToSet[`data.wizard.friend${i}`] = result.text;
+            });
+          } else {
+            valuesToSet[`data.wizard.friend${i}`] = "";
+          }
+        }
+
+        // Set enemy fields based on count
+        for (let i = 1; i <= 3; i++) {
+          if (i <= enemyCount) {
+            rollOnTable("Lifepath - Enemies", 0, (result) => {
+              valuesToSet[`data.wizard.enemy${i}`] = result.text;
+            });
+            rollOnTable("Lifepath - Enemy Causes", 0, (result) => {
+              valuesToSet[`data.wizard.enemyCause${i}`] = result.text;
+            });
+            rollOnTable("Lifepath - Enemy Threats", 0, (result) => {
+              valuesToSet[`data.wizard.enemyThreat${i}`] = result.text;
+            });
+            rollOnTable("Lifepath - Enemy Outcomes", 0, (result) => {
+              valuesToSet[`data.wizard.enemyOutcome${i}`] = result.text;
+            });
+          } else {
+            valuesToSet[`data.wizard.enemy${i}`] = "";
+            valuesToSet[`data.wizard.enemyCause${i}`] = "";
+            valuesToSet[`data.wizard.enemyThreat${i}`] = "";
+            valuesToSet[`data.wizard.enemyOutcome${i}`] = "";
+          }
+        }
+
+        // Set tragic affair fields based on count
+        for (let i = 1; i <= 3; i++) {
+          if (i <= tragicAffairCount) {
+            rollOnTable("Lifepath - Tragic Love Affairs", 0, (result) => {
+              valuesToSet[`data.wizard.tragicAffair${i}`] = result.text;
+            });
+          } else {
+            valuesToSet[`data.wizard.tragicAffair${i}`] = "";
+          }
+        }
+      }
+
+      // Process each regular field
+      const friendFields = ["friend1", "friend2", "friend3"];
+      const enemyFields = [
+        "enemy1",
+        "enemy2",
+        "enemy3",
+        "enemyCause1",
+        "enemyCause2",
+        "enemyCause3",
+        "enemyThreat1",
+        "enemyThreat2",
+        "enemyThreat3",
+        "enemyOutcome1",
+        "enemyOutcome2",
+        "enemyOutcome3",
+      ];
+      const tragicAffairFields = [
+        "tragicAffair1",
+        "tragicAffair2",
+        "tragicAffair3",
+      ];
+      const variableCountFields = [
+        ...friendFields,
+        ...enemyFields,
+        ...tragicAffairFields,
+      ];
+
+      fieldNames.forEach((fieldName) => {
+        const fieldConfig = tableByField[fieldName];
+
+        // Skip variable count fields - they'll be handled separately
+        if (variableCountFields.includes(fieldName)) {
+          return; // Skip this iteration
+        }
+
+        rollOnTable(fieldConfig.table, fieldConfig.column, (result) => {
+          valuesToSet[`data.wizard.${fieldName}`] = result.text;
+          checkComplete();
+        });
+      });
+
+      // Handle the variable count fields
+      handleVariableCountFields();
+
+      // Account for the variable count fields in completion tracking
+      const variableCountFieldsCompleted = variableCountFields.length;
+      completedFields += variableCountFieldsCompleted;
+
+      // Process role-specific lifepath
+      const selectedRole = currentRecord.data?.wizard?.role || "solo";
+      const roleTables = roleSpecificTables[selectedRole];
+
+      if (roleTables && roleTables.length > 0) {
+        let roleResults = [];
+        let choiceResults = []; // Store raw choice results for conditionals
+        let completedRoleTables = 0;
+
+        function processConditionals() {
+          // Process all conditional tables after basic processing is done
+          const conditionalTables = roleTables.filter(
+            (t) => t.type === "conditional"
+          );
+
+          // If there are no conditionals, we're done - call checkComplete
+          if (conditionalTables.length === 0) {
+            valuesToSet["data.wizard.roleSpecificLifepath"] = roleResults
+              .filter((r) => r && r.trim() !== "")
+              .join("\n\n");
+            checkComplete();
+            return;
+          }
+
+          roleTables.forEach((tableConfig, index) => {
+            if (tableConfig.type === "conditional") {
+              const dependencyIndex = tableConfig.dependsOn;
+              const dependencyChoice = choiceResults[dependencyIndex];
+              const condition = tableConfig.conditions[dependencyChoice];
+
+              if (condition && condition.table) {
+                // Roll on a table
+                rollOnTable(condition.table, condition.column, (result) => {
+                  const formattedResult = `${tableConfig.title}\n${result.text}`;
+                  roleResults[index] = formattedResult;
+                  completedRoleTables++;
+
+                  if (completedRoleTables >= roleTables.length) {
+                    valuesToSet["data.wizard.roleSpecificLifepath"] =
+                      roleResults
+                        .filter((r) => r && r.trim() !== "")
+                        .join("\n\n");
+                    checkComplete();
+                  }
+                });
+              } else if (condition && condition.type === "choice") {
+                // Make a random choice
+                const randomChoice =
+                  condition.choices[
+                    Math.floor(Math.random() * condition.choices.length)
+                  ];
+                const formattedResult = `${tableConfig.title}\n${randomChoice}`;
+                roleResults[index] = formattedResult;
+                completedRoleTables++;
+
+                if (completedRoleTables >= roleTables.length) {
+                  valuesToSet["data.wizard.roleSpecificLifepath"] = roleResults
+                    .filter((r) => r && r.trim() !== "")
+                    .join("\n\n");
+                  checkComplete();
+                }
+              } else if (condition) {
+                // Unknown condition type
+                roleResults[
+                  index
+                ] = `${tableConfig.title}\n[Invalid condition for ${dependencyChoice}]`;
+                completedRoleTables++;
+
+                if (completedRoleTables >= roleTables.length) {
+                  valuesToSet["data.wizard.roleSpecificLifepath"] = roleResults
+                    .filter((r) => r && r.trim() !== "")
+                    .join("\n\n");
+                  checkComplete();
+                }
+              } else {
+                // No condition matches this choice, skip this conditional
+                roleResults[index] = ""; // Empty result for unmatched conditions
+                completedRoleTables++;
+
+                if (completedRoleTables >= roleTables.length) {
+                  valuesToSet["data.wizard.roleSpecificLifepath"] = roleResults
+                    .filter((r) => r !== "")
+                    .join("\n\n"); // Filter out empty results
+                  checkComplete();
+                }
+              }
+            }
+          });
+        }
+
+        roleTables.forEach((tableConfig, index) => {
+          if (tableConfig.type === "choice") {
+            // Handle choice-based questions
+            const randomChoice =
+              tableConfig.choices[
+                Math.floor(Math.random() * tableConfig.choices.length)
+              ];
+            choiceResults[index] = randomChoice; // Store raw choice for conditionals
+            const formattedResult = `${tableConfig.title}\n${randomChoice}`;
+            roleResults[index] = formattedResult;
+            completedRoleTables++;
+
+            // Check if we need to process conditionals
+            const nonConditionalCount = roleTables.filter(
+              (t) => t.type !== "conditional"
+            ).length;
+            if (completedRoleTables >= nonConditionalCount) {
+              processConditionals();
+            } else if (completedRoleTables >= roleTables.length) {
+              valuesToSet["data.wizard.roleSpecificLifepath"] = roleResults
+                .filter((r) => r && r.trim() !== "")
+                .join("\n\n");
+              checkComplete();
+            }
+          } else if (tableConfig.type === "conditional") {
+            // Skip conditionals in first pass - will be processed later
+            return;
+          } else {
+            // Handle table-based questions
+            rollOnTable(tableConfig.table, tableConfig.column, (result) => {
+              const formattedResult = `${tableConfig.title}\n${result.text}`;
+              roleResults[index] = formattedResult;
+              completedRoleTables++;
+
+              // Check if we need to process conditionals
+              const nonConditionalCount = roleTables.filter(
+                (t) => t.type !== "conditional"
+              ).length;
+              if (completedRoleTables >= nonConditionalCount) {
+                processConditionals();
+              } else if (completedRoleTables >= roleTables.length) {
+                valuesToSet["data.wizard.roleSpecificLifepath"] = roleResults
+                  .filter((r) => r && r.trim() !== "")
+                  .join("\n\n");
+                checkComplete();
+              }
+            });
+          }
+        });
+      } else {
+        valuesToSet["data.wizard.roleSpecificLifepath"] = "";
+        checkComplete();
+      }
+    }); // Close the api.getRecord callback
+  }
+</script>
+
+<div>
+  <label
+    label="Complete your character's lifepath to establish their background and history."
+    size="md"
+  ></label>
+
+  <div style="margin-top: 8px">
+    <button
+      label="Generate Lifepath"
+      size="sm"
+      variant="light"
+      onclick="rollOnTables()"
+    ></button>
+  </div>
+
+  <!-- Lifepath -->
+  <div style="margin-top: 8px">
+    <label variant="bold" textalign="left" size="sm" label="Lifepath"></label>
+  </div>
+
+  <div
+    style="
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      width: 100%;
+      margin-top: 4px;
+    "
+  >
+    <!-- Column 1 -->
+    <div style="display: flex; flex-direction: column; gap: 4px; width: 100%">
+      <stringfield
+        field="culturalOrigins"
+        label="Cultural Origins"
+        placeholder="Enter cultural origins..."
+        multiline="true"
+        size="xs"
+      ></stringfield>
+
+      <stringfield
+        field="clothingStyle"
+        label="Clothing Style"
+        placeholder="Enter clothing style..."
+        multiline="true"
+        size="xs"
+      ></stringfield>
+
+      <stringfield
+        field="valueMost"
+        label="Values"
+        placeholder="What do you value most?"
+        multiline="true"
+        size="xs"
+      ></stringfield>
+
+      <stringfield
+        field="valuePerson"
+        label="Most Valued Person"
+        placeholder="Enter person..."
+        multiline="true"
+        size="xs"
+      ></stringfield>
+
+      <stringfield
+        field="familyBackground"
+        label="Family Background"
+        placeholder="Enter family background..."
+        multiline="true"
+        size="xs"
+      ></stringfield>
+
+      <stringfield
+        field="familyCrisis"
+        label="Family Crisis"
+        placeholder="Enter family crisis..."
+        multiline="true"
+        size="xs"
+      ></stringfield>
+
+      <stringfield
+        field="languages"
+        label="Languages You Might Know"
+        placeholder="Enter languages..."
+        multiline="true"
+        size="xs"
+      ></stringfield>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; width: 100%">
+        <div
+          style="display: flex; flex-direction: column; gap: 4px; width: 100%"
+        >
+          <!-- Friends Left Column -->
+          <div style="margin-top: 4px">
+            <label variant="bold" size="xs" label="Friends"></label>
+          </div>
+
+          <stringfield
+            field="friend1"
+            placeholder="Enter friend's name..."
+            multiline="true"
+            size="xs"
+            width="100%"
+          ></stringfield>
+          <stringfield
+            field="friend2"
+            placeholder="Enter friend's name..."
+            multiline="true"
+            size="xs"
+            width="100%"
+          ></stringfield>
+          <stringfield
+            field="friend3"
+            placeholder="Enter friend's name..."
+            multiline="true"
+            size="xs"
+            width="100%"
+          ></stringfield>
+        </div>
+
+        <!-- Tragic Affairs Right Column -->
+        <div
+          style="display: flex; flex-direction: column; gap: 4px; width: 100%"
+        >
+          <div style="margin-top: 4px">
+            <label variant="bold" size="xs" label="Tragic Love Affairs"></label>
+          </div>
+
+          <stringfield
+            field="tragicAffair1"
+            placeholder="Enter name..."
+            multiline="true"
+            size="xs"
+            width="100%"
+          ></stringfield>
+          <stringfield
+            field="tragicAffair2"
+            placeholder="Enter name..."
+            multiline="true"
+            size="xs"
+            width="100%"
+          ></stringfield>
+          <stringfield
+            field="tragicAffair3"
+            placeholder="Enter name..."
+            multiline="true"
+            size="xs"
+            width="100%"
+          ></stringfield>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 2 -->
+    <div style="display: flex; flex-direction: column; gap: 4px; width: 100%">
+      <stringfield
+        field="personality"
+        label="Personality"
+        placeholder="Enter personality..."
+        multiline="true"
+        size="xs"
+      ></stringfield>
+
+      <stringfield
+        field="hairStyle"
+        label="Hair Style"
+        placeholder="Enter hair style..."
+        multiline="true"
+        size="xs"
+      ></stringfield>
+
+      <stringfield
+        field="feelingsPeople"
+        label="Feelings About People"
+        placeholder="Enter feelings about people..."
+        multiline="true"
+        size="xs"
+      ></stringfield>
+
+      <stringfield
+        field="valuedPossessions"
+        label="Most Valued Possession"
+        placeholder="Enter valued possession..."
+        multiline="true"
+        size="xs"
+      ></stringfield>
+
+      <stringfield
+        field="childhoodEnvironment"
+        label="Childhood Environment"
+        placeholder="Enter childhood environment..."
+        multiline="true"
+        size="xs"
+      ></stringfield>
+
+      <stringfield
+        field="lifeGoals"
+        label="Life Goals"
+        placeholder="Enter life goals..."
+        multiline="true"
+        size="xs"
+      ></stringfield>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; width: 100%">
+        <stringfield
+          field="housing"
+          label="Housing"
+          placeholder="Enter housing..."
+          multiline="true"
+          size="xs"
+        ></stringfield>
+
+        <stringfield
+          field="rent"
+          label="Rent"
+          placeholder="Enter rent..."
+          multiline="true"
+          size="xs"
+        ></stringfield>
+      </div>
+
+      <stringfield
+        field="lifestyle"
+        label="Lifestyle"
+        placeholder="Enter lifestyle details..."
+        multiline="true"
+        size="xs"
+      ></stringfield>
+    </div>
+  </div>
+
+  <!-- Enemies Section -->
+  <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 4px">
+    <label variant="bold" textalign="left" size="sm" label="Enemies"></label>
+    <div style="display: flex; flex-direction: row; gap: 4px">
+      <div style="width: 25%">
+        <label textalign="left" size="xs" label="Who?"></label>
+      </div>
+      <div style="width: 20%">
+        <label textalign="left" size="xs" label="What Caused It?"></label>
+      </div>
+      <div style="width: 30%">
+        <label
+          textalign="left"
+          size="xs"
+          label="What Can They Throw At You?"
+        ></label>
+      </div>
+      <div style="width: 25%">
+        <label textalign="left" size="xs" label="What's Gonna Happen?"></label>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: row; gap: 4px">
+      <stringfield
+        field="enemy1"
+        placeholder="Enter name..."
+        multiline="true"
+        size="xs"
+        width="25%"
+      ></stringfield>
+      <stringfield
+        field="enemyCause1"
+        placeholder="Enter cause..."
+        multiline="true"
+        size="xs"
+        width="20%"
+      ></stringfield>
+      <stringfield
+        field="enemyThreat1"
+        placeholder="Enter threat..."
+        multiline="true"
+        size="xs"
+        width="30%"
+      ></stringfield>
+      <stringfield
+        field="enemyOutcome1"
+        placeholder="Enter outcome..."
+        multiline="true"
+        size="xs"
+        width="25%"
+      ></stringfield>
+    </div>
+    <div style="display: flex; flex-direction: row; gap: 4px">
+      <stringfield
+        field="enemy2"
+        placeholder="Enter name..."
+        multiline="true"
+        size="xs"
+        width="25%"
+      ></stringfield>
+      <stringfield
+        field="enemyCause2"
+        placeholder="Enter cause..."
+        multiline="true"
+        size="xs"
+        width="20%"
+      ></stringfield>
+      <stringfield
+        field="enemyThreat2"
+        placeholder="Enter threat..."
+        multiline="true"
+        size="xs"
+        width="30%"
+      ></stringfield>
+      <stringfield
+        field="enemyOutcome2"
+        placeholder="Enter outcome..."
+        multiline="true"
+        size="xs"
+        width="25%"
+      ></stringfield>
+    </div>
+    <div style="display: flex; flex-direction: row; gap: 4px">
+      <stringfield
+        field="enemy3"
+        placeholder="Enter name..."
+        multiline="true"
+        size="xs"
+        width="25%"
+      ></stringfield>
+      <stringfield
+        field="enemyCause3"
+        placeholder="Enter cause..."
+        multiline="true"
+        size="xs"
+        width="20%"
+      ></stringfield>
+      <stringfield
+        field="enemyThreat3"
+        placeholder="Enter threat..."
+        multiline="true"
+        size="xs"
+        width="30%"
+      ></stringfield>
+      <stringfield
+        field="enemyOutcome3"
+        placeholder="Enter outcome..."
+        multiline="true"
+        size="xs"
+        width="25%"
+      ></stringfield>
+    </div>
+  </div>
+
+  <div style="margin-top: 8px">
+    <stringfield
+      field="roleSpecificLifepath"
+      label="Role Specific Lifepath"
+      placeholder="Enter role specific lifepath..."
+      multiline="true"
+      size="sm"
+    ></stringfield>
+  </div>
+</div>

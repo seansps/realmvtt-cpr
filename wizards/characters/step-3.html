@@ -1,0 +1,667 @@
+<script>
+  // Configuration - TODO allow GM to adjust this later via campaign settings
+  const STARTING_STAT_POINTS = 62;
+
+  function onStepEnd(stepIndex) {
+    // This is called when the user goes to the next step.
+    // All fields in the wizard are available in the record's 'data.wizard' context.
+  }
+
+  function rollStatsForRole() {
+    // Get the current record to access wizard data
+    api.getRecord("characters", record._id, (currentRecord) => {
+      const role = currentRecord.data?.wizard?.role;
+      const creationMethod = currentRecord.data?.wizard?.creationMethod;
+
+      if (creationMethod !== "streetrat") {
+        api.showNotification(
+          "This function is only available for Streetrat method!",
+          "yellow",
+          "Warning"
+        );
+        return;
+      }
+
+      if (!role) {
+        api.showNotification(
+          "Please select a valid role in Step 1 first!",
+          "yellow",
+          "Error"
+        );
+        return;
+      }
+
+      // Roll immediately
+      api.roll(
+        "1d10",
+        {
+          role: role,
+          method: creationMethod,
+        },
+        "wizardStatsRoll"
+      );
+    });
+  }
+
+  function rollStat(statName) {
+    // Get the current record to access wizard data
+    api.getRecord("characters", record._id, (currentRecord) => {
+      const role = currentRecord.data?.wizard?.role;
+      const creationMethod = currentRecord.data?.wizard?.creationMethod;
+
+      if (creationMethod !== "edgerunner") {
+        api.showNotification(
+          "This function is only available for Edgerunner method!",
+          "yellow",
+          "Warning"
+        );
+        return;
+      }
+
+      if (!role) {
+        api.showNotification(
+          "Please select a valid role in Step 1 first!",
+          "yellow",
+          "Error"
+        );
+        return;
+      }
+
+      // Roll for individual stat
+      api.roll(
+        "1d10",
+        {
+          role: role,
+          method: creationMethod,
+          stat: statName,
+        },
+        "wizardStatsRoll"
+      );
+    });
+  }
+
+  function onStatChange(value, field) {
+    const creationMethod = api.getValue("data.wizard.creationMethod");
+
+    if (creationMethod !== "complete") {
+      return; // Only handle changes for Complete Package method
+    }
+
+    // Get all current stat values
+    const int = api.getValue("data.wizard.int") || 2;
+    const ref = api.getValue("data.wizard.ref") || 2;
+    const dex = api.getValue("data.wizard.dex") || 2;
+    const tech = api.getValue("data.wizard.tech") || 2;
+    const cool = api.getValue("data.wizard.cool") || 2;
+    const will = api.getValue("data.wizard.will") || 2;
+    const luck = api.getValue("data.wizard.luck") || 2;
+    const move = api.getValue("data.wizard.move") || 2;
+    const body = api.getValue("data.wizard.body") || 2;
+    const emp = api.getValue("data.wizard.emp") || 2;
+
+    const valuesToSet = {};
+
+    // Calculate total points used (each stat point costs 1 point from the pool)
+    let currentPoints = 0;
+    let hasInvalidStats = false;
+
+    for (const stat of [
+      int,
+      ref,
+      dex,
+      tech,
+      cool,
+      will,
+      luck,
+      move,
+      body,
+      emp,
+    ]) {
+      if (stat < 2 || stat > 8) {
+        hasInvalidStats = true;
+      }
+      currentPoints += stat;
+    }
+
+    const remainingPoints = `${currentPoints} / ${STARTING_STAT_POINTS}`;
+    valuesToSet["data.wizard.remainingPoints"] = remainingPoints;
+
+    let error = false;
+    let errorMsg = "";
+
+    if (hasInvalidStats) {
+      errorMsg = "All stats must be between 2 and 8.";
+      error = true;
+    } else if (currentPoints > STARTING_STAT_POINTS) {
+      errorMsg = `You have exceeded the maximum points (${STARTING_STAT_POINTS}).`;
+      error = true;
+    } else if (currentPoints < STARTING_STAT_POINTS) {
+      errorMsg = `You have not spent all of your points (${STARTING_STAT_POINTS}).`;
+      error = true;
+    } else {
+      errorMsg = "Stats allocated successfully!";
+      error = false;
+    }
+
+    valuesToSet["data.wizard.pointBuyMsg"] = errorMsg;
+
+    // Show/hide error message and set color
+    if (error) {
+      valuesToSet["fields.pointBuyMsg.hidden"] = false;
+      valuesToSet["fields.pointBuyMsg.color"] = "red";
+    } else {
+      valuesToSet["fields.pointBuyMsg.hidden"] = false;
+      valuesToSet["fields.pointBuyMsg.color"] = "green";
+    }
+
+    if (Object.keys(valuesToSet).length > 0) {
+      api.setValues(valuesToSet);
+    }
+  }
+</script>
+
+<box field="step3">
+  <!-- Streetrat Method Content -->
+  <box field="streetratContent" hidden="true">
+    <label label="Streetrat STAT Generation" size="lg"></label>
+    <div style="margin-top: 8px; margin-bottom: 16px">
+      <label
+        label="When using The Streetrat Option, you'll roll 1d10 to select a preset for your chosen Role."
+        size="sm"
+      ></label>
+    </div>
+
+    <div style="margin-bottom: 16px">
+      <button
+        onclick="rollStatsForRole()"
+        size="md"
+        variant="light"
+        label="Roll Stats for Selected Role"
+      ></button>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+      <div>
+        <numberfield
+          field="int"
+          label="INT"
+          minvalue="2"
+          maxvalue="8"
+          placeholder="2"
+          editable="false"
+          hidecontrols="true"
+        ></numberfield>
+        <numberfield
+          field="ref"
+          label="REF"
+          minvalue="2"
+          maxvalue="8"
+          placeholder="2"
+          editable="false"
+          hidecontrols="true"
+        ></numberfield>
+        <numberfield
+          field="dex"
+          label="DEX"
+          minvalue="2"
+          maxvalue="8"
+          placeholder="2"
+          editable="false"
+          hidecontrols="true"
+        ></numberfield>
+        <numberfield
+          field="tech"
+          label="TECH"
+          minvalue="2"
+          maxvalue="8"
+          placeholder="2"
+          editable="false"
+          hidecontrols="true"
+        ></numberfield>
+        <numberfield
+          field="cool"
+          label="COOL"
+          minvalue="2"
+          maxvalue="8"
+          placeholder="2"
+          editable="false"
+          hidecontrols="true"
+        ></numberfield>
+      </div>
+      <div>
+        <numberfield
+          field="will"
+          label="WILL"
+          minvalue="2"
+          maxvalue="8"
+          placeholder="2"
+          editable="false"
+          hidecontrols="true"
+        ></numberfield>
+        <numberfield
+          field="luck"
+          label="LUCK"
+          minvalue="2"
+          maxvalue="8"
+          placeholder="2"
+          editable="false"
+          hidecontrols="true"
+        ></numberfield>
+        <numberfield
+          field="move"
+          label="MOVE"
+          minvalue="2"
+          maxvalue="8"
+          placeholder="2"
+          editable="false"
+          hidecontrols="true"
+        ></numberfield>
+        <numberfield
+          field="body"
+          label="BODY"
+          minvalue="2"
+          maxvalue="8"
+          placeholder="2"
+          editable="false"
+          hidecontrols="true"
+        ></numberfield>
+        <numberfield
+          field="emp"
+          label="EMP"
+          minvalue="2"
+          maxvalue="8"
+          placeholder="2"
+          editable="false"
+          hidecontrols="true"
+        ></numberfield>
+      </div>
+    </div>
+  </box>
+
+  <!-- Edgerunner Method Content -->
+  <box field="edgerunnerContent" hidden="true">
+    <label label="Edgerunner STAT Generation" size="lg"></label>
+    <div style="margin-top: 8px; margin-bottom: 16px">
+      <label
+        label="When using the Edgerunner option, you will roll 1d10 for each STAT individually on a table specific to your chosen Role."
+        size="sm"
+      ></label>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+      <div>
+        <div
+          style="
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 8px;
+          "
+        >
+          <numberfield
+            field="int"
+            label="INT"
+            minvalue="2"
+            maxvalue="8"
+            placeholder="2"
+            editable="false"
+            hidecontrols="true"
+          ></numberfield>
+          <iconbutton
+            size="md"
+            variant="default"
+            options='[{"icon": "D10-10", "label": "Roll INT", "value": "rollInt"}]'
+            onclick="rollStat('int')"
+          ></iconbutton>
+        </div>
+        <div
+          style="
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 8px;
+          "
+        >
+          <numberfield
+            field="ref"
+            label="REF"
+            minvalue="2"
+            maxvalue="8"
+            placeholder="2"
+            editable="false"
+            hidecontrols="true"
+          ></numberfield>
+          <iconbutton
+            size="md"
+            variant="default"
+            options='[{"icon": "D10-10", "label": "Roll REF", "value": "rollRef"}]'
+            onclick="rollStat('ref')"
+          ></iconbutton>
+        </div>
+        <div
+          style="
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 8px;
+          "
+        >
+          <numberfield
+            field="dex"
+            label="DEX"
+            minvalue="2"
+            maxvalue="8"
+            placeholder="2"
+            editable="false"
+            hidecontrols="true"
+          ></numberfield>
+          <iconbutton
+            size="md"
+            variant="default"
+            options='[{"icon": "D10-10", "label": "Roll DEX", "value": "rollDex"}]'
+            onclick="rollStat('dex')"
+          ></iconbutton>
+        </div>
+        <div
+          style="
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 8px;
+          "
+        >
+          <numberfield
+            field="tech"
+            label="TECH"
+            minvalue="2"
+            maxvalue="8"
+            placeholder="2"
+            editable="false"
+            hidecontrols="true"
+          ></numberfield>
+          <iconbutton
+            size="md"
+            variant="default"
+            options='[{"icon": "D10-10", "label": "Roll TECH", "value": "rollTech"}]'
+            onclick="rollStat('tech')"
+          ></iconbutton>
+        </div>
+        <div
+          style="
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 8px;
+          "
+        >
+          <numberfield
+            field="cool"
+            label="COOL"
+            minvalue="2"
+            maxvalue="8"
+            placeholder="2"
+            editable="false"
+            hidecontrols="true"
+          ></numberfield>
+          <iconbutton
+            size="md"
+            variant="default"
+            options='[{"icon": "D10-10", "label": "Roll COOL", "value": "rollCool"}]'
+            onclick="rollStat('cool')"
+          ></iconbutton>
+        </div>
+      </div>
+      <div>
+        <div
+          style="
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 8px;
+          "
+        >
+          <numberfield
+            field="will"
+            label="WILL"
+            minvalue="2"
+            maxvalue="8"
+            placeholder="2"
+            editable="false"
+            hidecontrols="true"
+          ></numberfield>
+          <iconbutton
+            size="md"
+            variant="default"
+            options='[{"icon": "D10-10", "label": "Roll WILL", "value": "rollWill"}]'
+            onclick="rollStat('will')"
+          ></iconbutton>
+        </div>
+        <div
+          style="
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 8px;
+          "
+        >
+          <numberfield
+            field="luck"
+            label="LUCK"
+            minvalue="2"
+            maxvalue="8"
+            placeholder="2"
+            editable="false"
+            hidecontrols="true"
+          ></numberfield>
+          <iconbutton
+            size="md"
+            variant="default"
+            options='[{"icon": "D10-10", "label": "Roll LUCK", "value": "rollLuck"}]'
+            onclick="rollStat('luck')"
+          ></iconbutton>
+        </div>
+        <div
+          style="
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 8px;
+          "
+        >
+          <numberfield
+            field="move"
+            label="MOVE"
+            minvalue="2"
+            maxvalue="8"
+            placeholder="2"
+            editable="false"
+            hidecontrols="true"
+          ></numberfield>
+          <iconbutton
+            size="md"
+            variant="default"
+            options='[{"icon": "D10-10", "label": "Roll MOVE", "value": "rollMove"}]'
+            onclick="rollStat('move')"
+          ></iconbutton>
+        </div>
+        <div
+          style="
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 8px;
+          "
+        >
+          <numberfield
+            field="body"
+            label="BODY"
+            minvalue="2"
+            maxvalue="8"
+            placeholder="2"
+            editable="false"
+            hidecontrols="true"
+          ></numberfield>
+          <iconbutton
+            size="md"
+            variant="default"
+            options='[{"icon": "D10-10", "label": "Roll BODY", "value": "rollBody"}]'
+            onclick="rollStat('body')"
+          ></iconbutton>
+        </div>
+        <div
+          style="
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 8px;
+          "
+        >
+          <numberfield
+            field="emp"
+            label="EMP"
+            minvalue="2"
+            maxvalue="8"
+            placeholder="2"
+            editable="false"
+            hidecontrols="true"
+          ></numberfield>
+          <iconbutton
+            size="md"
+            variant="default"
+            options='[{"icon": "D10-10", "label": "Roll EMP", "value": "rollEmp"}]'
+            onclick="rollStat('emp')"
+          ></iconbutton>
+        </div>
+      </div>
+    </div>
+  </box>
+
+  <!-- Complete Package Method Content -->
+  <box field="completeContent" hidden="true">
+    <label label="Complete Package STAT Selection" size="lg"></label>
+    <div style="margin-top: 8px; margin-bottom: 16px">
+      <label
+        label="This method allows you to build your Character from the ground up, using a pool of Character points to buy your Character's STATs. No STAT may be higher than 8 or lower than 2."
+        size="sm"
+      ></label>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+      <div>
+        <numberfield
+          field="int"
+          label="INT"
+          minvalue="2"
+          maxvalue="8"
+          defaultvalue="2"
+          onchange="onStatChange(value, 'int')"
+        ></numberfield>
+        <numberfield
+          field="ref"
+          label="REF"
+          minvalue="2"
+          maxvalue="8"
+          defaultvalue="2"
+          onchange="onStatChange(value, 'ref')"
+        ></numberfield>
+        <numberfield
+          field="dex"
+          label="DEX"
+          minvalue="2"
+          maxvalue="8"
+          defaultvalue="2"
+          onchange="onStatChange(value, 'dex')"
+        ></numberfield>
+        <numberfield
+          field="tech"
+          label="TECH"
+          minvalue="2"
+          maxvalue="8"
+          defaultvalue="2"
+          onchange="onStatChange(value, 'tech')"
+        ></numberfield>
+        <numberfield
+          field="cool"
+          label="COOL"
+          minvalue="2"
+          maxvalue="8"
+          defaultvalue="2"
+          onchange="onStatChange(value, 'cool')"
+        ></numberfield>
+      </div>
+      <div>
+        <numberfield
+          field="will"
+          label="WILL"
+          minvalue="2"
+          maxvalue="8"
+          defaultvalue="2"
+          onchange="onStatChange(value, 'will')"
+        ></numberfield>
+        <numberfield
+          field="luck"
+          label="LUCK"
+          minvalue="2"
+          maxvalue="8"
+          defaultvalue="2"
+          onchange="onStatChange(value, 'luck')"
+        ></numberfield>
+        <numberfield
+          field="move"
+          label="MOVE"
+          minvalue="2"
+          maxvalue="8"
+          defaultvalue="2"
+          onchange="onStatChange(value, 'move')"
+        ></numberfield>
+        <numberfield
+          field="body"
+          label="BODY"
+          minvalue="2"
+          maxvalue="8"
+          defaultvalue="2"
+          onchange="onStatChange(value, 'body')"
+        ></numberfield>
+        <numberfield
+          field="emp"
+          label="EMP"
+          minvalue="2"
+          maxvalue="8"
+          defaultvalue="2"
+          onchange="onStatChange(value, 'emp')"
+        ></numberfield>
+      </div>
+    </div>
+
+    <div
+      style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px"
+    >
+      <stringfield
+        label="Used Points"
+        field="remainingPoints"
+        defaultvalue="0 / 62"
+        editable="false"
+        variant="unstyled"
+      ></stringfield>
+      <stringfield
+        label="Status"
+        field="pointBuyMsg"
+        defaultvalue="You have not spent all of your points (62)."
+        editable="false"
+        color="red"
+        variant="unstyled"
+        hidden="false"
+      ></stringfield>
+    </div>
+  </box>
+
+  <!-- No Method Selected Message -->
+  <box field="noMethodMessage" hidden="true">
+    <label
+      label="Please select a creation method on Step 1."
+      textalign="center"
+      color="red"
+      size="md"
+    ></label>
+  </box>
+</box>

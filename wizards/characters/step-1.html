@@ -1,0 +1,71 @@
+<script>
+  function onStepEnd(stepIndex) {
+    // Update after a short delay
+    setTimeout(() => {
+      api.getRecord("characters", record._id, (currentRecord) => {
+        onMethodChange(currentRecord.data?.wizard?.creationMethod);
+      });
+    }, 100);
+  }
+
+  function onMethodChange(method) {
+    const valuesToHide = [];
+    const valuesToShow = [];
+
+    // Hide all method-specific elements first
+    valuesToHide.push("streetratContent");
+    valuesToHide.push("edgerunnerContent");
+    valuesToHide.push("completeContent");
+    valuesToHide.push("noMethodMessage");
+
+    // Show the appropriate content based on method
+    if (method === "streetrat") {
+      valuesToShow.push("streetratContent");
+    } else if (method === "edgerunner") {
+      valuesToShow.push("edgerunnerContent");
+    } else if (method === "complete") {
+      valuesToShow.push("completeContent");
+    } else {
+      valuesToShow.push("noMethodMessage");
+    }
+
+    api.setHidden(valuesToHide, true, () => {
+      if (valuesToShow.length > 0) {
+        api.setHidden(valuesToShow, false);
+      }
+    });
+  }
+</script>
+
+<div>
+  <label
+    label="Select your character creation method and role."
+    size="md"
+  ></label>
+  <div style="margin-top: 4px; display: flex; gap: 4px; flex-direction: column">
+    <dropdown
+      field="creationMethod"
+      placeholder="Select a method..."
+      label="Creation Method"
+      size="md"
+      options='[{"label": "Streetrat", "value": "streetrat"}, {"label": "Edgerunner", "value": "edgerunner"}, {"label": "Complete Package", "value": "complete"}]'
+    ></dropdown>
+    <dropdown
+      field="role"
+      label="Role"
+      placeholder="Select a role..."
+      size="md"
+      options='[{"label": "Rockerboy", "value": "rockerboy"}, 
+      {"label": "Solo", "value": "solo"}, 
+      {"label": "Netrunner", "value": "netrunner"},
+      {"label": "Tech", "value": "tech"},
+      {"label": "Medtech", "value": "medtech"},
+      {"label": "Media", "value": "media"},
+      {"label": "Exec", "value": "exec"},
+      {"label": "Lawman", "value": "lawman"},
+      {"label": "Fixer", "value": "fixer"},
+      {"label": "Nomad", "value": "nomad"}
+      ]'
+    ></dropdown>
+  </div>
+</div>

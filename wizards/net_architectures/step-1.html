@@ -1,0 +1,26 @@
+<script>
+  function onStepEnd(stepIndex) {
+    // Requery after a short timeout to get the latest record data first
+    setTimeout(() => {
+      api.getRecord(record.recordType, record._id, (record) => {
+        generateNetArchitecture(record, record.data.wizard.difficulty);
+      });
+    }, 100);
+  }
+</script>
+
+<div>
+  <label
+    label="Select a difficulty then click the Generate Architecture button randomly generate this new NET Architecture."
+    size="md"
+  ></label>
+  <div style="margin-top: 4px">
+    <dropdown
+      field="difficulty"
+      label="Difficulty"
+      size="md"
+      options='[{"label": "Basic", "value": "Basic Floor"}, {"label": "Standard", "value": "Standard Floor"}, 
+    {"label": "Uncommon", "value": "Uncommon Floor"}, {"label": "Advanced", "value": "Advanced Floor"}]'
+    ></dropdown>
+  </div>
+</div>

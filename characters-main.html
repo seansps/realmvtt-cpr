@@ -6,27 +6,22 @@
     if (skillGroups1.length === 0 && skillGroups2.length === 0) {
       const allSkills = getAllSkills();
 
-      // Helper function to add skill groups recursively one at a time
-      function addSkillGroupSequentially(skillGroups, index) {
-        // Base case: all skill groups processed
-        if (index >= skillGroups.length) {
-          return;
-        }
+      // Build the complete skill structure upfront
+      const valuesToSet = {};
 
-        const skillGroup = skillGroups[index];
-        const groupField = skillGroup.groupField;
+      // Group skills by their groupField
+      const skillGroups1Data = [];
+      const skillGroups2Data = [];
 
-        // Add the skill group to the character
-        api.addValue(
-          `data.${groupField}`,
-          {
-            name: skillGroup.groupName,
-          },
-          (record) => {
-            const skillGroupIndex = record.data[groupField].length - 1;
-            // Add skills to the skill group
-            // Map skills to expected format
-            const skills = skillGroup.skills.map((skill) => {
+      allSkills.forEach((skillGroup) => {
+        const groupData = {
+          _id: generateUuid(),
+          name: skillGroup.groupName,
+          unidentifiedName: skillGroup.groupName,
+          recordType: "records",
+          identified: true,
+          data: {
+            skills: skillGroup.skills.map((skill) => {
               let statToCheck = skill.stat;
               if (statToCheck === "emp") {
                 statToCheck = "curEmp";
@@ -34,8 +29,14 @@
                 statToCheck = "curLuck";
               }
               const statValue = record.data?.[statToCheck] || 0;
+
               return {
+                _id: generateUuid(),
                 name: skill.name,
+                unidentifiedName: skill.name,
+                recordType: "skill",
+                identified: true,
+                icon: "IconTools",
                 data: {
                   stat: skill.stat,
                   isDefault: skill.isDefault,
@@ -56,7 +57,7 @@
                         return {
                           _id: generateUuid(),
                           name: subSkill.name,
-                          undefinedName: subSkill.name,
+                          unidentifiedName: subSkill.name,
                           data: {
                             stat: skill.stat,
                             isDefault: subSkill.isDefault,
@@ -79,8 +80,6 @@
                       })
                     : [],
                 },
-                recordType: "skill",
-                // Hide/unhide the name and namefield fields based on isDefault
                 fields: {
                   name: {
                     hidden: !skill.isDefault,
@@ -105,21 +104,23 @@
                   },
                 },
               };
-            });
-            api.addValues(
-              `data.${groupField}.${skillGroupIndex}.data.skills`,
-              skills,
-              (record) => {
-                // Move to the next skill group only after the current one is complete
-                addSkillGroupSequentially(skillGroups, index + 1);
-              }
-            );
-          }
-        );
-      }
+            }),
+          },
+        };
 
-      // Start the sequential process with the first skill group
-      addSkillGroupSequentially(allSkills, 0);
+        // Add to the appropriate group array
+        if (skillGroup.groupField === "skillGroups1") {
+          skillGroups1Data.push(groupData);
+        } else if (skillGroup.groupField === "skillGroups2") {
+          skillGroups2Data.push(groupData);
+        }
+      });
+
+      // Set both skill groups at once
+      valuesToSet["data.skillGroups1"] = skillGroups1Data;
+      valuesToSet["data.skillGroups2"] = skillGroups2Data;
+
+      api.setValues(valuesToSet);
     }
   }
 

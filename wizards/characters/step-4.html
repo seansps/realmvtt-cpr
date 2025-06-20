@@ -1,0 +1,995 @@
+<script>
+  const STARTING_STAT_POINTS = 62;
+  const EDGERUNNER_SKILL_POINTS = 86;
+
+  function onStepEnd(stepIndex) {
+    // This is called when the user goes to the next step.
+    // All fields in the wizard are available in the record's 'data.wizard' context.
+  }
+
+  function onStep4Load() {
+    // Get the creation method and role
+    const creationMethod = record.data?.wizard?.creationMethod;
+    const role = record.data?.wizard?.role;
+
+    // If we're in complete mode, show all skills
+    if (creationMethod === "complete") {
+      createAllSkills();
+    } else if (
+      (creationMethod === "streetrat" || creationMethod === "edgerunner") &&
+      role
+    ) {
+      // Filter skills based on role
+      createFilteredSkillsForRole(role, creationMethod);
+    }
+  }
+
+  function createAllSkills() {
+    // Same logic as characters-main.html onLoad - show all skills
+    const allSkills = getAllSkills();
+    const skillStructure = buildSkillStructure(
+      allSkills,
+      null,
+      null,
+      "complete"
+    );
+
+    let valuesToSet = {
+      "data.wizard.skillGroups1": skillStructure.skillGroups1Data,
+      "data.wizard.skillGroups2": skillStructure.skillGroups2Data,
+    };
+
+    // Calculate initial skill points for complete package mode
+    const skillPointsData = calculateSkillPointsAndErrors(
+      valuesToSet,
+      "complete"
+    );
+    valuesToSet = { ...valuesToSet, ...skillPointsData };
+    valuesToSet["fields.completePackageInfo.hidden"] = false;
+    valuesToSet["fields.completeSkillErrorsContainer.hidden"] =
+      (skillPointsData["data.wizard.skillErrors"] || "") === "";
+    valuesToSet["fields.streetratInfo.hidden"] = true;
+    valuesToSet["fields.edgerunnerInfo.hidden"] = true;
+
+    api.setValues(valuesToSet);
+  }
+
+  function createFilteredSkillsForRole(role, creationMethod) {
+    // Get the skills that should be visible for this role
+    const roleSkills = getSkillsForRole(role);
+
+    // Create maps for easier lookup
+    const skillMap = new Map();
+    const subskillMap = new Map();
+
+    roleSkills.forEach((skillArray) => {
+      const [skillName, startingValue, parentSkillName] = skillArray;
+
+      if (parentSkillName) {
+        // This is a subskill
+        if (!subskillMap.has(parentSkillName)) {
+          subskillMap.set(parentSkillName, []);
+        }
+        subskillMap
+          .get(parentSkillName)
+          .push({ name: skillName, value: startingValue });
+      } else {
+        // This is a regular skill
+        skillMap.set(skillName, startingValue);
+      }
+    });
+
+    // Get all skills and filter them
+    const allSkills = getAllSkills();
+    const filteredSkills = filterSkillsForRole(
+      allSkills,
+      skillMap,
+      subskillMap
+    );
+
+    // Build the skill structure with filtered skills
+    const skillStructure = buildSkillStructure(
+      filteredSkills,
+      skillMap,
+      subskillMap,
+      creationMethod
+    );
+
+    let valuesToSet = {
+      "data.wizard.skillGroups1": skillStructure.skillGroups1Data,
+      "data.wizard.skillGroups2": skillStructure.skillGroups2Data,
+    };
+
+    // For edgerunner mode, calculate initial skill points and show the info panel
+    if (creationMethod === "edgerunner") {
+      const skillPointsData = calculateSkillPointsAndErrors(valuesToSet);
+      valuesToSet = { ...valuesToSet, ...skillPointsData };
+      valuesToSet["fields.edgerunnerInfo.hidden"] = false;
+      valuesToSet["fields.skillErrorsContainer.hidden"] =
+        (skillPointsData["data.wizard.skillErrors"] || "") === "";
+      valuesToSet["fields.streetratInfo.hidden"] = true;
+      valuesToSet["fields.completePackageInfo.hidden"] = true;
+    } else if (creationMethod === "streetrat") {
+      // Show streetrat info, hide others
+      valuesToSet["fields.streetratInfo.hidden"] = false;
+      valuesToSet["fields.edgerunnerInfo.hidden"] = true;
+      valuesToSet["fields.completePackageInfo.hidden"] = true;
+    } else {
+      // Hide all info panels for other modes
+      valuesToSet["fields.edgerunnerInfo.hidden"] = true;
+      valuesToSet["fields.streetratInfo.hidden"] = true;
+      valuesToSet["fields.completePackageInfo.hidden"] = true;
+    }
+
+    api.setValues(valuesToSet);
+  }
+
+  function calculateSkillPointsAndErrors(
+    existingValues = {},
+    creationMethodOverride = null
+  ) {
+    const creationMethod =
+      creationMethodOverride || record.data?.wizard?.creationMethod;
+    if (creationMethod !== "edgerunner" && creationMethod !== "complete")
+      return {};
+
+    const SKILL_POINTS = 86;
+    const skillGroups1 =
+      existingValues["data.wizard.skillGroups1"] ||
+      record.data?.wizard?.skillGroups1 ||
+      [];
+    const skillGroups2 =
+      existingValues["data.wizard.skillGroups2"] ||
+      record.data?.wizard?.skillGroups2 ||
+      [];
+
+    let usedPoints = 0;
+    let errors = [];
+
+    // Required default skills that must be at least level 2
+    const requiredDefaultSkills = [
+      "Athletics",
+      "Brawling",
+      "Concentration",
+      "Conversation",
+      "Education",
+      "Evasion",
+      "First Aid",
+      "Human Perception",
+      "Perception",
+      "Persuasion",
+      "Stealth",
+    ];
+
+    // Get cultural languages from lifepath
+    const lifepathLanguages = record.data?.wizard?.languages
+      ? [record.data.wizard.languages]
+      : [];
+
+    // Process all skill groups
+    [...skillGroups1, ...skillGroups2].forEach((group) => {
+      const skills = group.data?.skills || [];
+      skills.forEach((skill) => {
+        if (!skill.data?.hasSubskills) {
+          // Skip empty/blank skills
+          if (!skill.name || skill.name.trim() === "") {
+            return;
+          }
+
+          // Regular skill
+          const level = skill.data?.lvl || 0;
+          const isTimesTwo = skill.data?.isTimesTwo || false;
+          const pointCost = isTimesTwo ? 2 : 1;
+
+          // Check skill level requirements based on creation method
+          if (creationMethod === "edgerunner" && level < 2) {
+            errors.push(
+              `${skill.name} must be at least level 2 (Edgerunner mode)`
+            );
+          } else if (
+            creationMethod === "complete" &&
+            requiredDefaultSkills.includes(skill.name) &&
+            level > 0 &&
+            level < 2
+          ) {
+            errors.push(
+              `${skill.name} cannot be level 1 - must be 0 or at least 2`
+            );
+          }
+
+          // Calculate points used (all levels count towards 86 total)
+          usedPoints += level * pointCost;
+        } else {
+          // Skill with subskills
+          const subSkills = skill.data?.subSkills || [];
+          subSkills.forEach((subSkill) => {
+            // Skip empty/blank subskills
+            if (!subSkill.name || subSkill.name.trim() === "") {
+              return;
+            }
+
+            const level = subSkill.data?.lvl || 0;
+            const isTimesTwo = subSkill.data?.isTimesTwo || false;
+            const pointCost = isTimesTwo ? 2 : 1;
+
+            // Check if this is a cultural language (don't count first 4 levels)
+            let isCulturalLanguage = false;
+            if (skill.name === "Language") {
+              lifepathLanguages.forEach((lang) => {
+                if (subSkill.name && subSkill.name.includes(lang)) {
+                  isCulturalLanguage = true;
+                }
+              });
+            }
+
+            // Check subskill level requirements based on creation method
+            if (creationMethod === "edgerunner" && level < 2) {
+              errors.push(
+                `${subSkill.name} must be at least level 2 (Edgerunner mode)`
+              );
+            } else if (creationMethod === "complete") {
+              if (
+                skill.name === "Language" &&
+                subSkill.name === "Streetslang" &&
+                level > 0 &&
+                level < 2
+              ) {
+                errors.push(
+                  "Language (Streetslang) cannot be level 1 - must be 0 or at least 2"
+                );
+              }
+              if (
+                skill.name === "Local Expert" &&
+                subSkill.name === "Your Home" &&
+                level > 0 &&
+                level < 2
+              ) {
+                errors.push(
+                  "Local Expert (Your Home) cannot be level 1 - must be 0 or at least 2"
+                );
+              }
+            }
+
+            // Calculate points used
+            if (isCulturalLanguage) {
+              // Don't count first 4 levels for cultural languages
+              if (level > 4) {
+                usedPoints += (level - 4) * pointCost;
+              }
+            } else {
+              // Count all levels for other subskills (all points count towards 86 total)
+              usedPoints += level * pointCost;
+            }
+          });
+        }
+      });
+    });
+
+    const remainingPoints = SKILL_POINTS - usedPoints;
+    const errorString = errors.length > 0 ? errors.join("; ") : "";
+    const hasNegativePoints = remainingPoints < 0;
+    const hasAllPointsAllocated = remainingPoints === 0 && errorString === "";
+
+    // Update the wizard data
+    const valuesToSet = {
+      "data.wizard.skillPointsUsed": usedPoints,
+      "data.wizard.skillPointsRemaining": remainingPoints,
+      "data.wizard.skillErrors": errorString,
+    };
+
+    // Add visibility controls for success/error messages
+    if (creationMethod === "edgerunner") {
+      valuesToSet["fields.edgerunnerNegativePointsContainer.hidden"] =
+        !hasNegativePoints;
+      valuesToSet["fields.edgerunnerAllPointsAllocatedContainer.hidden"] =
+        !hasAllPointsAllocated;
+    } else if (creationMethod === "complete") {
+      valuesToSet["fields.completeNegativePointsContainer.hidden"] =
+        !hasNegativePoints;
+      valuesToSet["fields.completeAllPointsAllocatedContainer.hidden"] =
+        !hasAllPointsAllocated;
+    }
+
+    return valuesToSet;
+  }
+
+  function filterSkillsForRole(allSkills, skillMap, subskillMap) {
+    return allSkills
+      .map((skillGroup) => {
+        // Filter skills within each group
+        const filteredSkills = skillGroup.skills.filter((skill) => {
+          // Check if this skill should be included
+          return skillMap.has(skill.name) || subskillMap.has(skill.name);
+        });
+
+        return {
+          ...skillGroup,
+          skills: filteredSkills,
+        };
+      })
+      .filter((skillGroup) => skillGroup.skills.length > 0); // Remove empty groups
+  }
+
+  function buildSkillStructure(
+    skillGroups,
+    skillMap,
+    subskillMap,
+    creationMethod
+  ) {
+    const skillGroups1Data = [];
+    const skillGroups2Data = [];
+
+    skillGroups.forEach((skillGroup) => {
+      const groupData = {
+        _id: generateUuid(),
+        name: skillGroup.groupName,
+        unidentifiedName: skillGroup.groupName,
+        recordType: "records",
+        identified: true,
+        data: {
+          skills: skillGroup.skills.map((skill) => {
+            // In wizard, we use the stat names directly (emp, luck) not curEmp, curLuck
+            const statValue = record.data?.wizard?.[skill.stat] || 0;
+
+            // Determine skill level based on creation method
+            let skillLevel = skill.isDefault ? 2 : 0;
+            if (
+              creationMethod === "streetrat" &&
+              skillMap &&
+              skillMap.has(skill.name)
+            ) {
+              skillLevel = skillMap.get(skill.name);
+            } else if (creationMethod === "edgerunner") {
+              // For edgerunner, ALL skills must be at least 2
+              skillLevel = 2;
+            } else if (creationMethod === "complete") {
+              // For complete package, only isDefault skills start at 2
+              skillLevel = skill.isDefault ? 2 : 0;
+            }
+
+            const skillData = {
+              _id: generateUuid(),
+              name: skill.name,
+              unidentifiedName: skill.name,
+              recordType: "skill",
+              identified: true,
+              icon: "IconTools",
+              data: {
+                stat: skill.stat,
+                isDefault: skill.isDefault,
+                isTimesTwo: skill.isTimesTwo,
+                hasSubskills: skill.hasSubskills,
+                lvl: !skill.hasSubskills ? skillLevel : undefined,
+                base: !skill.hasSubskills ? skillLevel + statValue : undefined,
+                subSkills: skill.hasSubskills
+                  ? buildSubSkills(
+                      skill,
+                      skillMap,
+                      subskillMap,
+                      creationMethod,
+                      statValue
+                    )
+                  : [],
+              },
+              fields: {
+                name: {
+                  hidden: !skill.isDefault,
+                },
+                stat: {
+                  hidden: skill.hasSubskills,
+                },
+                base: {
+                  hidden: skill.hasSubskills,
+                },
+                lvl: {
+                  hidden: skill.hasSubskills,
+                },
+                rollSkill: {
+                  hidden: skill.hasSubskills,
+                },
+                namefield: {
+                  hidden: skill.isDefault,
+                },
+                subSkills: {
+                  hidden: !skill.hasSubskills,
+                },
+              },
+            };
+
+            return skillData;
+          }),
+        },
+      };
+
+      // Add to the appropriate group array
+      if (skillGroup.groupField === "skillGroups1") {
+        skillGroups1Data.push(groupData);
+      } else if (skillGroup.groupField === "skillGroups2") {
+        skillGroups2Data.push(groupData);
+      }
+    });
+
+    return { skillGroups1Data, skillGroups2Data };
+  }
+
+  function buildSubSkills(
+    skill,
+    skillMap,
+    subskillMap,
+    creationMethod,
+    statValue
+  ) {
+    if (!skill.hasSubskills) return [];
+
+    const subSkillsToInclude = [];
+
+    // Special handling for Language skills - add lifepath language with 4 levels
+    if (skill.name === "Language") {
+      // Add lifepath language from step 2
+      const language = record.data?.wizard?.languages;
+      if (language && language.trim() !== "") {
+        subSkillsToInclude.push({
+          _id: generateUuid(),
+          name: `CHOOSE 1: ${language}`,
+          unidentifiedName: `CHOOSE 1: ${language}`,
+          data: {
+            stat: skill.stat,
+            isDefault: false,
+            isTimesTwo: skill.isTimesTwo,
+            lvl: 4, // 4 levels from lifepath
+            base: 4 + statValue,
+            hasSubskills: false,
+          },
+          fields: {
+            name: {
+              hidden: true, // Hide name, show namefield for editing
+            },
+            namefield: {
+              hidden: false,
+            },
+          },
+        });
+      }
+    }
+
+    // If we have role-specific subskills, add those too
+    if (subskillMap && subskillMap.has(skill.name)) {
+      const roleSubskills = subskillMap.get(skill.name);
+
+      // Add role-specific subskills
+      roleSubskills.forEach((roleSubskill) => {
+        let level = 2; // Default for edgerunner
+        if (creationMethod === "streetrat") {
+          level = roleSubskill.value;
+        }
+
+        subSkillsToInclude.push({
+          _id: generateUuid(),
+          name: roleSubskill.name,
+          unidentifiedName: roleSubskill.name,
+          data: {
+            stat: skill.stat,
+            isDefault: false, // Role subskills are typically not default
+            isTimesTwo: skill.isTimesTwo,
+            lvl: level,
+            base: level + statValue,
+            hasSubskills: false,
+          },
+          fields: {
+            name: {
+              hidden: false, // Show the name since it's filled
+            },
+            namefield: {
+              hidden: true,
+            },
+          },
+        });
+      });
+    } else if (skill.name === "Language") {
+      // For Language skills, if no role-specific subskills, add the default ones but prioritize lifepath
+      skill.subSkills.forEach((subSkill) => {
+        // Only add subskills that have names and are either default or explicitly named
+        if (
+          (!subSkill.name || subSkill.name.trim() === "") &&
+          !subSkill.isDefault
+        ) {
+          return;
+        }
+
+        let level = subSkill.isDefault ? 2 : 0;
+        if (creationMethod === "edgerunner") {
+          level = 2; // Minimum 2 for edgerunner (but only for non-empty skills)
+        } else if (creationMethod === "complete") {
+          level = subSkill.isDefault ? 2 : 0; // Only defaults for complete package
+        }
+
+        subSkillsToInclude.push({
+          _id: generateUuid(),
+          name: subSkill.name,
+          unidentifiedName: subSkill.name,
+          data: {
+            stat: skill.stat,
+            isDefault: subSkill.isDefault,
+            isTimesTwo: skill.isTimesTwo,
+            lvl: level,
+            base: level + statValue,
+            hasSubskills: false,
+          },
+          fields: {
+            name: {
+              hidden: !subSkill.isDefault,
+            },
+            namefield: {
+              hidden: subSkill.isDefault,
+            },
+          },
+        });
+      });
+    } else {
+      // Use original subskills from getAllSkills() for non-Language skills
+      skill.subSkills.forEach((subSkill) => {
+        // Skip empty/blank subskills
+        if (!subSkill.name || subSkill.name.trim() === "") {
+          return;
+        }
+
+        let level = subSkill.isDefault ? 2 : 0;
+        if (creationMethod === "edgerunner") {
+          level = 2; // Minimum 2 for edgerunner (but only for non-empty skills)
+        } else if (creationMethod === "complete") {
+          level = subSkill.isDefault ? 2 : 0; // Only defaults for complete package
+        }
+
+        subSkillsToInclude.push({
+          _id: generateUuid(),
+          name: subSkill.name,
+          unidentifiedName: subSkill.name,
+          data: {
+            stat: skill.stat,
+            isDefault: subSkill.isDefault,
+            isTimesTwo: skill.isTimesTwo,
+            lvl: level,
+            base: level + statValue,
+            hasSubskills: false,
+          },
+          fields: {
+            name: {
+              hidden: !subSkill.isDefault,
+            },
+            namefield: {
+              hidden: subSkill.isDefault,
+            },
+          },
+        });
+      });
+    }
+
+    // Add a few empty slots for additional subskills
+    for (let i = 0; i < 2; i++) {
+      subSkillsToInclude.push({
+        _id: generateUuid(),
+        name: "",
+        unidentifiedName: "",
+        data: {
+          stat: skill.stat,
+          isDefault: false,
+          isTimesTwo: skill.isTimesTwo,
+          lvl: 0, // Empty slots start at 0, even in Edgerunner mode
+          base: statValue,
+          hasSubskills: false,
+        },
+        fields: {
+          name: {
+            hidden: true,
+          },
+          namefield: {
+            hidden: false,
+          },
+        },
+      });
+    }
+
+    return subSkillsToInclude;
+  }
+
+  function getSkillsForRole(role) {
+    // Return the list of skills (streetrat/edgerunner) for a given role
+    // Role should be lowercase (solo, netrunner, tech, etc.)
+
+    switch (role.toLowerCase()) {
+      case "rockerboy":
+        return [
+          ["Athletics", 2],
+          ["Brawling", 6],
+          ["Concentration", 2],
+          ["Conversation", 2],
+          ["Education", 2],
+          ["Evasion", 6],
+          ["First Aid", 6],
+          ["Human Perception", 6],
+          ["Streetslang", 2, "Language"],
+          ["Your Home", 4, "Local Expert"],
+          ["Perception", 2],
+          ["Persuasion", 6],
+          ["Stealth", 2],
+          ["Composition", 6],
+          ["Handgun", 6],
+          ["Melee Weapon", 6],
+          ["Personal Grooming", 4],
+          ["Play Instrument (choose 1)", 6, "Play Instrument"],
+          ["Streetwise", 6],
+          ["Wardrobe & Style", 4],
+        ];
+
+      case "solo":
+        return [
+          ["Athletics", 2],
+          ["Brawling", 2],
+          ["Concentration", 2],
+          ["Conversation", 2],
+          ["Education", 2],
+          ["Evasion", 6],
+          ["First Aid", 6],
+          ["Human Perception", 2],
+          ["Streetslang", 2, "Language"],
+          ["Your Home", 2, "Local Expert"],
+          ["Perception", 6],
+          ["Persuasion", 2],
+          ["Stealth", 2],
+          ["Autofire (x2)", 6],
+          ["Handgun", 6],
+          ["Interrogation", 6],
+          ["Melee Weapon", 6],
+          ["Resist Torture/Drugs", 6],
+          ["Shoulder Arms", 6],
+          ["Tactics", 6],
+        ];
+
+      case "netrunner":
+        return [
+          ["Athletics", 2],
+          ["Brawling", 2],
+          ["Concentration", 2],
+          ["Conversation", 2],
+          ["Education", 6],
+          ["Evasion", 6],
+          ["First Aid", 2],
+          ["Human Perception", 2],
+          ["Streetslang", 2, "Language"],
+          ["Your Home", 2, "Local Expert"],
+          ["Perception", 2],
+          ["Persuasion", 2],
+          ["Stealth", 6],
+          ["Basic Tech", 6],
+          ["Conceal/Reveal Object", 6],
+          ["Cryptography", 6],
+          ["Cybertech", 6],
+          ["Electronics/Security Tech (x2)", 6],
+          ["Handgun", 6],
+          ["Library Search", 6],
+        ];
+
+      case "tech":
+        return [
+          ["Athletics", 2],
+          ["Brawling", 2],
+          ["Concentration", 2],
+          ["Conversation", 2],
+          ["Education", 6],
+          ["Evasion", 6],
+          ["First Aid", 6],
+          ["Human Perception", 2],
+          ["Streetslang", 2, "Language"],
+          ["Your Home", 2, "Local Expert"],
+          ["Perception", 2],
+          ["Persuasion", 2],
+          ["Stealth", 2],
+          ["Basic Tech", 6],
+          ["Cybertech", 6],
+          ["Electronics/Security Tech (x2)", 6],
+          ["Land Vehicle Tech", 6],
+          ["Shoulder Arms", 6],
+          ["Science (choose 1)", 6, "Science"],
+          ["Weaponstech", 6],
+        ];
+
+      case "medtech":
+        return [
+          ["Athletics", 2],
+          ["Brawling", 2],
+          ["Concentration", 2],
+          ["Conversation", 6],
+          ["Education", 6],
+          ["Evasion", 6],
+          ["First Aid", 2],
+          ["Human Perception", 6],
+          ["Streetslang", 2, "Language"],
+          ["Your Home", 2, "Local Expert"],
+          ["Perception", 2],
+          ["Persuasion", 2],
+          ["Stealth", 2],
+          ["Basic Tech", 6],
+          ["Cybertech", 4],
+          ["Deduction", 6],
+          ["Paramedic (x2)", 6],
+          ["Resist Torture/Drugs", 4],
+          ["Science", 6],
+          ["Shoulder Arms", 6],
+        ];
+
+      case "media":
+        return [
+          ["Athletics", 2],
+          ["Brawling", 2],
+          ["Concentration", 2],
+          ["Conversation", 6],
+          ["Education", 2],
+          ["Evasion", 6],
+          ["First Aid", 2],
+          ["Human Perception", 6],
+          ["Streetslang", 2, "Language"],
+          ["Your Home", 6, "Local Expert"],
+          ["Perception", 6],
+          ["Persuasion", 6],
+          ["Stealth", 2],
+          ["Bribery", 6],
+          ["Composition", 6],
+          ["Deduction", 6],
+          ["Handgun", 6],
+          ["Library Search", 4],
+          ["Lip Reading", 4],
+          ["Photography/Film", 4],
+        ];
+
+      case "lawman":
+        return [
+          ["Athletics", 2],
+          ["Brawling", 6],
+          ["Concentration", 2],
+          ["Conversation", 6],
+          ["Education", 2],
+          ["Evasion", 6],
+          ["First Aid", 2],
+          ["Human Perception", 2],
+          ["Streetslang", 2, "Language"],
+          ["Your Home", 2, "Local Expert"],
+          ["Perception", 2],
+          ["Persuasion", 2],
+          ["Stealth", 2],
+          ["Autofire (x2)", 6],
+          ["Criminology", 6],
+          ["Deduction", 6],
+          ["Handgun", 6],
+          ["Interrogation", 6],
+          ["Shoulder Arms", 6],
+          ["Tracking", 6],
+        ];
+
+      case "exec":
+        return [
+          ["Athletics", 2],
+          ["Brawling", 2],
+          ["Concentration", 2],
+          ["Conversation", 6],
+          ["Education", 6],
+          ["Evasion", 6],
+          ["First Aid", 2],
+          ["Human Perception", 6],
+          ["Streetslang", 2, "Language"],
+          ["Your Home", 2, "Local Expert"],
+          ["Perception", 2],
+          ["Persuasion", 6],
+          ["Stealth", 2],
+          ["Accounting", 6],
+          ["Bureaucracy", 6],
+          ["Business", 6],
+          ["Deduction", 6],
+          ["Handgun", 6],
+          ["Lip Reading", 6],
+          ["Personal Grooming", 4],
+        ];
+
+      case "fixer":
+        return [
+          ["Athletics", 2],
+          ["Brawling", 2],
+          ["Concentration", 2],
+          ["Conversation", 6],
+          ["Education", 2],
+          ["Evasion", 6],
+          ["First Aid", 2],
+          ["Human Perception", 6],
+          ["Streetslang", 4, "Language"],
+          ["Your Home", 6, "Local Expert"],
+          ["Perception", 2],
+          ["Persuasion", 4],
+          ["Stealth", 2],
+          ["Bribery", 6],
+          ["Business", 6],
+          ["Forgery", 6],
+          ["Handgun", 6],
+          ["Pick Lock", 4],
+          ["Streetwise", 6],
+          ["Trading", 6],
+        ];
+
+      case "nomad":
+        return [
+          ["Athletics", 2],
+          ["Brawling", 6],
+          ["Concentration", 2],
+          ["Conversation", 2],
+          ["Education", 2],
+          ["Evasion", 6],
+          ["First Aid", 6],
+          ["Human Perception", 2],
+          ["Streetslang", 2, "Language"],
+          ["Your Home", 2, "Local Expert"],
+          ["Perception", 4],
+          ["Persuasion", 2],
+          ["Stealth", 6],
+          ["Animal Handling", 6],
+          ["Drive Land Vehicle", 6],
+          ["Handgun", 6],
+          ["Melee Weapon", 6],
+          ["Tracking", 6],
+          ["Trading", 6],
+          ["Wilderness Survival", 6],
+        ];
+
+      default:
+        return [];
+    }
+  }
+
+  // Alternative version that returns objects instead of arrays for easier use
+  function getSkillsForRoleAsObjects(role) {
+    const skillArrays = getSkillsForRole(role);
+    return skillArrays.map(([skillName, startingValue]) => ({
+      name: skillName,
+      startingValue: startingValue,
+    }));
+  }
+
+  // Helper function to get just the skill names for a role
+  function getSkillNamesForRole(role) {
+    const skillArrays = getSkillsForRole(role);
+    return skillArrays.map(([skillName]) => skillName);
+  }
+
+  // Helper function to get a specific skill's starting value for a role
+  function getSkillStartingValue(role, skillName) {
+    const skills = getSkillsForRole(role);
+    const skill = skills.find(([name]) => name === skillName);
+    return skill ? skill[1] : 0;
+  }
+</script>
+
+<box field="step4" onload="onStep4Load()">
+  <label label="Skills" size="lg"></label>
+  <label
+    label="Note: Languages from your Lifepath (4 levels) have been automatically added. Edit them to specify the exact language."
+    size="sm"
+    variant="default"
+  ></label>
+
+  <!-- Streetrat mode info -->
+  <box field="streetratInfo" hidden="true">
+    <label
+      label="Streetrat Mode: Your skills have been set based on your role. You just need to edit your cultural language skill to specify the exact language."
+      size="sm"
+      variant="default"
+      color="blue"
+    ></label>
+  </box>
+
+  <!-- Edgerunner skill point tracking -->
+  <box field="edgerunnerInfo" hidden="true">
+    <div
+      style="display: flex; flex-direction: row; gap: 16px; align-items: center"
+    >
+      <div>
+        <label label="Skill Points Used:" size="sm" variant="bold"></label>
+        <label field="skillPointsUsed" size="sm" variant="default"></label>
+      </div>
+      <div>
+        <label label="Remaining:" size="sm" variant="bold"></label>
+        <label field="skillPointsRemaining" size="sm" variant="default"></label>
+      </div>
+    </div>
+    <box field="skillErrorsContainer">
+      <label label="Errors:" size="sm" variant="bold" color="red"></label>
+      <label
+        field="skillErrors"
+        size="sm"
+        variant="default"
+        color="red"
+      ></label>
+    </box>
+    <box field="edgerunnerNegativePointsContainer" hidden="true">
+      <label
+        label="Error: You have exceeded your skill point limit!"
+        size="sm"
+        variant="bold"
+        color="red"
+      ></label>
+    </box>
+    <box field="edgerunnerAllPointsAllocatedContainer" hidden="true">
+      <label
+        label="All skill points have been allocated."
+        size="sm"
+        variant="bold"
+        color="green"
+      ></label>
+    </box>
+  </box>
+
+  <!-- Complete Package mode info -->
+  <box field="completePackageInfo" hidden="true">
+    <div
+      style="display: flex; flex-direction: row; gap: 16px; align-items: center"
+    >
+      <div>
+        <label label="Skill Points Used:" size="sm" variant="bold"></label>
+        <label field="skillPointsUsed" size="sm" variant="default"></label>
+      </div>
+      <div>
+        <label label="Remaining:" size="sm" variant="bold"></label>
+        <label field="skillPointsRemaining" size="sm" variant="default"></label>
+      </div>
+    </div>
+    <box field="completeSkillErrorsContainer">
+      <label label="Errors:" size="sm" variant="bold" color="red"></label>
+      <label
+        field="skillErrors"
+        size="sm"
+        variant="default"
+        color="red"
+      ></label>
+    </box>
+    <box field="completeNegativePointsContainer" hidden="true">
+      <label
+        label="Error: You have exceeded your skill point limit!"
+        size="sm"
+        variant="bold"
+        color="red"
+      ></label>
+    </box>
+    <box field="completeAllPointsAllocatedContainer" hidden="true">
+      <label
+        label="All skill points have been allocated."
+        size="sm"
+        variant="bold"
+        color="green"
+      ></label>
+    </box>
+    <label
+      label="Complete Package Mode: You have 86 skill points to distribute among ALL available skills. Default skills (Athletics, Brawling, etc.) must be at least level 2 if you put points into them."
+      size="sm"
+      variant="default"
+    ></label>
+  </box>
+
+  <div
+    style="
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 8px;
+      width: 100%;
+    "
+  >
+    <list
+      listtype="skill_wizard_group_list"
+      field="skillGroups1"
+      height="100%"
+      variant="flex"
+    ></list>
+    <list
+      listtype="skill_wizard_group_list"
+      field="skillGroups2"
+      height="100%"
+      variant="flex"
+    ></list>
+  </div>
+</box>
