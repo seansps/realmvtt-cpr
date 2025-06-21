@@ -397,7 +397,6 @@
   function processGearList(gearList, index, collectedItems) {
     if (index >= gearList.length) {
       // All items processed, set the final list
-      console.log(collectedItems);
       api.setValues({
         "data.wizard.items": collectedItems,
       });
@@ -408,12 +407,11 @@
 
     if (gearItem.type === "choice") {
       // Show prompt for choice
-      const options = gearItem.options.map((opt) => ({
+      const options = gearItem.options.map((opt, optIndex) => ({
         label: `${opt.name} (${opt.count})`,
-        value: opt,
+        value: optIndex.toString(), // Convert to string
       }));
 
-      console.log(options);
       api.showPrompt(
         "Choose Gear",
         "Select your starting gear",
@@ -421,8 +419,12 @@
         options,
         null,
         (selection) => {
-          if (selection) {
-            addGearToList(selection, collectedItems, (updatedItems) => {
+          if (selection !== null && selection !== undefined) {
+            // Convert selection back to option object
+            const selectedIndex = parseInt(selection);
+            const selectedOption = gearItem.options[selectedIndex];
+
+            addGearToList(selectedOption, collectedItems, (updatedItems) => {
               processGearList(gearList, index + 1, updatedItems);
             });
           } else {
@@ -467,6 +469,7 @@
           _id: generateUuid(),
           name: itemName,
           recordType: recordType,
+          icon: "IconBox",
           data: {
             count: itemCount,
             description:
@@ -667,7 +670,7 @@
 
     <divider label="Starting Gear"></divider>
     <list
-      listtype="buy_item_list"
+      listtype="starting_item_list"
       field="items"
       variant="outline-striped"
     ></list>
@@ -682,7 +685,7 @@
 
     <divider label="Starting Gear"></divider>
     <list
-      listtype="buy_item_list"
+      listtype="starting_item_list"
       field="items"
       variant="outline-striped"
     ></list>
