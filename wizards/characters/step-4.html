@@ -1,7 +1,4 @@
 <script>
-  const STARTING_STAT_POINTS = 62;
-  const EDGERUNNER_SKILL_POINTS = 86;
-
   function onStepEnd(stepIndex) {
     // This is called when the user goes to the next step.
     // All fields in the wizard are available in the record's 'data.wizard' context.
@@ -50,6 +47,8 @@
       (skillPointsData["data.wizard.skillErrors"] || "") === "";
     valuesToSet["fields.streetratInfo.hidden"] = true;
     valuesToSet["fields.edgerunnerInfo.hidden"] = true;
+    valuesToSet["data.wizard.availableFashionFunds"] = 800;
+    valuesToSet["data.wizard.availableFunds"] = 2550;
 
     api.setValues(valuesToSet);
   }

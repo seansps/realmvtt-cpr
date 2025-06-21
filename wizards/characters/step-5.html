@@ -1,0 +1,830 @@
+<script>
+  const startingGearByRole = {
+    rockerboy: [
+      { name: "Very Heavy Pistol", count: 1 },
+      { name: "Basic VH Pistol", count: 50 },
+      {
+        type: "choice",
+        options: [
+          { name: "Heavy Melee Weapon", count: 1 },
+          { name: "Flashbang Grenade", count: 1 },
+        ],
+      },
+      { name: "Teargas Grenade", count: 2 },
+      { name: "Light Armorjack Body Armor", count: 1 },
+      { name: "Light Armorjack Head Armor", count: 1 },
+      { name: "Agent", count: 1 },
+      { name: "Computer", count: 1 },
+      {
+        type: "choice",
+        options: [
+          { name: "Electric Guitar", count: 1 },
+          { name: "Bug Detector", count: 1 },
+        ],
+      },
+      { name: "Glow Paint", count: 5 },
+      { name: "Pocket Amp", count: 1 },
+      { name: "Radio Scanner/Music Player", count: 1 },
+      { name: "Video Camera", count: 1 },
+      { name: "Generic Chic Jacket", count: 1 },
+      { name: "Generic Chic Jewelry", count: 3 },
+      { name: "Generic Chic Top", count: 4 },
+      { name: "Leisurewear Jewelry", count: 1 },
+      { name: "Leisurewear Mirrorshades", count: 1 },
+      { name: "Leisurewear Footwear", count: 1 },
+      { name: "Urbanflash Bottoms", count: 1 },
+      { name: "Urbanflash Top", count: 1 },
+    ],
+
+    solo: [
+      { name: "Assault Rifle", count: 1 },
+      { name: "Very Heavy Pistol", count: 1 },
+      {
+        type: "choice",
+        options: [
+          { name: "Heavy Melee Weapon", count: 1 },
+          { name: "Bulletproof Shield", count: 1 },
+        ],
+      },
+      { name: "Basic VH Pistol", count: 30 },
+      { name: "Basic Rifle", count: 70 },
+      { name: "Light Armorjack Body Armor", count: 1 },
+      { name: "Light Armorjack Head Armor", count: 1 },
+      { name: "Agent", count: 1 },
+      { name: "Leisurewear Footwear", count: 2 },
+      { name: "Leisurewear Jacket", count: 3 },
+      { name: "Leisurewear Mirrorshades", count: 1 },
+      { name: "Leisurewear Bottoms", count: 2 },
+      { name: "Leisurewear Top", count: 2 },
+    ],
+
+    netrunner: [
+      { name: "Very Heavy Pistol", count: 1 },
+      { name: "Basic VH Pistol", count: 30 },
+      { name: "Light Armorjack Body Armor", count: 1 },
+      { name: "Light Armorjack Head Armor", count: 1 },
+      { name: "Agent", count: 1 },
+      { name: "Cyberdeck", count: 1 },
+      { name: "Virtuality Goggles", count: 1 },
+      { name: "Armor", count: 1, isProgram: true },
+      { name: "Sword", count: 1, isProgram: true },
+      {
+        type: "choice",
+        options: [
+          { name: "See Ya", count: 1, isProgram: true },
+          { name: "Eraser", count: 1, isProgram: true },
+        ],
+      },
+      {
+        type: "choice",
+        options: [
+          { name: "Sword", count: 1, isProgram: true },
+          { name: "Vrizzbolt", count: 1, isProgram: true },
+        ],
+      },
+      {
+        type: "choice",
+        options: [
+          { name: "Worm", count: 1, isProgram: true },
+          { name: "Sword", count: 1, isProgram: true },
+        ],
+      },
+      { name: "Generic Chic Top", count: 10 },
+      { name: "Leisurewear Footwear", count: 2 },
+      { name: "Leisurewear Jewelry", count: 1 },
+      { name: "Leisurewear Bottoms", count: 2 },
+      { name: "Urban Flash Jacket", count: 1 },
+    ],
+
+    tech: [
+      {
+        type: "choice",
+        options: [
+          { name: "Shotgun", count: 1 },
+          { name: "Assault Rifle", count: 1 },
+        ],
+      },
+      {
+        type: "choice",
+        options: [
+          { name: "Basic Shotgun Shell", count: 100 },
+          { name: "Basic Rifle", count: 100 },
+        ],
+      },
+      { name: "Flashbang Grenade", count: 1 },
+      { name: "Light Armorjack Body Armor", count: 1 },
+      { name: "Light Armorjack Head Armor", count: 1 },
+      { name: "Agent", count: 1 },
+      { name: "Anti-Smog Breathing Mask", count: 1 },
+      { name: "Disposable Cell Phone", count: 1 },
+      { name: "Duct Tape", count: 5 },
+      { name: "Flashlight", count: 1 },
+      { name: "Road Flare", count: 6 },
+      { name: "Tech Bag", count: 1 },
+      { name: "Generic Chic Bottoms", count: 8 },
+      { name: "Generic Chic Top", count: 10 },
+      { name: "Leisurewear Footwear", count: 2 },
+    ],
+
+    medtech: [
+      {
+        type: "choice",
+        options: [
+          { name: "Shotgun", count: 1 },
+          { name: "Assault Rifle", count: 1 },
+        ],
+      },
+      {
+        type: "choice",
+        options: [
+          { name: "Basic Shotgun Shell", count: 100 },
+          { name: "Basic Rifle", count: 100 },
+        ],
+      },
+      {
+        type: "choice",
+        options: [
+          { name: "Incendiary Shotgun Shell", count: 10 },
+          { name: "Incendiary Rifle", count: 10 },
+        ],
+      },
+      { name: "Smoke Grenade", count: 2 },
+      { name: "Light Armorjack Body Armor", count: 1 },
+      { name: "Light Armorjack Head Armor", count: 1 },
+      { name: "Bulletproof Shield", count: 1 },
+      { name: "Agent", count: 1 },
+      { name: "Airhypo", count: 1 },
+      { name: "Handcuffs", count: 1 },
+      { name: "Flashlight", count: 1 },
+      { name: "Generic Chic Jacket", count: 3 },
+      { name: "Glow Paint", count: 1 },
+      { name: "Medtech Bag", count: 1 },
+      { name: "Leisurewear Footwear", count: 1 },
+      { name: "Leisurewear Bottoms", count: 3 },
+      { name: "Leisurewear Top", count: 5 },
+    ],
+
+    media: [
+      {
+        type: "choice",
+        options: [
+          { name: "Heavy Pistol", count: 1 },
+          { name: "Very Heavy Pistol", count: 1 },
+        ],
+      },
+      {
+        type: "choice",
+        options: [
+          { name: "Basic H Pistol", count: 50 },
+          { name: "Basic VH Pistol", count: 50 },
+        ],
+      },
+      { name: "Light Armorjack Body Armor", count: 1 },
+      { name: "Light Armorjack Head Armor", count: 1 },
+      { name: "Agent", count: 1 },
+      { name: "Audio Recorder", count: 1 },
+      { name: "Binoculars", count: 1 },
+      {
+        type: "choice",
+        options: [
+          { name: "Disposable Cellphone", count: 2 },
+          { name: "Grapple Gun", count: 1 },
+        ],
+      },
+      { name: "Flashlight", count: 1 },
+      { name: "Computer", count: 1 },
+      { name: "Radio Scanner/Music Player", count: 1 },
+      { name: "Scrambler/Descrambler", count: 1 },
+      { name: "Video Camera", count: 1 },
+      { name: "Generic Chic Footwear", count: 1 },
+      { name: "Generic Chic Bottoms", count: 1 },
+      { name: "Generic Chic Top", count: 1 },
+      { name: "Leisurewear Jacket", count: 1 },
+      { name: "Urbanflash Mirrorshades", count: 1 },
+    ],
+
+    lawman: [
+      {
+        type: "choice",
+        options: [
+          { name: "Assault Rifle", count: 1 },
+          { name: "Shotgun", count: 1 },
+        ],
+      },
+      { name: "Heavy Pistol", count: 1 },
+      {
+        type: "choice",
+        options: [
+          { name: "Basic Rifle", count: 100 },
+          { name: "Basic Shotgun Shell", count: 100 },
+          { name: "Basic Slug", count: 100 },
+        ],
+      },
+      { name: "Basic H Pistol", count: 30 },
+      {
+        type: "choice",
+        options: [
+          { name: "Bulletproof Shield", count: 1 },
+          { name: "Smoke Grenade", count: 2 },
+        ],
+      },
+      { name: "Light Armorjack Body Armor", count: 1 },
+      { name: "Light Armorjack Head Armor", count: 1 },
+      { name: "Agent", count: 1 },
+      { name: "Flashlight", count: 1 },
+      { name: "Handcuffs", count: 2 },
+      { name: "Radio Communicator", count: 1 },
+      { name: "Road Flare", count: 10 },
+      { name: "Generic Chic Jacket", count: 1 },
+      { name: "Generic Chic Bottoms", count: 2 },
+      { name: "Generic Chic Top", count: 3 },
+      { name: "Leisurewear Footwear", count: 2 },
+      { name: "Leisurewear Jacket", count: 2 },
+      { name: "Leisurewear Bottoms", count: 2 },
+      { name: "Leisurewear Mirrorshades", count: 1 },
+      { name: "Leisurewear Top", count: 2 },
+    ],
+
+    exec: [
+      { name: "Very Heavy Pistol", count: 1 },
+      { name: "Basic VH Pistol", count: 50 },
+      { name: "Light Armorjack Body Armor", count: 1 },
+      { name: "Light Armorjack Head Armor", count: 1 },
+      { name: "Radio Communicator", count: 4 },
+      { name: "Scrambler/Descrambler", count: 1 },
+      { name: "Businesswear Footwear", count: 1 },
+      { name: "Businesswear Jacket", count: 1 },
+      { name: "Businesswear Bottoms", count: 1 },
+      { name: "Businesswear Mirrorshades", count: 1 },
+      { name: "Businesswear Top", count: 1 },
+      { name: "Businesswear Jewelry", count: 2 },
+    ],
+
+    fixer: [
+      {
+        type: "choice",
+        options: [
+          { name: "Heavy Pistol", count: 1 },
+          { name: "Very Heavy Pistol", count: 1 },
+        ],
+      },
+      {
+        type: "choice",
+        options: [
+          { name: "Heavy Pistol", count: 1 },
+          { name: "Very Heavy Pistol", count: 1 },
+        ],
+      },
+      { name: "Light Melee Weapon", count: 1 },
+      {
+        type: "choice",
+        options: [
+          { name: "Basic H Pistol", count: 100 },
+          { name: "Basic VH Pistol", count: 100 },
+        ],
+      },
+      { name: "Light Armorjack Body Armor", count: 1 },
+      { name: "Light Armorjack Head Armor", count: 1 },
+      { name: "Agent", count: 1 },
+      { name: "Bug Detector", count: 1 },
+      { name: "Computer", count: 1 },
+      { name: "Disposable Phone", count: 2 },
+      { name: "Generic Chic Contacts", count: 1 },
+      { name: "Generic Chic Jewelry", count: 1 },
+      { name: "Leisurewear Mirrorshades", count: 1 },
+      { name: "Urbanflash Footwear", count: 1 },
+      { name: "Urbanflash Jacket", count: 1 },
+      { name: "Urbanflash Bottoms", count: 1 },
+      { name: "Urbanflash Top", count: 1 },
+    ],
+
+    nomad: [
+      {
+        type: "choice",
+        options: [
+          { name: "Heavy Pistol", count: 1 },
+          { name: "Very Heavy Pistol", count: 1 },
+        ],
+      },
+      {
+        type: "choice",
+        options: [
+          { name: "Basic H Pistol", count: 100 },
+          { name: "Basic VH Pistol", count: 100 },
+        ],
+      },
+      {
+        type: "choice",
+        options: [
+          { name: "Heavy Melee Weapon", count: 1 },
+          { name: "Heavy Pistol", count: 1 },
+        ],
+      },
+      { name: "Light Armorjack Body Armor", count: 1 },
+      { name: "Light Armorjack Head Armor", count: 1 },
+      { name: "Agent", count: 1 },
+      { name: "Anti-Smog Breathing Mask", count: 1 },
+      { name: "Duct Tape", count: 1 },
+      { name: "Flashlight", count: 1 },
+      { name: "Grapple Gun", count: 1 },
+      { name: "Inflatable Bed & Sleep-Bag", count: 1 },
+      { name: "Medtech Bag", count: 1 },
+      { name: "Radio Communicator", count: 2 },
+      { name: "Rope", count: 1 },
+      { name: "Techtool", count: 1 },
+      { name: "Tent and Camping Equipment", count: 1 },
+      { name: "Bohemian Jewelry", count: 1 },
+      { name: "Nomad Leathers Top", count: 4 },
+      { name: "Nomad Leathers Bottom", count: 2 },
+      { name: "Nomad Leathers Footwear", count: 2 },
+      { name: "Nomad Leathers Jacket", count: 1 },
+      { name: "Nomad Leathers Hat", count: 1 },
+    ],
+  };
+
+  function onStep5Load() {
+    const creationMethod = record.data?.wizard?.creationMethod;
+
+    if (creationMethod === "streetrat") {
+      api.setValues({
+        "fields.streetRatInfo.hidden": false,
+        "fields.edgerunnerInfo.hidden": true,
+        "fields.completePackageInfo.hidden": true,
+      });
+      assignStartingGear();
+    } else if (creationMethod === "edgerunner") {
+      api.setValues({
+        "fields.streetRatInfo.hidden": true,
+        "fields.edgerunnerInfo.hidden": false,
+        "fields.completePackageInfo.hidden": true,
+      });
+      assignStartingGear();
+    } else if (creationMethod === "complete") {
+      api.setValues({
+        "fields.streetRatInfo.hidden": true,
+        "fields.edgerunnerInfo.hidden": true,
+        "fields.completePackageInfo.hidden": false,
+      });
+    }
+  }
+
+  function assignStartingGear() {
+    const role = record.data?.wizard?.role;
+
+    if (!role) {
+      api.showNotification(
+        "No role selected. Please complete the previous steps first.",
+        "red",
+        "Missing Role"
+      );
+      return;
+    }
+
+    const gearList = startingGearByRole[role.toLowerCase()];
+    if (!gearList) {
+      api.showNotification(
+        `No starting gear defined for role: ${role}`,
+        "red",
+        "Unknown Role"
+      );
+      return;
+    }
+
+    // Process gear list
+    processGearList(gearList, 0, []);
+  }
+
+  function processGearList(gearList, index, collectedItems) {
+    if (index >= gearList.length) {
+      // All items processed, set the final list
+      console.log(collectedItems);
+      api.setValues({
+        "data.wizard.items": collectedItems,
+      });
+      return;
+    }
+
+    const gearItem = gearList[index];
+
+    if (gearItem.type === "choice") {
+      // Show prompt for choice
+      const options = gearItem.options.map((opt) => ({
+        label: `${opt.name} (${opt.count})`,
+        value: opt,
+      }));
+
+      console.log(options);
+      api.showPrompt(
+        "Choose Gear",
+        "Select your starting gear",
+        "Choose one of the following options:",
+        options,
+        null,
+        (selection) => {
+          if (selection) {
+            addGearToList(selection, collectedItems, (updatedItems) => {
+              processGearList(gearList, index + 1, updatedItems);
+            });
+          } else {
+            processGearList(gearList, index + 1, collectedItems);
+          }
+        },
+        "Select",
+        "Skip",
+        1
+      );
+    } else {
+      // Regular item, add it directly
+      addGearToList(gearItem, collectedItems, (updatedItems) => {
+        processGearList(gearList, index + 1, updatedItems);
+      });
+    }
+  }
+
+  function addGearToList(gearItem, currentItems, callback) {
+    const itemName = gearItem.name;
+    const itemCount = gearItem.count || 1;
+    const isProgram = gearItem.isProgram || false;
+
+    // Determine record type
+    const recordType = "items";
+
+    api.getRecordByTypeAndName(recordType, itemName, (foundItem) => {
+      let newItem;
+
+      if (foundItem) {
+        // Found the item, use it
+        newItem = {
+          ...foundItem,
+          data: {
+            ...foundItem.data,
+            count: itemCount,
+          },
+        };
+      } else {
+        // Item not found, create placeholder
+        newItem = {
+          _id: generateUuid(),
+          name: itemName,
+          recordType: recordType,
+          data: {
+            count: itemCount,
+            description:
+              "Automatically generated via Character Wizard. No data has been set.",
+          },
+        };
+      }
+
+      // Check if item already exists in the list
+      const existingIndex = currentItems.findIndex(
+        (item) => item.name === itemName && item.recordType === recordType
+      );
+
+      if (existingIndex >= 0) {
+        // Item exists, add to count
+        currentItems[existingIndex].data.count =
+          (currentItems[existingIndex].data.count || 1) + itemCount;
+      } else {
+        // New item, add to list
+        currentItems.push(newItem);
+      }
+
+      callback(currentItems);
+    });
+  }
+
+  function onStepEnd(stepIndex) {
+    // After this step is done, we collect all the info
+    // in the wizard and save it on the character record
+  }
+
+  function onItemDelete() {
+    // Recalculate the available funds based on remaining items
+    // Requery the whole record to ensure accuracy
+    api.getRecord("characters", record._id, (record) => {
+      const items = record.data?.wizard?.items || [];
+      const startingFunds = 2550;
+      const startingFashionFunds = 800;
+
+      let totalGeneralSpent = 0;
+      let totalFashionSpent = 0;
+
+      items.forEach((item) => {
+        const itemCost = item.data?.cost || 0;
+        const itemCount = item.data?.count || 1;
+        const totalItemCost = itemCost * itemCount;
+
+        // Check if this is a fashion item or fashionware
+        const isFashion =
+          item.data?.type === "fashion" ||
+          item.data?.cyberwareInstallSlot === "fashionware";
+
+        if (isFashion) {
+          totalFashionSpent += totalItemCost;
+        } else {
+          totalGeneralSpent += totalItemCost;
+        }
+      });
+
+      const availableFunds = startingFunds - totalGeneralSpent;
+      const availableFashionFunds = startingFashionFunds - totalFashionSpent;
+
+      api.setValues({
+        "data.wizard.availableFunds": availableFunds,
+        "data.wizard.availableFashionFunds": availableFashionFunds,
+      });
+    });
+  }
+
+  function buyItem() {
+    // Get the item from the previewItem
+    // Requery the whole record to ensure accuracy
+    api.getRecord("characters", record._id, (record) => {
+      const item = record.data?.wizard?.previewItem;
+      const itemid = item?.value?._id;
+      const valuesToSet = {};
+
+      if (itemid) {
+        // Check if they have enough funds
+        const itemCost = parseInt(
+          item.value?.data?.cost ||
+            "0".replace("eb", "").replace(",", "").trim(),
+          10
+        );
+        // If this is a fashion item or fashionware, use the fashion funds
+        const isFashion =
+          item.value?.data?.type === "fashion" ||
+          item.value?.data?.cyberwareInstallSlot === "fashionware";
+        const availableFunds = isFashion
+          ? record.data?.wizard?.availableFashionFunds
+          : record.data?.wizard?.availableFunds;
+        if (itemCost > availableFunds) {
+          api.showNotification(
+            "You do not have enough " +
+              (isFashion ? "fashion" : "general") +
+              " funds to buy this item",
+            "red",
+            "Not Enough Funds"
+          );
+          return;
+        } else {
+          // Subtract the item cost from the available funds
+          if (isFashion) {
+            valuesToSet["data.wizard.availableFashionFunds"] =
+              availableFunds - itemCost;
+          } else {
+            valuesToSet["data.wizard.availableFunds"] =
+              availableFunds - itemCost;
+          }
+
+          // Add the item to the list
+          const items = [...(record.data?.wizard?.items || [])];
+          // Check if the item is already in the list
+          const itemIndex = items.findIndex((i) => i._id === item.value._id);
+          if (itemIndex === -1) {
+            // Add the item to the list with count
+            const newItem = {
+              ...item.value,
+              data: { ...item.value?.data, count: 1 },
+            };
+            items.push(newItem);
+          } else {
+            // Update the item count
+            items[itemIndex].data.count =
+              (items[itemIndex].data.count || 1) + 1;
+          }
+
+          // Set the items list
+          valuesToSet["data.wizard.items"] = items;
+
+          api.setValues(valuesToSet);
+        }
+      } else {
+        api.showNotification({
+          title: "No item selected",
+          message: "Please select an item to buy",
+          type: "error",
+        });
+      }
+    });
+  }
+
+  function setPreviewItem(value) {
+    if (value) {
+      try {
+        const item = JSON.parse(value);
+        if (item && item._id) {
+          // Query to get the item data and set information
+          api.getRecord("items", item._id, (itemRecord) => {
+            api.setValues({
+              "fields.previewItem.hidden": false,
+              "data.wizard.previewItemCost": itemRecord.data?.cost || "0",
+              "data.wizard.previewItemDescription":
+                itemRecord.data?.description ||
+                "No description available for this item.",
+              "data.wizard.previewItem": {
+                tooltip: itemRecord.name,
+                value: itemRecord,
+                type: "items",
+              },
+            });
+          });
+        }
+      } catch (error) {
+        // No-op
+      }
+    } else {
+      api.setValues({
+        "fields.previewItem.hidden": true,
+        "data.wizard.previewItemCost": "",
+        "data.wizard.previewItemDescription": "",
+        "data.wizard.previewItem": null,
+      });
+    }
+  }
+
+  function onPreviewItemChange(value) {
+    if (!value) {
+      api.setValues({
+        "fields.previewItem.hidden": true,
+        "data.wizard.previewItemCost": "",
+        "data.wizard.previewItemDescription": "",
+        "data.wizard.itemSearch": null,
+      });
+    }
+  }
+</script>
+
+<box field="step5" onload="onStep5Load()">
+  <label label="Gear" size="lg"></label>
+
+  <box field="streetRatInfo" hidden="true">
+    <label
+      label="You start with the default gear for your Role."
+      size="sm"
+      variant="default"
+    ></label>
+
+    <divider label="Starting Gear"></divider>
+    <list
+      listtype="buy_item_list"
+      field="items"
+      variant="outline-striped"
+    ></list>
+  </box>
+
+  <box field="edgerunnerInfo" hidden="true">
+    <label
+      label="You start with the default gear for your Role."
+      size="sm"
+      variant="default"
+    ></label>
+
+    <divider label="Starting Gear"></divider>
+    <list
+      listtype="buy_item_list"
+      field="items"
+      variant="outline-striped"
+    ></list>
+  </box>
+
+  <box field="completePackageInfo" hidden="true">
+    <label
+      label="You start with 2,550 eb to buy weapons, armor, gear, and cyberware. Additionally, you get up to 800 eb to spend on fashion and fashionware (any unspent fashion money is lost)."
+      size="sm"
+      variant="default"
+    ></label>
+
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+        margin-top: 8px;
+      "
+    >
+      <div style="display: flex; gap: 4px; width: 100%; align-items: flex-end">
+        <dropdown
+          field="itemSearch"
+          label="Search for gear or cyberware"
+          placeholder="Search for gear or cyberware..."
+          width="100%"
+          optionsquery='{"type": "items", "query": {}}'
+          icon="IconSearch"
+          onchange="setPreviewItem(value)"
+        ></dropdown>
+        <recordlink
+          color="primary"
+          field="previewItem"
+          hidden="true"
+          onchange="onPreviewItemChange(value)"
+        ></recordlink>
+      </div>
+
+      <div style="display: flex; gap: 4px; width: 100%; align-items: center">
+        <button
+          field="buyItem"
+          color="primary"
+          label="Buy Item"
+          icon="IconShoppingCart"
+          variant="light"
+          onclick="buyItem()"
+        ></button>
+      </div>
+
+      <divider label="Selected Item Details"></divider>
+      <div style="display: flex; gap: 4px; width: 100%; align-items: center">
+        <label
+          field="previewItemCostLabel"
+          label="Cost:"
+          size="sm"
+          variant="bold"
+          textalign="center"
+        ></label>
+        <stringfield
+          field="previewItemCost"
+          size="sm"
+          variant="bold"
+          textalign="center"
+          editable="false"
+        ></stringfield>
+      </div>
+
+      <label
+        field="previewItemDescriptionLabel"
+        label="Description"
+        size="sm"
+        variant="bold"
+        textalign="left"
+      ></label>
+      <richtextfield
+        field="previewItemDescription"
+        disablecontrols="true"
+      ></richtextfield>
+
+      <divider label="Bought Items"></divider>
+
+      <div style="display: flex; gap: 4px; width: 100%; align-items: center">
+        <label
+          field="availableFundsLabel"
+          color="green"
+          label="Funds:"
+          size="sm"
+          variant="bold"
+          textalign="center"
+        ></label>
+        <numberfield
+          field="availableFunds"
+          size="sm"
+          variant="unstyled"
+          textalign="center"
+          editable="false"
+          defaultvalue="2550"
+          hidecontrols="true"
+        ></numberfield>
+        <label
+          field="availableFundsLabel2"
+          label="eb of 2,550 eb"
+          size="sm"
+          variant="default"
+          textalign="center"
+        ></label>
+      </div>
+
+      <div style="display: flex; gap: 4px; width: 100%; align-items: center">
+        <label
+          field="availableFundsLabel3"
+          label="Fashion:"
+          color="blue"
+          size="sm"
+          variant="bold"
+          textalign="center"
+        ></label>
+        <numberfield
+          field="availableFashionFunds"
+          size="sm"
+          variant="unstyled"
+          textalign="center"
+          defaultvalue="800"
+          editable="false"
+          hidecontrols="true"
+        ></numberfield>
+        <label
+          field="availableFashionFundsLabel2"
+          label="eb of 800 eb"
+          size="sm"
+          variant="default"
+          textalign="center"
+        ></label>
+      </div>
+
+      <list
+        listtype="buy_item_list"
+        field="items"
+        variant="outline-striped"
+        onchange="onItemDelete()"
+      ></list>
+    </div>
+  </box>
+</box>
