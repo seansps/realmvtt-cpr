@@ -497,8 +497,140 @@
   }
 
   function onStepEnd(stepIndex) {
-    // After this step is done, we collect all the info
-    // in the wizard and save it on the character record
+    // Create the main valuesToSet object that will accumulate all changes
+    let valuesToSet = {};
+
+    // Get the role record for dropping later
+    const roleRecord = record.data?.wizard?.roleRecord;
+
+    // 1. First, copy skill groups and lifepath fields (these don't conflict with setStatsAndSkills)
+    if (record.data?.wizard?.skillGroups1) {
+      valuesToSet["data.skillGroups1"] = record.data.wizard.skillGroups1;
+    }
+    if (record.data?.wizard?.skillGroups2) {
+      valuesToSet["data.skillGroups2"] = record.data.wizard.skillGroups2;
+    }
+
+    // 2. Copy all lifepath fields from step 2
+    const lifepathFields = [
+      "culturalOrigins",
+      "clothingStyle",
+      "languages",
+      "valueMost",
+      "valuePerson",
+      "familyBackground",
+      "familyCrisis",
+      "friend1",
+      "friend2",
+      "friend3",
+      "tragicAffair1",
+      "tragicAffair2",
+      "tragicAffair3",
+      "personality",
+      "hairStyle",
+      "feelingsPeople",
+      "valuedPossessions",
+      "childhoodEnvironment",
+      "lifeGoals",
+      "housing",
+      "rent",
+      "lifestyle",
+      "enemy1",
+      "enemy2",
+      "enemy3",
+      "enemyCause1",
+      "enemyCause2",
+      "enemyCause3",
+      "enemyThreat1",
+      "enemyThreat2",
+      "enemyThreat3",
+      "enemyOutcome1",
+      "enemyOutcome2",
+      "enemyOutcome3",
+      "roleSpecificLifepath",
+    ];
+
+    lifepathFields.forEach((field) => {
+      const value = record.data?.wizard?.[field];
+      if (value !== undefined) {
+        valuesToSet[`data.${field}`] = value;
+      }
+    });
+
+    // 3. Copy items to inventory
+    if (record.data?.wizard?.items) {
+      valuesToSet["data.inventory"] = record.data.wizard.items;
+    }
+
+    // 4. Clear the wizard data
+    valuesToSet["data.wizard"] = {};
+
+    // Apply these changes first
+    api.setValues(valuesToSet, () => {
+      // 5. Now set all stats using setStatsAndSkills (this will update skill bases within the already-set skill groups)
+      // We need to get the updated record to work with the new skill groups
+      api.getRecord("characters", record._id, (updatedRecord) => {
+        let statsValuesToSet = {};
+
+        // Set regular stats
+        const stats = [
+          "int",
+          "ref",
+          "dex",
+          "tech",
+          "cool",
+          "will",
+          "luck",
+          "move",
+          "body",
+        ];
+
+        stats.forEach((stat) => {
+          const value = record.data?.wizard?.[stat];
+          if (value !== undefined) {
+            setStatsAndSkills(updatedRecord, value, stat, statsValuesToSet);
+          }
+        });
+
+        // Handle emp and curEmp specially
+        const empValue = record.data?.wizard?.emp;
+        if (empValue !== undefined) {
+          setStatsAndSkills(updatedRecord, empValue, "emp", statsValuesToSet);
+          setStatsAndSkills(
+            updatedRecord,
+            empValue,
+            "curEmp",
+            statsValuesToSet
+          );
+        }
+
+        // Handle luck and curLuck specially
+        const luckValue = record.data?.wizard?.luck;
+        if (luckValue !== undefined) {
+          setStatsAndSkills(
+            updatedRecord,
+            luckValue,
+            "curLuck",
+            statsValuesToSet
+          );
+        }
+
+        // Apply the stats changes
+        if (Object.keys(statsValuesToSet).length > 0) {
+          api.setValues(statsValuesToSet, () => {
+            // 6. Finally, drop the role record after everything is set
+            if (roleRecord) {
+              api.dropRecord(roleRecord);
+            }
+          });
+        } else {
+          // No stats to set, just drop the role record
+          if (roleRecord) {
+            api.dropRecord(roleRecord);
+          }
+        }
+      });
+    });
   }
 
   function onItemDelete() {
