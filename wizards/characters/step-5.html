@@ -615,7 +615,11 @@
           );
         }
 
-        // Apply the stats changes
+        // Apply the stats changes and set curhp and max
+        if (statsValuesToSet["data.hitpoints"]) {
+          statsValuesToSet["data.curhp"] = statsValuesToSet["data.hitpoints"];
+        }
+
         if (Object.keys(statsValuesToSet).length > 0) {
           api.setValues(statsValuesToSet, () => {
             // 6. Finally, drop the role record after everything is set
