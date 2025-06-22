@@ -562,7 +562,21 @@
       valuesToSet["data.inventory"] = record.data.wizard.items;
     }
 
-    // 4. Clear the wizard data
+    // 4. Set starting cash based on creation method
+    const creationMethod = record.data?.wizard?.creationMethod;
+    if (creationMethod === "complete") {
+      // For complete package, set cash to unspent funds (ignore fashion funds)
+      const availableFunds = record.data?.wizard?.availableFunds || 0;
+      valuesToSet["data.cash"] = availableFunds;
+    } else if (
+      creationMethod === "streetrat" ||
+      creationMethod === "edgerunner"
+    ) {
+      // For streetrat and edgerunner, set cash to 500eb
+      valuesToSet["data.cash"] = 500;
+    }
+
+    // 5. Clear the wizard data
     valuesToSet["data.wizard"] = {};
 
     // Apply these changes first
