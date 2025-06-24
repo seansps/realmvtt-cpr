@@ -572,45 +572,100 @@
             }
           );
 
-          // Second, handle wizard subskills that don't have matches - add them to empty slots
-          wizardSkill.data?.subSkills?.forEach((wizardSubSkill) => {
-            // Skip if this wizard subskill already matched an existing one
-            const alreadyMatched = targetSkill.data?.subSkills?.some(
-              (targetSubSkill) => targetSubSkill.name === wizardSubSkill.name
-            );
-
-            if (
-              !alreadyMatched &&
-              wizardSubSkill.name &&
-              wizardSubSkill.name.trim() !== ""
-            ) {
-              // Find the next empty subskill slot
-              const emptySlotIndex = targetSkill.data?.subSkills?.findIndex(
-                (targetSubSkill) =>
-                  !targetSubSkill.name || targetSubSkill.name.trim() === ""
+          // Second, handle wizard subskills that don't have matches - add them to empty slots or create new ones
+          // First collect all unmatched wizard subskills
+          const unmatchedWizardSubSkills =
+            wizardSkill.data?.subSkills?.filter((wizardSubSkill) => {
+              const alreadyMatched = targetSkill.data?.subSkills?.some(
+                (targetSubSkill) => targetSubSkill.name === wizardSubSkill.name
               );
+              return (
+                !alreadyMatched &&
+                wizardSubSkill.name &&
+                wizardSubSkill.name.trim() !== ""
+              );
+            }) || [];
 
-              if (emptySlotIndex !== -1) {
-                // Set the name
-                const subSkillNamePath = `data.${groupFieldName}.${groupIndex}.data.skills.${skillIndex}.data.subSkills.${emptySlotIndex}.name`;
-                valuesToSet[subSkillNamePath] = wizardSubSkill.name;
+          // Find all available empty slots
+          const emptySlots = [];
+          targetSkill.data?.subSkills?.forEach((targetSubSkill, index) => {
+            if (!targetSubSkill.name || targetSubSkill.name.trim() === "") {
+              emptySlots.push(index);
+            }
+          });
 
-                // Set the unidentifiedName
-                const subSkillUnidentifiedNamePath = `data.${groupFieldName}.${groupIndex}.data.skills.${skillIndex}.data.subSkills.${emptySlotIndex}.unidentifiedName`;
-                valuesToSet[subSkillUnidentifiedNamePath] = wizardSubSkill.name;
+          // Track which slots we've used in this operation
+          const usedSlots = new Set();
 
-                // Set the level
-                if (wizardSubSkill.data?.lvl !== undefined) {
-                  const subSkillLevelPath = `data.${groupFieldName}.${groupIndex}.data.skills.${skillIndex}.data.subSkills.${emptySlotIndex}.data.lvl`;
-                  valuesToSet[subSkillLevelPath] = wizardSubSkill.data.lvl;
-                }
+          // Assign unmatched wizard subskills to available slots
+          unmatchedWizardSubSkills.forEach((wizardSubSkill) => {
+            let targetIndex;
 
-                // Set the base
-                if (wizardSubSkill.data?.base !== undefined) {
-                  const subSkillBasePath = `data.${groupFieldName}.${groupIndex}.data.skills.${skillIndex}.data.subSkills.${emptySlotIndex}.data.base`;
-                  valuesToSet[subSkillBasePath] = wizardSubSkill.data.base;
-                }
+            // First try to use an empty slot
+            const availableEmptySlot = emptySlots.find(
+              (slot) => !usedSlots.has(slot)
+            );
+            if (availableEmptySlot !== undefined) {
+              targetIndex = availableEmptySlot;
+              usedSlots.add(targetIndex);
+
+              // Set the name and other properties for the empty slot
+              const subSkillNamePath = `data.${groupFieldName}.${groupIndex}.data.skills.${skillIndex}.data.subSkills.${targetIndex}.name`;
+              valuesToSet[subSkillNamePath] = wizardSubSkill.name;
+
+              const subSkillUnidentifiedNamePath = `data.${groupFieldName}.${groupIndex}.data.skills.${skillIndex}.data.subSkills.${targetIndex}.unidentifiedName`;
+              valuesToSet[subSkillUnidentifiedNamePath] = wizardSubSkill.name;
+
+              if (wizardSubSkill.data?.lvl !== undefined) {
+                const subSkillLevelPath = `data.${groupFieldName}.${groupIndex}.data.skills.${skillIndex}.data.subSkills.${targetIndex}.data.lvl`;
+                valuesToSet[subSkillLevelPath] = wizardSubSkill.data.lvl;
               }
+
+              if (wizardSubSkill.data?.base !== undefined) {
+                const subSkillBasePath = `data.${groupFieldName}.${groupIndex}.data.skills.${skillIndex}.data.subSkills.${targetIndex}.data.base`;
+                valuesToSet[subSkillBasePath] = wizardSubSkill.data.base;
+              }
+            } else {
+              // No empty slot available, create a new one at the end
+              targetIndex = targetSkill.data?.subSkills?.length || 0;
+
+              // Make sure we don't conflict with other new slots being created
+              while (
+                usedSlots.has(targetIndex) ||
+                valuesToSet[
+                  `data.${groupFieldName}.${groupIndex}.data.skills.${skillIndex}.data.subSkills.${targetIndex}`
+                ]
+              ) {
+                targetIndex++;
+              }
+              usedSlots.add(targetIndex);
+
+              // Create the new subskill structure
+              const newSubSkill = {
+                _id: generateUuid(),
+                name: wizardSubSkill.name,
+                unidentifiedName: wizardSubSkill.name,
+                data: {
+                  stat: targetSkill.data?.stat,
+                  isDefault: false,
+                  isTimesTwo: targetSkill.data?.isTimesTwo || false,
+                  lvl: wizardSubSkill.data?.lvl || 0,
+                  base: wizardSubSkill.data?.base || 0,
+                  hasSubskills: false,
+                },
+                fields: {
+                  name: {
+                    hidden: false,
+                  },
+                  namefield: {
+                    hidden: true,
+                  },
+                },
+              };
+
+              // Add the new subskill to the array
+              const newSubSkillPath = `data.${groupFieldName}.${groupIndex}.data.skills.${skillIndex}.data.subSkills.${targetIndex}`;
+              valuesToSet[newSubSkillPath] = newSubSkill;
             }
           });
         }
@@ -800,6 +855,7 @@
 
               // Clear the wizard data and set the skill values
               skillValuesToSet["data.wizard"] = {};
+
               api.setValuesOnRecord(finalRecord, skillValuesToSet, () => {
                 // Drop the role record
                 if (roleRecordTodrop) {
