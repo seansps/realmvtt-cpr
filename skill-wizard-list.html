@@ -36,32 +36,16 @@
     const creationMethod = api.getValue("data.wizard.creationMethod");
     if (creationMethod === "edgerunner") {
       if (val > 6) {
-        api.showToast(
-          "Skill level cannot be higher than 6 in character creation.",
-          "error"
-        );
         return;
       }
       if (val < 2) {
-        api.showToast(
-          "Skill level cannot be lower than 2 in Edgerunner mode.",
-          "error"
-        );
         return;
       }
     } else if (creationMethod === "complete") {
       if (val > 6) {
-        api.showToast(
-          "Skill level cannot be higher than 6 in character creation.",
-          "error"
-        );
         return;
       }
       if (val === 1) {
-        api.showToast(
-          "Skill level cannot be 1 - must be 0 or at least 2.",
-          "error"
-        );
         return;
       }
     }
@@ -161,6 +145,7 @@
       field="lvl"
       variant="tooltip"
       onchange="onUpdateSkillLevel(value)"
+      minvalue="0"
       maxvalue="6"
     ></numberfield>
     <numberfield

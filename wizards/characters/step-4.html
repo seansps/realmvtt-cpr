@@ -9,9 +9,14 @@
     const creationMethod = record.data?.wizard?.creationMethod;
     const role = record.data?.wizard?.role;
 
+    // If we already created the skills for this role/method, don't do it again
+    if (record.data?.wizard?.skillsCreated === creationMethod + " " + role) {
+      return;
+    }
+
     // If we're in complete mode, show all skills
     if (creationMethod === "complete") {
-      createAllSkills();
+      createAllSkills(role, creationMethod);
     } else if (
       (creationMethod === "streetrat" || creationMethod === "edgerunner") &&
       role
@@ -21,7 +26,7 @@
     }
   }
 
-  function createAllSkills() {
+  function createAllSkills(role, creationMethod) {
     // Same logic as characters-main.html onLoad - show all skills
     const allSkills = getAllSkills();
     const skillStructure = buildSkillStructure(
@@ -34,6 +39,8 @@
     let valuesToSet = {
       "data.wizard.skillGroups1": skillStructure.skillGroups1Data,
       "data.wizard.skillGroups2": skillStructure.skillGroups2Data,
+      // Mark that we already created the skills so we don't do it again for this role/method
+      "data.wizard.skillsCreated": creationMethod + " " + role,
     };
 
     // Calculate initial skill points for complete package mode
@@ -97,6 +104,8 @@
     let valuesToSet = {
       "data.wizard.skillGroups1": skillStructure.skillGroups1Data,
       "data.wizard.skillGroups2": skillStructure.skillGroups2Data,
+      // Mark that we already created the skills so we don't do it again for this role/method
+      "data.wizard.skillsCreated": creationMethod + " " + role,
     };
 
     // For edgerunner mode, calculate initial skill points and show the info panel
