@@ -191,6 +191,17 @@ targets.forEach(target => {
     };
 
     let isVehicle = target.data?.type === "vehicle";
+    let headshotMultiplier = 2;
+    // Check for headshot multiplier effects
+    const headshotMultiplierEffects = getEffectsAndModifiersForToken(
+      target,
+      ["headshotMultiplier"]
+    );
+    headshotMultiplierEffects.forEach(effect => {
+      if (effect.value) {
+        headshotMultiplier = effect.value;
+      }
+    });
     
     // For undo functionality, create a map of original values
     const oldValues = {};
@@ -297,7 +308,7 @@ targets.forEach(target => {
       if (${isHalfSp}) {
         armorSp = Math.ceil(armorSp / 2);
       }
-      
+
       if (damage > 0 && (armorSp > 0 || armorIgnored)) {
         // We only get damaged if damage is greater than armor's SP
         if (damage > armorSp) {
@@ -340,12 +351,14 @@ targets.forEach(target => {
           
           // If this is a headshot and damage gets through, multiply it by 2
           if (${isHeadshot} && damage > 0) {
-            damage = damage * 2;
+            damage = damage * headshotMultiplier;
           }
         } else {
           damage = 0;
           armorProtected = true;
         }
+      } else if (damage > 0 && ${isHeadshot}) {
+        damage = damage * headshotMultiplier;
       }
 
       // Apply damage reduction if not already used
