@@ -119,8 +119,7 @@ api.getRecord('conditions', '${injuryId}', (injuryRecord) => {
       tooltip: injuryRecord?.name || "Injury",
     };
     targets.forEach(target => {
-      const targetRecord = target.recordType === "characters" ? target.record : target;
-      addCondition(targetRecord, injuryRecordLink, ${deductHP});
+      addCondition(target, injuryRecordLink, ${deductHP});
     });
   }
 });

@@ -2252,9 +2252,8 @@ if (conditionRecord) {
     tooltip: conditionRecord?.name || "Condition",
   };
   targets.forEach(target => {
-    const targetRecord = target.recordType === "characters" ? target.record : target;
     // For conditions applied this way, we will not deduct HP
-    addCondition(targetRecord, conditionRecordLink, ${critInjuryDamage});
+    addCondition(target, conditionRecordLink, ${critInjuryDamage});
   });
 }
 });
@@ -2566,9 +2565,8 @@ api.getRecord('conditions', '${conditionID}', (conditionRecord) => {
       tooltip: conditionRecord?.name || "Condition",
     };
     targets.forEach(target => {
-      const targetRecord = target.recordType === "characters" ? target.record : target;
       // For conditions applied this way, we will not deduct HP
-      addCondition(targetRecord, conditionRecordLink, 0);
+      addCondition(target, conditionRecordLink, 0);
     });
   }
 });
@@ -3831,8 +3829,7 @@ api.getRecordByTypeAndName('conditions', 'Broken Leg', (injuryRecord) => {
       tooltip: injuryRecord?.name || "Injury",
     };
     targets.forEach(target => {
-      const targetRecord = target.recordType === "characters" ? target.record : target;
-      addCondition(targetRecord, injuryRecordLink, 5);
+      addCondition(target, injuryRecordLink, 5);
     });
   }
 });
@@ -4046,16 +4043,19 @@ function addCondition(record, recordLink, deductHp = 0) {
 
   const recordType = record.recordType;
   const conditionType = conditionObj.data?.type || "critical_injury";
-  const recordId = record._id;
+  const recordId =
+    record.recordType === "characters" && record.recordId
+      ? record.recordId
+      : record._id;
 
   // After adding the condition, add the effects to the character sequentially
-  const addEffects = (newRecord) => {
+  const addEffects = (updatedRecord) => {
     // First update attributes based on modifiers
     const valuesToSet = {};
-    const bestEquippedArmor = getBestEquippedArmor(newRecord);
-    // Update attributes as per modifiers
+    const bestEquippedArmor = getBestEquippedArmor(record);
     updateAttributesOnRecord(
-      newRecord,
+      // Merge updates with the original record
+      updatedRecord,
       valuesToSet,
       bestEquippedArmor.highestPenalty
     );
@@ -4087,7 +4087,7 @@ function addCondition(record, recordLink, deductHp = 0) {
     }
 
     if (Object.keys(valuesToSet).length > 0) {
-      api.setValuesOnRecord(newRecord, valuesToSet);
+      api.setValuesOnRecord(updatedRecord, valuesToSet);
     }
 
     const effects = conditionObj.data?.effects || [];
@@ -4128,14 +4128,14 @@ function addCondition(record, recordLink, deductHp = 0) {
   if (conditionType === "critical_injury") {
     api.addValuesToRecord(
       record,
-      isNpc ? "data.conditions" : "data.criticalInjuries",
+      "data.criticalInjuries",
       [conditionObj],
       addEffects
     );
   } else if (conditionType === "addiction") {
     api.addValuesToRecord(
       record,
-      isNpc ? "data.conditions" : "data.addictions",
+      isNpc ? "data.criticalInjuries" : "data.addictions",
       [conditionObj],
       addEffects
     );

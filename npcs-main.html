@@ -885,8 +885,7 @@ api.getRecordByTypeAndName('conditions', 'Whiplash', (injuryRecord) => {
       tooltip: injuryRecord?.name || "Whiplash",
     };
     targets.forEach(target => {
-      const targetRecord = target.recordType === "characters" ? target.record : target;
-      addCondition(targetRecord, injuryRecordLink, 5);
+      addCondition(target, injuryRecordLink, 5);
     });
   }
 });
@@ -1606,7 +1605,7 @@ ${whiplashMacro}
           <list
             listtype="npc_conditions_list"
             variant="outline"
-            field="conditions"
+            field="criticalInjuries"
             onchange="onConditionChange()"
           ></list>
         </div>
