@@ -126,26 +126,30 @@
     // Get the Ammo item
     const selectedAmmo = value;
     if (selectedAmmo) {
-      const ammoId = JSON.parse(selectedAmmo)?._id;
-      if (ammoId) {
-        let ammoIndex = -1;
-        const ammo = record.data.inventory.find((item, index) => {
-          if (item._id === ammoId) {
-            ammoIndex = index;
-            return true;
-          }
-          return false;
-        });
-        if (ammo) {
-          // Found the ammo
-          const hasUseSpecial =
-            ammo?.data?.useDamage ||
-            (ammo?.data?.effects || []).length > 0 ||
-            ammo?.data?.healing;
-          api.setValues({
-            [`${weaponDataPath}.fields.useSpecialBtn.hidden`]: !hasUseSpecial,
+      try {
+        const ammoId = JSON.parse(selectedAmmo)?._id;
+        if (ammoId) {
+          let ammoIndex = -1;
+          const ammo = record.data.inventory.find((item, index) => {
+            if (item._id === ammoId) {
+              ammoIndex = index;
+              return true;
+            }
+            return false;
           });
+          if (ammo) {
+            // Found the ammo
+            const hasUseSpecial =
+              ammo?.data?.useDamage ||
+              (ammo?.data?.effects || []).length > 0 ||
+              ammo?.data?.healing;
+            api.setValues({
+              [`${weaponDataPath}.fields.useSpecialBtn.hidden`]: !hasUseSpecial,
+            });
+          }
         }
+      } catch (error) {
+        // Do nothing on JSON parse error
       }
     }
   }
