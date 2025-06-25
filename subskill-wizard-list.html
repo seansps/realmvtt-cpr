@@ -2,14 +2,12 @@
   function onClickSkill(value) {
     // Get the record of the skill you're clicking on.
     // If it is a subskill, open the parent skill instead.
-    let skillName = value;
-
-    let skillDataPath = dataPath.includes(".namefield")
-      ? dataPath.replace(".namefield", "")
-      : dataPath.replace(".name", "");
+    let skillDataPath = dataPath.replace(".data.viewSkill", "");
     let skill = api.getValue(skillDataPath);
 
-    if (skill.data?.hasSubskills) {
+    let skillName = skill.name;
+
+    if (skillDataPath.includes(".data.subSkills")) {
       // Use regex to extract the parent skill path
       const parentSkillDataPath = skillDataPath.replace(
         /\.data\.subSkills\.\d+$/,
@@ -17,6 +15,10 @@
       );
       const parentSkill = api.getValue(parentSkillDataPath);
       skillName = parentSkill.name;
+    }
+
+    if (skillName.includes("(x2)")) {
+      skillName = skillName.replace("(x2)", "").trim();
     }
 
     const record = api.getRecordByTypeAndName("skill", skillName, (record) => {
@@ -95,6 +97,14 @@
     options='[{"icon": "IconCornerDownRight", "label": "Subskill", "value": "Subskill"}]'
   ></iconbutton>
 
+  <iconbutton
+    variant="outline"
+    field="viewSkill"
+    color="default"
+    options='[{"icon": "IconTools", "label": "View Skill", "value": "view"}]'
+    onclick="onClickSkill()"
+  ></iconbutton>
+
   <div style="min-width: 60px; width: 100%">
     <namefield
       placeholder="Skill name..."
@@ -102,7 +112,6 @@
       width="100%"
       field="namefield"
       variant="unstyled"
-      onclick="onClickSkill(value)"
     ></namefield>
     <!-- Below is used for defaul skills -->
     <namefield
@@ -114,7 +123,6 @@
       field="name"
       variant="unstyled"
       hidden=""
-      onclick="onClickSkill(value)"
     ></namefield>
   </div>
   <div

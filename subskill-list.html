@@ -9,7 +9,7 @@
       : dataPath.replace(".name", "");
     let skill = api.getValue(skillDataPath);
 
-    if (skill.data?.hasSubskills) {
+    if (skillDataPath.includes(".data.subSkills")) {
       // Use regex to extract the parent skill path
       const parentSkillDataPath = skillDataPath.replace(
         /\.data\.subSkills\.\d+$/,
@@ -17,6 +17,10 @@
       );
       const parentSkill = api.getValue(parentSkillDataPath);
       skillName = parentSkill.name;
+    }
+
+    if (skillName.includes("(x2)")) {
+      skillName = skillName.replace("(x2)", "").trim();
     }
 
     const record = api.getRecordByTypeAndName("skill", skillName, (record) => {

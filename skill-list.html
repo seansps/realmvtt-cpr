@@ -19,6 +19,10 @@
       skillName = parentSkill.name;
     }
 
+    if (skillName.includes("(x2)")) {
+      skillName = skillName.replace("(x2)", "").trim();
+    }
+
     const record = api.getRecordByTypeAndName("skill", skillName, (record) => {
       if (record) {
         api.openRecord(record);
