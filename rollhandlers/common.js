@@ -2371,6 +2371,7 @@ function performProgramDamageRoll(programName, damage) {
     nonLethalGreaterThanOne: false,
     noArmorAblation: true,
     noCriticalInjuries: true,
+    sourceType: "program",
   };
 
   api.promptRoll(

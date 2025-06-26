@@ -7,6 +7,22 @@
     };
     api.promptRoll("Loyalty", "1d6", [], loyaltyMetadata, "loyalty");
   }
+
+  function onLoad() {
+    // If the record is a program, show modifiers
+    if (
+      record.data?.type === "program" &&
+      (record.fields?.modifiersBox?.hidden === undefined ||
+        record.fields?.modifiersBox?.hidden === true)
+    ) {
+      api.setHidden("modifiersBox", false);
+    } else if (
+      record.data?.type !== "program" &&
+      record.fields?.modifiersBox?.hidden === false
+    ) {
+      api.setHidden("modifiersBox", true);
+    }
+  }
 </script>
 <label
   variant="bold"
@@ -60,3 +76,38 @@
     placeholder="Enter description..."
   ></richtextfield>
 </div>
+
+<box field="modifiersBox" hidden="true">
+  <div style="margin-top: 4px">
+    <label
+      label="Modifiers"
+      size="md"
+      variant="bold"
+      textalign="center"
+    ></label>
+    <label
+      label="Modifiers applied when active in Cyberdeck"
+      size="sm"
+      textalign="center"
+      color="dark.2"
+    ></label>
+  </div>
+
+  <label
+    hidewhenidentified="true"
+    label="Item Unidentified"
+    size="sm"
+    textalign="center"
+  ></label>
+
+  <div style="width: 100%">
+    <list
+      hidewhenidentified="false"
+      listtype="modifier_list"
+      field="modifiers"
+      variant="striped"
+      allowadd=""
+      onload="onLoad();"
+    ></list>
+  </div>
+</box>

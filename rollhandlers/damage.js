@@ -42,6 +42,7 @@ let isHeadshot = targetLocation === "head";
 let isHand = targetLocation === "hand";
 let isLeg = targetLocation === "leg";
 let ignoresArmorUnder = roll.metadata?.ignoresArmorUnder || 0;
+let isProgramSource = roll.metadata?.sourceType === "program";
 
 let nonLethal =
   roll.metadata?.nonLethal !== undefined ? roll.metadata?.nonLethal : false;
@@ -233,7 +234,20 @@ targets.forEach(target => {
 
     // Get all equipped armor from inventory
     const equippedArmor = getBestEquippedArmor(target);
-    
+
+    // If damage is from a program, check for program damage reduction
+    if (${isProgramSource}) {
+      const programDamageReduction = getEffectsAndModifiersForToken(
+        target,
+        ["programDamageReduction"]
+      );
+      programDamageReduction.forEach(effect => {
+        if (effect.value) {
+          damage = Math.max(damage - effect.value, 0);
+        }
+      });
+    }
+         
     // First deduct from Cover HP if available
     if (damage > 0) {
       const oldCoverHp = oldValues["data.coverHp"];
