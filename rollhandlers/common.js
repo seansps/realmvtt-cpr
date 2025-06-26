@@ -3271,6 +3271,16 @@ function performAttackRoll(
 
   attackModifiers.push(...modifiers);
 
+  // If weapon is excellent quality, add +1 to attack
+  if (weapon?.data?.quality === "excellent") {
+    attackModifiers.push({
+      name: "Excellent Quality",
+      value: 1,
+      active: true,
+      valueType: "number",
+    });
+  }
+
   if (attackSkill) {
     const skillModifiers = getEffectsAndModifiersForToken(
       record,
@@ -3449,6 +3459,7 @@ function performAttackRoll(
     isSeriouslyWounded: false,
     isMortallyWounded: false,
     fumbleRecovery: fumbleRecovery,
+    quality: weapon?.data?.quality || "average",
     animation: animation,
   };
 

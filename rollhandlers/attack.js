@@ -29,6 +29,7 @@ const fumbleRecovery = metadata?.fumbleRecovery || false;
 const animation = metadata?.animation;
 const tokenId = metadata?.tokenId;
 const targetId = metadata?.targetId;
+const quality = metadata?.quality || "average";
 
 // Get the record ID and type
 const recordId = metadata?.priorRoll?.metadata?.recordId || metadata?.recordId;
@@ -228,6 +229,14 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
       api.setValuesOnRecord(updatedRecord, {
         "data.afMultiplier": afMultiplier,
       });
+    });
+  }
+
+  if (quality === "poor" && metadata.critFail) {
+    // add the Weapon Malfunction effect
+    message += `\n\n**[center][color=red]WEAPON MALFUNCTION[/color][/center]**`;
+    api.getRecord(rollRecordType, recordId, (updatedRecord) => {
+      api.addEffect("Weapon Malfunction", updatedRecord);
     });
   }
 
