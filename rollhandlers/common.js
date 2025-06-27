@@ -1270,7 +1270,11 @@ function setStatsAndSkills(
     );
     let maxHumanityLoss = 0;
     equippedCyberware.forEach((cyberware) => {
-      const humanityLoss = cyberware.data?.humanityLoss || "";
+      let humanityLoss = cyberware.data?.humanityLoss || "";
+      // If the cyberware is within gear, we don't count it towards HL
+      if (cyberware.data?.withinGear) {
+        humanityLoss = 0;
+      }
       // If the cyberware defines HL, check if it's borgware
       let maxLoss = humanityLoss ? 2 : 0;
       if (
@@ -4294,7 +4298,8 @@ function setCyberwareSlotValues(record) {
       (item) =>
         item.data?.cyberwareInstallSlot === installSlot &&
         item.data?.carried === "equipped" &&
-        item.data?.type === "cyberware"
+        item.data?.type === "cyberware" &&
+        item.data?.withinGear !== true
     );
     if (installSlot === "cyberarms") {
       cyberwareFiltered = (record?.data?.inventory || []).filter(

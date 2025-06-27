@@ -324,12 +324,29 @@
   }
 
   function getCyberwareFiltersFor(type, location) {
+    // If the type is 'gear' we show all cyberware that has been set 
+    // to 'withinGear'
+    if (type === "gear") {
+      return [
+        {
+          field: "withinGear",
+          operator: "equals",
+          value: true,
+        },
+      ];
+    }
+
     // Only show cyberware that matches the foundational type
     const filters = [
       {
         field: "cyberwareInstallSlot",
         operator: "equals",
         value: type,
+      },
+      {
+        field: "withinGear",
+        operator: "not_equals",
+        value: true,
       },
     ];
 
@@ -932,4 +949,17 @@
       getfilters="return getCyberwareFiltersFor('borgware');"
       emptylisttext="No Borgware Equipped"
     ></list>
+</box>
+
+<!-- Gear Cyberware (does not count towards HL) -->
+<div style="margin-top: 8px"></div>
+<label size="sm" variant="bold" textalign="left" label="Cyberware within Gear"></label>
+<box variant="card" field="gearCyberwareGroup" size="xs">
+  <list
+    field="inventory"
+    listtype="cyberware_list"
+    variant="striped"
+    getfilters="return getCyberwareFiltersFor('gear');"
+    emptylisttext="No Cyberware Equipped within Gear"
+  ></list>
 </box>
