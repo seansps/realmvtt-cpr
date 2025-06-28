@@ -116,12 +116,14 @@ if (isHeadshot) {
   });
 }
 
+let ignoresAllArmor = false;
 if (ignoresArmorUnder > 0 && ignoresArmorUnder < 100) {
   tags.push({
     name: `Ignores SP < ${ignoresArmorUnder}`,
     tooltip: `Damage ignores armor SP if it is less than ${ignoresArmorUnder}.`,
   });
 } else if (ignoresArmorUnder >= 100) {
+  ignoresAllArmor = true;
   tags.push({
     name: `Ignores Armor`,
     tooltip: `Damage ignores all armor SP.`,
@@ -250,20 +252,27 @@ targets.forEach(target => {
          
     // First deduct from Cover HP if available
     if (damage > 0) {
-      const oldCoverHp = oldValues["data.coverHp"];
-      coverDamage = Math.min(damage, oldCoverHp);
-      const newCoverHp = Math.max(oldCoverHp - damage, 0);
-      
-      if (newCoverHp !== oldCoverHp) {
-        valuesToSet["data.coverHp"] = newCoverHp;
-        coverDamaged = true;
-        if (newCoverHp === 0) {
-          coverDestroyed = true;
-        }
+      // Check if we ignore all armor then check for cover damage
+      if (!${ignoresAllArmor}) {
+        const oldCoverHp = oldValues["data.coverHp"];
+        coverDamage = Math.min(damage, oldCoverHp);
+        const newCoverHp = Math.max(oldCoverHp - damage, 0);
         
-        if (!${isExplosive}) {
-          // Cover took the damage, so don't damage the character unless it's explosive
-          damage = 0;
+        if (newCoverHp !== oldCoverHp) {
+          valuesToSet["data.coverHp"] = newCoverHp;
+          coverDamaged = true;
+          if (newCoverHp === 0) {
+            coverDestroyed = true;
+          }
+          
+          if (!${isExplosive}) {
+            // Cover took the damage, so don't damage the character unless it's explosive
+            damage = 0;
+          }
+          else if (${isExplosive} && !coverDestroyed) {
+            // For explosive damage, we do the full damage if the cover is not destroyed
+            damage = 0;
+          }
         }
       }
       
@@ -298,11 +307,16 @@ targets.forEach(target => {
         }
         
         shieldDamaged = true;
+        if (newShieldHp === 0) {
+          shieldDestroyed = true;
+        }
+
         if (!${isExplosive}) {
           damage = 0;
         }
-        if (newShieldHp === 0) {
-          shieldDestroyed = true;
+        else if (${isExplosive} && !shieldDestroyed) {
+          // For explosive damage, we do the full damage if the shield is not destroyed
+          damage = 0;
         }
       }
       
