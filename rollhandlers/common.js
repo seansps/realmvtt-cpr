@@ -2396,6 +2396,9 @@ function useItem(record, itemDataPath) {
   const indexValue = parseInt(itemDataPath.split(".").pop());
   const isConsumable =
     api.getValueOnRecord(record, `${itemDataPath}.data.consumable`) || false;
+  const isDrug =
+    api.getValueOnRecord(record, `${itemDataPath}.data.type`) === "drug" ||
+    false;
 
   // Output the description to Chat
   let description =
@@ -2833,8 +2836,8 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
 
   api.sendMessage(markdownDescription, undefined, recordLinks);
 
-  // If consumable, deduct count by 1, delete item if count is 0
-  if (isConsumable) {
+  // If consumable, or a drug, deduct count by 1, delete item if count is 0
+  if (isConsumable || isDrug) {
     const count = parseFloat(itemCount || "0");
     if (count - 1 > 0) {
       api.setValuesOnRecord(record, {
