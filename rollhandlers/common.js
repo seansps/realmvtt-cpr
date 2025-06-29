@@ -4051,8 +4051,22 @@ function updateRoles(record) {
   api.setValuesOnRecord(record, valuesToSet);
 }
 
+function addCondition(tokenOrRecord, recordLink, deductHp = 0) {
+  // First requery to get the actual record
+  const recordType = tokenOrRecord.recordType;
+  const recordId =
+    tokenOrRecord.recordType === "characters" && tokenOrRecord.recordId
+      ? tokenOrRecord.recordId
+      : tokenOrRecord._id;
+
+  // This will get the Character record or the Token record (if NPC)
+  api.getRecord(recordType, recordId, (actualRecord) => {
+    addConditionToRecord(actualRecord, recordLink, deductHp);
+  });
+}
+
 // Add a condition (injury, addiciton, cover) to a record
-function addCondition(record, recordLink, deductHp = 0) {
+function addConditionToRecord(record, recordLink, deductHp = 0) {
   const conditionObj = {
     ...recordLink.value,
   };
@@ -4088,18 +4102,25 @@ function addCondition(record, recordLink, deductHp = 0) {
     valuesToSet["data.shieldPenalty"] =
       bestEquippedArmor.shield[0]?.penalty || 0;
 
+    const token =
+      record.linked !== undefined
+        ? record
+        : api.getSelectedOrDroppedToken()?.[0];
+
     if (deductHp > 0) {
       const curHp = valuesToSet["data.curhp"] || record.data?.curhp || 0;
       const newHp = Math.max(curHp - deductHp, 0);
       valuesToSet["data.curhp"] = newHp;
       // Float text
-      const token =
-        record.linked !== undefined
-          ? record
-          : api.getSelectedOrDroppedToken()?.[0];
       if (token) {
-        api.floatText(token, `-${deductHp}`, "#FF0000");
+        api.floatText(
+          token,
+          `Applied ${conditionObj.name}\n\n-${deductHp}`,
+          "#FF0000"
+        );
       }
+    } else if (token) {
+      api.floatText(token, `Applied ${conditionObj.name}`, "#FF0000");
     }
 
     if (Object.keys(valuesToSet).length > 0) {
@@ -4161,7 +4182,7 @@ function addCondition(record, recordLink, deductHp = 0) {
     const coverName = conditionObj?.name || "Cover";
     addEffects(record);
     api.sendMessage(
-      `Taking Cover: ${coverName}. Cover HP set to ${coverHp}.`,
+      `Taking Cover: ${coverName}.`,
       undefined,
       [],
       [{ tooltip: `Cover (${coverHp}): ${coverName}`, name: "Cover" }]
