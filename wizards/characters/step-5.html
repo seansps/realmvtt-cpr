@@ -19,7 +19,7 @@
         type: "choice",
         options: [
           { name: "Electric Guitar", count: 1 },
-          { name: "Bug Detector", count: 1 },
+          { name: "Bug Detector (Gear)", count: 1 },
         ],
       },
       { name: "Glow Paint", count: 5 },
@@ -79,7 +79,7 @@
       { name: "Light Armorjack (body)", count: 1 },
       { name: "Light Armorjack (head)", count: 1 },
       { name: "Agent", count: 1 },
-      { name: "Cyberdeck", count: 1 },
+      { name: "Cyberdeck (Standard Quality)", count: 1 },
       { name: "Virtuality Goggles", count: 1 },
       { name: "Armor", count: 1, isProgram: true },
       { name: "Sword", count: 1, isProgram: true },
@@ -351,7 +351,7 @@
       { name: "Light Armorjack (body)", count: 1 },
       { name: "Light Armorjack (head)", count: 1 },
       { name: "Agent", count: 1 },
-      { name: "Bug Detector", count: 1 },
+      { name: "Bug Detector (Gear)", count: 1 },
       { name: "Computer", count: 1 },
       { name: "Disposable Phone", count: 2 },
       { name: "Generic Chic Contacts", count: 1 },
@@ -993,121 +993,115 @@
   }
 
   function buyItem() {
-    // Get the item from the previewItem
     // Requery the whole record to ensure accuracy
     api.getRecord("characters", record._id, (record) => {
-      const item = record.data?.wizard?.previewItem;
-      const itemid = item?.value?._id;
       const valuesToSet = {};
+      const items = [...(record.data?.wizard?.items || [])];
 
-      if (itemid) {
-        // Check if they have enough funds
-        const itemCost = parseInt(
-          item.value?.data?.cost ||
-            "0".replace("eb", "").replace(",", "").trim(),
-          10
-        );
-        // If this is a fashion item or fashionware, use the fashion funds
-        const isFashion =
-          item.value?.data?.type === "fashion" ||
-          item.value?.data?.cyberwareInstallSlot === "fashionware";
-        const availableFunds = isFashion
-          ? record.data?.wizard?.availableFashionFunds
-          : record.data?.wizard?.availableFunds;
-        if (itemCost > availableFunds) {
-          api.showNotification(
-            "You do not have enough " +
-              (isFashion ? "fashion" : "general") +
-              " funds to buy this item",
-            "red",
-            "Not Enough Funds"
-          );
-          return;
-        } else {
-          // Subtract the item cost from the available funds
-          if (isFashion) {
-            valuesToSet["data.wizard.availableFashionFunds"] =
-              availableFunds - itemCost;
-          } else {
-            valuesToSet["data.wizard.availableFunds"] =
-              availableFunds - itemCost;
-          }
+      const selectedItems = record.data?.wizard?.selectedItems || [];
 
-          // Add the item to the list
-          const items = [...(record.data?.wizard?.items || [])];
-          // Check if the item is already in the list
-          const itemIndex = items.findIndex((i) => i._id === item.value._id);
-          if (itemIndex === -1) {
-            // Add the item to the list with count
-            const newItem = {
-              ...item.value,
-              data: { ...item.value?.data, count: 1 },
-            };
-            items.push(newItem);
-          } else {
-            // Update the item count
-            items[itemIndex].data.count =
-              (items[itemIndex].data.count || 1) + 1;
-          }
-
-          // Set the items list
-          valuesToSet["data.wizard.items"] = items;
-
-          api.setValues(valuesToSet);
-        }
-      } else {
+      if (selectedItems.length === 0) {
         api.showNotification({
           title: "No item selected",
           message: "Please select an item to buy",
           type: "error",
         });
+        return;
+      }
+
+      let generalFundsRemaining = record.data?.wizard?.availableFunds || 0;
+      let fashionFundsRemaining =
+        record.data?.wizard?.availableFashionFunds || 0;
+      let itemsAdded = false;
+
+      selectedItems.forEach((item) => {
+        // Check if they have enough funds
+        let itemCost = (item.data?.cost || "0")
+          .replace("eb", "")
+          .replace(",", "")
+          .trim();
+        if (itemCost === "") {
+          itemCost = 0;
+        }
+        itemCost = parseInt(itemCost, 10);
+
+        // If this is a fashion item or fashionware, use the fashion funds
+        const isFashion =
+          item?.data?.type === "fashion" ||
+          item?.data?.cyberwareInstallSlot === "fashionware";
+
+        const availableFunds = isFashion
+          ? fashionFundsRemaining
+          : generalFundsRemaining;
+
+        if (itemCost > availableFunds) {
+          api.showNotification(
+            "Unable to purchase " +
+              item.name +
+              ". You do not have enough " +
+              (isFashion ? "fashion" : "general") +
+              " funds.",
+            "red",
+            "Not Enough Funds"
+          );
+          return;
+        }
+
+        // Subtract the item cost from the available funds
+        if (isFashion) {
+          fashionFundsRemaining -= itemCost;
+        } else {
+          generalFundsRemaining -= itemCost;
+        }
+
+        // Check if the item is already in the list
+        const itemIndex = items.findIndex((i) => i._id === item._id);
+        if (itemIndex === -1) {
+          // Add the item to the list with count
+          const newItem = {
+            ...item,
+            data: { ...item.data, count: 1 },
+          };
+          items.push(newItem);
+        } else {
+          // Update the item count
+          items[itemIndex].data.count = (items[itemIndex].data.count || 1) + 1;
+        }
+
+        itemsAdded = true;
+      });
+
+      if (itemsAdded) {
+        valuesToSet["data.wizard.items"] = items;
+        valuesToSet["data.wizard.availableFunds"] = generalFundsRemaining;
+        valuesToSet["data.wizard.availableFashionFunds"] =
+          fashionFundsRemaining;
+
+        api.setValues(valuesToSet);
       }
     });
   }
 
-  function setPreviewItem(value) {
-    if (value) {
-      try {
-        const item = JSON.parse(value);
-        if (item && item._id) {
-          // Query to get the item data and set information
-          api.getRecord("items", item._id, (itemRecord) => {
-            api.setValues({
-              "fields.previewItem.hidden": false,
-              "data.wizard.previewItemCost": itemRecord.data?.cost || "0",
-              "data.wizard.previewItemDescription":
-                itemRecord.data?.description ||
-                "No description available for this item.",
-              "data.wizard.previewItem": {
-                tooltip: itemRecord.name,
-                value: itemRecord,
-                type: "items",
-              },
-            });
-          });
+  function onChangeGearSelection(value) {
+    let totalCost = 0;
+    const selectedItems = value || [];
+    if (selectedItems) {
+      value.forEach((item) => {
+        let itemCost = (item.data?.cost || "0")
+          .replace("eb", "")
+          .replace(",", "")
+          .trim();
+        if (itemCost === "") {
+          itemCost = 0;
         }
-      } catch (error) {
-        // No-op
-      }
-    } else {
-      api.setValues({
-        "fields.previewItem.hidden": true,
-        "data.wizard.previewItemCost": "",
-        "data.wizard.previewItemDescription": "",
-        "data.wizard.previewItem": null,
+        totalCost += parseInt(itemCost, 10);
       });
     }
-  }
-
-  function onPreviewItemChange(value) {
-    if (!value) {
-      api.setValues({
-        "fields.previewItem.hidden": true,
-        "data.wizard.previewItemCost": "",
-        "data.wizard.previewItemDescription": "",
-        "data.wizard.itemSearch": null,
-      });
-    }
+    api.setValues({
+      "data.wizard.previewItemCost": totalCost,
+      // Store the selected items in the wizard data for purhcase later
+      "data.wizard.selectedItems": selectedItems,
+    });
   }
 </script>
 
@@ -1160,40 +1154,34 @@
         margin-top: 8px;
       "
     >
-      <div style="display: flex; gap: 4px; width: 100%; align-items: flex-end">
-        <dropdown
-          field="itemSearch"
-          label="Search for gear or cyberware"
-          placeholder="Search for gear or cyberware..."
-          width="100%"
-          optionsquery='{"type": "items", "query": {}}'
-          icon="IconSearch"
-          onchange="setPreviewItem(value)"
-        ></dropdown>
-        <recordlink
-          color="primary"
-          field="previewItem"
-          hidden="true"
-          onchange="onPreviewItemChange(value)"
-        ></recordlink>
-      </div>
+      <recordselectlist
+        width="100%"
+        height="400px"
+        size="sm"
+        field="recordselectlist"
+        label="Select Equipment or Cyberware to Purchase"
+        onchange="onChangeGearSelection(value);"
+        query='{"type": "items", "query": {}}'
+        filters='[{"label": "Type", "field": "type", "options": [{"label": "Agent App", "value": "agent app"}, {"label": "Ammo", "value": "ammo"}, {"label": "Armor", "value": "armor"}, {"label": "Black ICE", "value": "black ice"}, {"label": "Cyberdeck", "value": "cyberdeck"}, {"label": "Cyberware", "value": "cyberware"}, {"label": "Demon", "value": "demon"}, {"label": "Drone", "value": "drone"}, {"label": "Drug", "value": "drug"}, {"label": "Fashion", "value": "fashion"}, {"label": "Gear", "value": "gear"}, {"label": "Item Pack", "value": "pack"}, {"label": "Melee Weapon", "value": "melee weapon"}, {"label": "Program or Hardware", "value": "program or hardware"}, {"label": "Ranged Weapon", "value": "ranged weapon"}, {"label": "Vehicle", "value": "vehicle"}, {"label": "Vehicle Upgrade", "value": "vehicle upgrade"}, {"label": "Weapon Attachment", "value": "weapon attachment"}]}]'
+        searchable="true"
+        selectable="true"
+      ></recordselectlist>
 
       <div style="display: flex; gap: 4px; width: 100%; align-items: center">
         <button
           field="buyItem"
           color="primary"
-          label="Buy Item"
+          label="Buy Selected Items"
           icon="IconShoppingCart"
           variant="light"
           onclick="buyItem()"
         ></button>
       </div>
 
-      <divider label="Selected Item Details"></divider>
       <div style="display: flex; gap: 4px; width: 100%; align-items: center">
         <label
           field="previewItemCostLabel"
-          label="Cost:"
+          label="Cost of Selected Items:"
           size="sm"
           variant="bold"
           textalign="center"
@@ -1206,18 +1194,6 @@
           editable="false"
         ></stringfield>
       </div>
-
-      <label
-        field="previewItemDescriptionLabel"
-        label="Description"
-        size="sm"
-        variant="bold"
-        textalign="left"
-      ></label>
-      <richtextfield
-        field="previewItemDescription"
-        disablecontrols="true"
-      ></richtextfield>
 
       <divider label="Bought Items"></divider>
 

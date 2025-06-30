@@ -260,10 +260,11 @@
       record,
       "healingBonus"
     );
-    const healingBonus = healingModifiers.reduce(
+    let healingBonus = healingModifiers.reduce(
       (acc, mod) => acc + mod.value,
       0
     );
+    healingBonus = parseInt(healingBonus || "0", 10);
 
     //  Recover up to BODY hp + any modifiers for healing
     // Use actualBody where we track the actual value used for HP
