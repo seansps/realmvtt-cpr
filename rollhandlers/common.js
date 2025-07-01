@@ -3115,6 +3115,13 @@ function performSkillRoll(
   }
 }
 
+function stripX2FromSkillName(skillName) {
+  if (!skillName) {
+    return "";
+  }
+  return skillName.replace(" (x2)", "");
+}
+
 function performAttackRoll(
   record,
   weapon,
@@ -3193,8 +3200,9 @@ function performAttackRoll(
       // We find the skill with the same name, or the Martial Arts skill with the highest base
       let skill = (group?.data?.skills || []).find(
         (s) =>
-          s.name === skillName ||
-          (skillName === "Martial Arts" && s.name.includes("Martial Arts"))
+          stripX2FromSkillName(s.name) === stripX2FromSkillName(skillName) ||
+          (stripX2FromSkillName(skillName) === "Martial Arts" &&
+            stripX2FromSkillName(s.name).includes("Martial Arts"))
       );
       const subSkills = skill?.data?.subSkills || [];
       // If it's a subskill, look there for highest skill
@@ -3206,7 +3214,7 @@ function performAttackRoll(
         const base = subSkill?.data?.base || 0;
         if (base > highestSubSkill) {
           highestSubSkill = base;
-          highestSubSkillName = subSkill?.name || "";
+          highestSubSkillName = stripX2FromSkillName(subSkill?.name) || "";
           attackSkill = subSkill;
         }
       });
@@ -3224,7 +3232,7 @@ function performAttackRoll(
     // NPCs get from `skills` list
     const skills = record.data?.skills || [];
     skills.forEach((s) => {
-      if (s.name === skillName) {
+      if (stripX2FromSkillName(s.name) === stripX2FromSkillName(skillName)) {
         attackSkill = s;
       }
     });
@@ -3642,6 +3650,9 @@ function performThrowObject(record) {
     );
     return;
   }
+
+  // Also show the description of the item used in the chat
+  useItem(record, throwDataPath);
 
   performAttackRoll(record, throwObject, throwDataPath, "single", throwRange);
 }

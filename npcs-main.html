@@ -505,30 +505,44 @@
 
   function onAddDeleteSkill() {
     // Update all skills
-    const skills = record.data?.skills || [];
-    [
-      "int",
-      "ref",
-      "dex",
-      "tech",
-      "cool",
-      "will",
-      "curLuck",
-      "move",
-      "body",
-      "curEmp",
-    ].forEach((skill) => {
-      let fieldName;
-      if (skill === "curLuck") {
-        fieldName = "totalCurLuck";
-      } else if (skill === "curEmp") {
-        fieldName = "totalCurEmp";
-      } else {
-        fieldName = `total${capitalize(skill)}`;
-      }
+    // Requery the record to get the latest data
+    api.getRecord("npcs", record._id, (updatedRecord) => {
+      const valuesToSet = {};
+      const skills = updatedRecord.data?.skills || [];
+      [
+        "int",
+        "ref",
+        "dex",
+        "tech",
+        "cool",
+        "will",
+        "curLuck",
+        "move",
+        "body",
+        "curEmp",
+      ].forEach((skill) => {
+        let fieldName;
+        if (skill === "curLuck") {
+          fieldName = "totalCurLuck";
+        } else if (skill === "curEmp") {
+          fieldName = "totalCurEmp";
+        } else {
+          fieldName = `total${capitalize(skill)}`;
+        }
 
-      const skillValue = record.data?.[fieldName] || 0;
-      onUpdateStat(skillValue, skill);
+        const skillValue = updatedRecord.data?.[fieldName] || 0;
+        const bestEquippedArmor = getBestEquippedArmor(updatedRecord);
+        const penalty = bestEquippedArmor.highestPenalty;
+        setStatsAndSkills(
+          updatedRecord,
+          skillValue,
+          skill,
+          valuesToSet,
+          penalty,
+          true
+        );
+      });
+      api.setValuesOnRecord(updatedRecord, valuesToSet);
     });
   }
 

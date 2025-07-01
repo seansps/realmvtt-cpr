@@ -1,6 +1,6 @@
 <script>
   function useProgramOrHardware(value) {
-    const itemDataPath = dataPath.replace(".data.useBtn", "");
+    const itemDataPath = dataPath.replace(".data.useProgBtn", "");
     useItem(record, itemDataPath);
   }
 </script>
@@ -38,7 +38,7 @@
   </div>
   <button
     size="xs"
-    field="useBtn"
+    field="useProgBtn"
     variant="light"
     label="Use"
     onclick="useProgramOrHardware(value);"
