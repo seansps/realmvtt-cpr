@@ -2609,6 +2609,14 @@ else if (targets[0].data?.type !== "vehicle") {
     );
     return;
 }
+else if (targets[0]._id.includes("optimistic")) {
+  api.showNotification(
+    "Selected token is still loading...",
+    "red",
+    "Select Vehicle Token"
+  );
+  return;
+}
 const callback = () => {  
   api.showNotification(
     "Vehicle token data synced.",
@@ -2616,8 +2624,8 @@ const callback = () => {
     "Sync Vehicle Token Data"
   );
 }
-const vehicleData = JSON.parse('${linkedNpcData}');
-targets.forEach(target => {
+const vehicleData = JSON.parse(${JSON.stringify(linkedNpcData)});
+targets.forEach((target) => {
   api.setValuesOnRecord(target, convertToDataPaths(vehicleData), callback);
 });
 \`\`\``;
