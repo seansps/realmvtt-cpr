@@ -1677,9 +1677,10 @@ function getEffectsAndModifiersForToken(
           (m) =>
             m.name === modifier.name &&
             modifier.value === m.value &&
+            modifier.field === m.field &&
             modifier.modifierType === m.modifierType
         );
-        if (otherModifiers.length + modifier.count < modifier.requiredCount) {
+        if (otherModifiers.length < modifier.requiredCount) {
           // Remove them all if under the count
           modifiersToRemove.push(modifier._id);
           modifiersToRemove.push(...otherModifiers.map((m) => m._id));
