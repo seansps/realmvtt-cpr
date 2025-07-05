@@ -1136,9 +1136,14 @@ function setStatsAndSkills(
     stat
   );
 
-  const sortedModifiers = [...modifiers].sort((a, b) =>
-    a.isSet ? -1 : b.isSet ? 1 : 0
-  );
+  const sortedModifiers = [...modifiers].sort((a, b) => {
+    // Put isSet modifiers at the end
+    if (a.isSet && !b.isSet) return 1;
+    if (!a.isSet && b.isSet) return -1;
+
+    // Sort by value ascending
+    return (a.value || 0) - (b.value || 0);
+  });
 
   // Apply modifiers to totalStat
   sortedModifiers.forEach((modifier) => {
@@ -1602,6 +1607,8 @@ function getEffectsAndModifiersForToken(
       }
 
       // Only relevant if it has a value or if it's a modifier that doesn't have a value
+      // or is one that uses stats (statBonus, statPenalty, smartAmmo)
+      let statItemId = undefined;
       if (value !== 0 || MODIFIERS_WITHOUT_VALUE.includes(ruleType)) {
         // Check if this only applies to equipped item and mark it with ID if so
         const itemOnly = modifier.data?.itemOnly || false;
@@ -1609,6 +1616,10 @@ function getEffectsAndModifiersForToken(
         // If this was from an attachment, we need to set the itemId to the weapon's id
         if (itemOnly && feature.data?.type === "weapon attachment") {
           possibleItemId = feature?.weaponId || "";
+        }
+        // If this is a statBonus or statPenalty, we need to check if it's a set
+        if (ruleType === "statBonus" || ruleType === "statPenalty") {
+          statItemId = feature?._id;
         }
         results.push({
           _id: feature?._id,
@@ -1619,6 +1630,7 @@ function getEffectsAndModifiersForToken(
           field: field,
           valueType: valueType,
           itemId: possibleItemId,
+          statItemId: statItemId,
           isPenalty: isPenalty,
           isEffect: false,
           requiredItem: modifier.data?.requiredItem || undefined,
