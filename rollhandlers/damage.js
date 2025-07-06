@@ -76,7 +76,7 @@ if (isCritical || targetIsMortallyWounded) {
   });
 }
 
-if (isHalfSp && ignoresArmorUnder === 0) {
+if (isHalfSp) {
   tags.push({
     name: "Half SP",
     tooltip: "Half of Target's SP (rounded up) Ignored",
