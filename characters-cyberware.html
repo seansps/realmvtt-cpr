@@ -289,6 +289,20 @@
       // Update all stats again
       const valuesToSet = {};
       const bestEquippedArmor = getBestEquippedArmor(updatedRecord);
+
+      valuesToSet["data.headArmor"] = bestEquippedArmor.head[0]?.name || "";
+      valuesToSet["data.headArmorSP"] = bestEquippedArmor.head[0]?.curSp || 0;
+      valuesToSet["data.headArmorPenalty"] =
+        bestEquippedArmor.head[0]?.penalty || 0;
+      valuesToSet["data.bodyArmor"] = bestEquippedArmor.body[0]?.name || "";
+      valuesToSet["data.bodyArmorSP"] = bestEquippedArmor.body[0]?.curSp || 0;
+      valuesToSet["data.bodyArmorPenalty"] =
+        bestEquippedArmor.body[0]?.penalty || 0;
+      valuesToSet["data.shield"] = bestEquippedArmor.shield[0]?.name || "";
+      valuesToSet["data.shieldHP"] = bestEquippedArmor.shield[0]?.curSp || 0;
+      valuesToSet["data.shieldPenalty"] =
+        bestEquippedArmor.shield[0]?.penalty || 0;
+      
       // Update attributes as per modifiers
       updateAttributesOnRecord(updatedRecord, valuesToSet, bestEquippedArmor.highestPenalty);
       if (Object.keys(valuesToSet).length > 0) {
