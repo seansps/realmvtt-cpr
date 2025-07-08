@@ -365,7 +365,7 @@ targets.forEach(target => {
                 const armorSp = parseInt(item.data?.sp || "0", 10) || 0;
                 let curSp = parseInt(item.data?.cur${armorLocation}Sp, 10);
                 if (isNaN(curSp)) {
-                  curSp = armorSp;
+                  curSp = oldValues[armorField];
                 }
                 
                 oldValues[\`\${invPath}.cur${armorLocation}Sp\`] = curSp;

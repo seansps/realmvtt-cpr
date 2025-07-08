@@ -294,7 +294,7 @@
       if (healCurrentSpEffects.length > 0) {
         healCurrentSpEffects.forEach((effect) => {
           if (effect.itemId === item._id) {
-            let maxSp = item.data?.armorSp || 0;
+            let maxSp = item.data?.armorSp;
             let maxHeadSp = maxSp;
             let maxBodySp = maxSp;
             let maxShieldSp = maxSp;
@@ -307,20 +307,36 @@
                 modifier.data?.type === "shieldSp"
               ) {
                 const modValue = parseInt(modifier.data?.value, 10);
-                if (modValue > maxSp) {
-                  if (modifier.data?.type === "headSp") {
-                    maxHeadSp = modValue;
-                  } else if (modifier.data?.type === "bodySp") {
-                    maxBodySp = modValue;
-                  } else if (modifier.data?.type === "shieldSp") {
-                    maxShieldSp = modValue;
+                if (modifier.data?.type === "headSp") {
+                  maxHeadSp = modValue;
+                  if (maxSp === undefined) {
+                    maxSp = modValue;
+                  }
+                } else if (modifier.data?.type === "bodySp") {
+                  maxBodySp = modValue;
+                  if (maxSp === undefined) {
+                    maxSp = modValue;
+                  }
+                } else if (modifier.data?.type === "shieldSp") {
+                  maxShieldSp = modValue;
+                  if (maxSp === undefined) {
+                    maxSp = modValue;
                   }
                 }
               }
             });
-            let curHeadSp = parseInt(item.data?.curheadSp, 10);
-            let curBodySp = parseInt(item.data?.curbodySp, 10);
-            let curShieldSp = parseInt(item.data?.curshieldSp, 10);
+            let curHeadSp =
+              item.data?.curheadSp !== undefined
+                ? parseInt(item.data?.curheadSp, 10)
+                : maxHeadSp;
+            let curBodySp =
+              item.data?.curbodySp !== undefined
+                ? parseInt(item.data?.curbodySp, 10)
+                : maxBodySp;
+            let curShieldSp =
+              item.data?.curshieldSp !== undefined
+                ? parseInt(item.data?.curshieldSp, 10)
+                : maxShieldSp;
             if (isNaN(curHeadSp)) {
               curHeadSp = Math.max(maxHeadSp, maxSp);
             }
