@@ -2672,13 +2672,12 @@ targets.forEach(target => {
   if (healing) {
     const escapedName = itemName.replace(/'/g, "\\'");
     const escapedHealing = healing.replace(/'/g, "\\'");
-    let healingRoll = evaluateMath(
-      checkForReplacements(escapedHealing, {}, record)
-    );
     const healingButton = `\`\`\`Roll_Healing
-api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
-  record = updatedRecord;
-  api.promptRoll('${escapedName} Healing', '${healingRoll}', [], {}, 'healing')
+api.getSelectedOrDroppedToken().forEach(token => {
+  const healingRoll = evaluateMath(
+    checkForReplacements('${escapedHealing}', {}, token)
+  );
+  api.promptRoll('${escapedName} Healing', healingRoll.toString(), [], {}, 'healing')
 });
 \`\`\``;
     markdownDescription += `\n${healingButton}`;
