@@ -1002,12 +1002,17 @@ function getAllSkills() {
 
 // Helper function to find skill stat
 function findSkillStat(skillName) {
+  const stat = getStatForSkill(skillName);
+  return stat || "int"; // Default to int if not found with this method
+}
+
+function getStatForSkill(skillName) {
   const allSkills = getAllSkills();
   for (const group of allSkills) {
     for (const skill of group.skills) {
       if (
-        skill.name.toLowerCase().replace("(x2)", "") ===
-        skillName.toLowerCase().replace("(x2)", "")
+        skill.name.toLowerCase().replace("(x2)", "").trim() ===
+        skillName.toLowerCase().replace("(x2)", "").trim()
       ) {
         return skill.stat;
       }
@@ -1015,8 +1020,8 @@ function findSkillStat(skillName) {
       if (skill.subSkills) {
         for (const subSkill of skill.subSkills) {
           if (
-            subSkill.name.toLowerCase().replace("(x2)", "") ===
-            skillName.toLowerCase().replace("(x2)", "")
+            subSkill.name.toLowerCase().replace("(x2)", "").trim() ===
+            skillName.toLowerCase().replace("(x2)", "").trim()
           ) {
             return subSkill.stat;
           }
@@ -1024,7 +1029,7 @@ function findSkillStat(skillName) {
       }
     }
   }
-  return "int"; // Default to int if not found
+  return null;
 }
 
 function getDvForRange(item, range, attack) {
@@ -2967,6 +2972,17 @@ function performSkillRoll(
         value:
           record?.data?.[`total${capitalize(additionalMetadata.statName)}`] ||
           0,
+        active: true,
+        valueType: "number",
+      });
+    }
+  } else if (record.recordType === "npcs") {
+    // NPCs don't have all skills, so they should check if the skill has an associated stat and add it
+    const stat = getStatForSkill(skillName);
+    if (stat) {
+      skillModifiers.push({
+        name: stat,
+        value: record?.data?.[`total${capitalize(stat)}`] || 0,
         active: true,
         valueType: "number",
       });
