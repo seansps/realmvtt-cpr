@@ -2159,6 +2159,10 @@ ${abilityDescription}
     record,
     `${abilityDataPath}.data.ignoreArmor`
   );
+  const nonLethal = api.getValueOnRecord(
+    record,
+    `${abilityDataPath}.data.nonlethal`
+  );
   const bonusAblation = api.getValueOnRecord(
     record,
     `${abilityDataPath}.data.bonusAblation`
@@ -2188,10 +2192,8 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
     targetedLocation: "${targetedLocation}",
     ablationAmount: ${ablationAmount},
     ignoresArmorUnder: ${ignoreArmor === "Ignore Full Armor" ? 100 : 0},
-    nonLethal: ${ignoreArmor === "Ignore Full Armor" ? true : false},
-    nonLethalGreaterThanOne: ${
-      ignoreArmor === "Ignore Full Armor" ? true : false
-    },
+    nonLethal: ${nonLethal ? true : false},
+    nonLethalGreaterThanOne: ${nonLethal ? true : false},
     noArmorAblation: ${ignoreArmor === "Ignore Full Armor" ? true : false},
     noCriticalInjuries: ${ignoreArmor === "Ignore Full Armor" ? true : false},
     explosive: false,
@@ -2874,6 +2876,13 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
   }
 }
 
+function sanitizeSkillName(skillName) {
+  if (!skillName) {
+    return "";
+  }
+  return skillName.toLowerCase().replace("(x2)", "").trim();
+}
+
 // Performs a skill roll for a given skill name for the given record
 function performSkillRoll(
   record,
@@ -2892,11 +2901,13 @@ function performSkillRoll(
     skillGroups.forEach((group) => {
       const skills = group.data?.skills || [];
       skills.forEach((s) => {
-        if (s.name === skillName) {
+        if (sanitizeSkillName(s.name) === sanitizeSkillName(skillName)) {
           skill = s;
         } else if (s.data?.subSkills && s.data?.subSkills.length > 0) {
           s.data?.subSkills.forEach((subSkill) => {
-            if (subSkill.name === skillName) {
+            if (
+              sanitizeSkillName(subSkill.name) === sanitizeSkillName(skillName)
+            ) {
               skill = subSkill;
             }
           });
@@ -2907,7 +2918,7 @@ function performSkillRoll(
     // NPCs get from `skills` list
     const skills = record.data?.skills || [];
     skills.forEach((s) => {
-      if (s.name === skillName) {
+      if (sanitizeSkillName(s.name) === sanitizeSkillName(skillName)) {
         skill = s;
       }
     });
@@ -3144,13 +3155,6 @@ function performSkillRoll(
   }
 }
 
-function stripX2FromSkillName(skillName) {
-  if (!skillName) {
-    return "";
-  }
-  return skillName.replace(" (x2)", "");
-}
-
 function performAttackRoll(
   record,
   weapon,
@@ -3229,9 +3233,9 @@ function performAttackRoll(
       // We find the skill with the same name, or the Martial Arts skill with the highest base
       let skill = (group?.data?.skills || []).find(
         (s) =>
-          stripX2FromSkillName(s.name) === stripX2FromSkillName(skillName) ||
-          (stripX2FromSkillName(skillName) === "Martial Arts" &&
-            stripX2FromSkillName(s.name).includes("Martial Arts"))
+          sanitizeSkillName(s.name) === sanitizeSkillName(skillName) ||
+          (sanitizeSkillName(skillName) === "Martial Arts" &&
+            sanitizeSkillName(s.name).includes("Martial Arts"))
       );
       const subSkills = skill?.data?.subSkills || [];
       // If it's a subskill, look there for highest skill
@@ -3243,7 +3247,7 @@ function performAttackRoll(
         const base = subSkill?.data?.base || 0;
         if (base > highestSubSkill) {
           highestSubSkill = base;
-          highestSubSkillName = stripX2FromSkillName(subSkill?.name) || "";
+          highestSubSkillName = sanitizeSkillName(subSkill?.name) || "";
           attackSkill = subSkill;
         }
       });
@@ -3261,7 +3265,7 @@ function performAttackRoll(
     // NPCs get from `skills` list
     const skills = record.data?.skills || [];
     skills.forEach((s) => {
-      if (stripX2FromSkillName(s.name) === stripX2FromSkillName(skillName)) {
+      if (sanitizeSkillName(s.name) === sanitizeSkillName(skillName)) {
         attackSkill = s;
       }
     });

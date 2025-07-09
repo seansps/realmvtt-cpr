@@ -1,4 +1,6 @@
 <script>
+  const defaultAbilities = ["Brawling", "Grab", "Throw", "Choke"];
+
   const startingGearByRole = {
     rockerboy: [
       { name: "Very Heavy Pistol", count: 1 },
@@ -941,10 +943,36 @@
               // Clear the wizard data and set the skill values
               skillValuesToSet["data.wizard"] = {};
 
-              api.setValuesOnRecord(finalRecord, skillValuesToSet, () => {
+              api.setValuesOnRecord(finalRecord, skillValuesToSet, (record) => {
                 // Drop the role record
                 if (roleRecordTodrop) {
                   api.dropRecord(roleRecordTodrop);
+                  // Finally, look for the default abilities, if found, add them to the character
+                  // Create a Promise-based approach to handle all ability lookups
+                  let abilitiesToAdd = [];
+                  const abilityPromises = defaultAbilities.map((ability) => {
+                    return new Promise((resolve) => {
+                      api.getRecordByTypeAndName(
+                        "abilities",
+                        ability,
+                        (abilityRecord) => {
+                          if (abilityRecord) {
+                            abilitiesToAdd.push(abilityRecord);
+                          }
+                          resolve();
+                        }
+                      );
+                    });
+                  });
+
+                  // When all abilities have been looked up, set them on the character
+                  Promise.all(abilityPromises).then(() => {
+                    if (abilitiesToAdd.length > 0) {
+                      api.setValues({
+                        "data.abilities": abilitiesToAdd,
+                      });
+                    }
+                  });
                 }
               });
             });
