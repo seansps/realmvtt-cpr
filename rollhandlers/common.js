@@ -2323,16 +2323,14 @@ api.addEffectById('${effectID}', target);
     const skillCheckObj = JSON.parse(checkSkill);
     checkSkillName = skillCheckObj?.name || "Skill";
   }
-  const checkDv = api.getValueOnRecord(
-    record,
-    `${abilityDataPath}.data.checkDV`
-  );
+  let checkDv = api.getValueOnRecord(record, `${abilityDataPath}.data.checkDV`);
+  if (isNaN(parseInt(checkDv, 10)) || parseInt(checkDv, 10) < 1) {
+    checkDv = undefined;
+  }
   // If check skill is defined we roll it and pass along the markdownDescription
   if (checkSkillName) {
-    // If not an attack, send a message with the header
-    if (!isAttack) {
-      api.sendMessage(abilityHeader, undefined, []);
-    }
+    // Send a message with the header
+    api.sendMessage(abilityHeader, undefined, []);
     performSkillRoll(record, checkSkillName, {
       isDodge: false,
       dv: checkDv,
@@ -2367,6 +2365,7 @@ api.addEffectById('${effectID}', target);
       markdownDescription += `\n${skillRollButton}`;
     }
 
+    // Send a message with the header and description
     api.sendMessage(`${abilityHeader}\n${markdownDescription}`, undefined, []);
 
     if (animation) {
