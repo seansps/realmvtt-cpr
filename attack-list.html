@@ -171,9 +171,16 @@
 
   function ammoOptions() {
     // Get a list of equipped ammo
-    const equippedAmmo = record.data?.inventory?.filter(
+    let equippedAmmo = record.data?.inventory?.filter(
       (item) => item.data.carried === "equipped" && item.data.type === "ammo"
     );
+
+    // If this is an NPC, don't worry if the ammo is not equipped
+    if (record.recordType === "npcs") {
+      equippedAmmo = record.data?.inventory?.filter(
+        (item) => item.data.type === "ammo"
+      );
+    }
 
     if (equippedAmmo.length > 0) {
       return equippedAmmo.map((ammo) => ({
@@ -231,7 +238,7 @@
     <div style="width: 100%; align-self: center">
       <namefield
         field="namefield"
-        variant="standard"
+        variant="tooltip-underline"
         placeholder="Weapon Name..."
       ></namefield>
     </div>

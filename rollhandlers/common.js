@@ -3039,7 +3039,7 @@ function performSkillRoll(
     if (abilityName) {
       let abilityNameField = abilityName;
       if (abilityName === "Encounter ICE") {
-        abilityNameField = "speed";
+        abilityNameField = "Speed";
       }
       const abilityNameModifiers = getEffectsAndModifiersForToken(
         record,
