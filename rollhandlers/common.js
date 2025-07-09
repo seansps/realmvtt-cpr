@@ -2188,10 +2188,12 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
     targetedLocation: "${targetedLocation}",
     ablationAmount: ${ablationAmount},
     ignoresArmorUnder: ${ignoreArmor === "Ignore Full Armor" ? 100 : 0},
-    nonLethal: false,
-    nonLethalGreaterThanOne: false,
+    nonLethal: ${ignoreArmor === "Ignore Full Armor" ? true : false},
+    nonLethalGreaterThanOne: ${
+      ignoreArmor === "Ignore Full Armor" ? true : false
+    },
     noArmorAblation: ${ignoreArmor === "Ignore Full Armor" ? true : false},
-    noCriticalInjuries: false,
+    noCriticalInjuries: ${ignoreArmor === "Ignore Full Armor" ? true : false},
     explosive: false,
     targetIsMortallyWounded: false,
   };
