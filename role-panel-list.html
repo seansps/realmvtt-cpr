@@ -154,12 +154,36 @@
     const role = api.getValue(nearestParentDataPath);
     const evidenceBonus = role.data?.evidenceBonus || 0;
 
+    // Get DV by rank
+    const rank = role.data?.rank || 1;
+    let dv = role.data?.believabilityDV1 || 0;
+    if (role.data?.rank === 2) {
+      dv = role.data?.believabilityDV2 || 0;
+    } else if (role.data?.rank === 3) {
+      dv = role.data?.believabilityDV3 || 0;
+    } else if (role.data?.rank === 4) {
+      dv = role.data?.believabilityDV4 || 0;
+    } else if (role.data?.rank === 5) {
+      dv = role.data?.believabilityDV5 || 0;
+    } else if (role.data?.rank === 6) {
+      dv = role.data?.believabilityDV6 || 0;
+    } else if (role.data?.rank === 7) {
+      dv = role.data?.believabilityDV7 || 0;
+    } else if (role.data?.rank === 8) {
+      dv = role.data?.believabilityDV8 || 0;
+    } else if (role.data?.rank === 9) {
+      dv = role.data?.believabilityDV9 || 0;
+    } else {
+      dv = role.data?.believabilityDV10 || 0;
+    }
+
     performSkillRoll(record, "Believability", {
       isDodge: false,
       roleAbility: "Media",
       abilityName: "Believability",
       rollUnderOrEqual: true,
       bonus: evidenceBonus,
+      dv: dv,
     });
   }
 
@@ -839,6 +863,7 @@
       listtype="active_features_list"
       field="impact"
       variant="outline-striped"
+      getfilters="return getFiltersForActiveFeaturesList();"
     ></list>
   </box>
 
@@ -1642,7 +1667,7 @@
   </box>
 
   <!-- Tech Panel -->
-  <box field="techProperties" variant="card" size="xs">
+  <box field="techProperties" variant="card" size="xs" hidden="true">
     <div
       style="
         display: flex;

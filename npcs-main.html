@@ -261,8 +261,8 @@
 
   function onDrop(type, recordLink) {
     const npcType = record.data?.type || "mook";
-    if (type === "roles" && npcType === "mook") {
-      // Only mooks have roles
+    if (type === "roles" && (npcType === "mook" || npcType === "team member")) {
+      // Only mooks and team members have roles
       onDropRole(recordLink);
     } else if (type === "items") {
       onDropItem(recordLink);

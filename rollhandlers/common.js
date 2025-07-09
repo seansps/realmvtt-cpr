@@ -1950,7 +1950,7 @@ function getWoundedPenalty(record) {
 
   // Check if the token is seriously wounded (HP <= 50% of max HP)
   const isSeriouslyWounded =
-    record.data?.curhp <= Math.ceil(record.data?.hitpoints / 2);
+    record.data?.curhp < Math.ceil(record.data?.hitpoints / 2);
   const isMortallyWounded = record.data?.curhp < 1;
 
   // If the token is seriously wounded, check for ignoreSeriouslyWounded modifier
@@ -2329,6 +2329,10 @@ api.addEffectById('${effectID}', target);
   );
   // If check skill is defined we roll it and pass along the markdownDescription
   if (checkSkillName) {
+    // If not an attack, send a message with the header
+    if (!isAttack) {
+      api.sendMessage(abilityHeader, undefined, []);
+    }
     performSkillRoll(record, checkSkillName, {
       isDodge: false,
       dv: checkDv,
@@ -3010,8 +3014,12 @@ function performSkillRoll(
         active: true,
         valueType: "number",
       });
-    } else if (roleRank > 0 && rollUnderOrEqual) {
-      // In this case it is a DV
+    } else if (
+      roleRank > 0 &&
+      rollUnderOrEqual &&
+      additionalMetadata.dv === undefined
+    ) {
+      // In this case it is a DV, set the DV if not already set
       additionalMetadata.dv = roleRank;
     } else if (
       subRoleRank !== undefined &&
@@ -3970,7 +3978,7 @@ function addRole(record, recordLink) {
   valuesToSet["data.role"] = roleString;
 
   // If this is an NPC, show the role panels
-  if (record.data?.type === "mook") {
+  if (record.data?.type === "mook" || record.data?.type === "team member") {
     valuesToSet["fields.rolePanels.hidden"] = false;
   }
 
