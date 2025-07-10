@@ -1,73 +1,72 @@
 <script>
   function onChangeModifierType() {
-    const valuesToHide = [];
-    const valuesToShow = [];
+    const modPath = dataPath.replace(".data.type", "");
+
+    const valuesToSet = {};
 
     if (value === "statBonus") {
-      valuesToHide.push("field");
-      valuesToHide.push("value");
-      valuesToHide.push("smartBonus");
-      valuesToHide.push("valueType");
-      valuesToHide.push("active");
-      valuesToHide.push("itemOnly");
-      valuesToHide.push("statPenalty");
-      valuesToHide.push("statMinimum");
-      valuesToShow.push("stat");
-      valuesToShow.push("statBonus");
-      valuesToShow.push("statSet");
-      valuesToShow.push("statMaximum");
-      valuesToShow.push("noDerivedAttributes");
+      valuesToSet[`${modPath}.fields.field.hidden`] = true;
+      valuesToSet[`${modPath}.fields.value.hidden`] = true;
+      valuesToSet[`${modPath}.fields.smartBonus.hidden`] = true;
+      valuesToSet[`${modPath}.fields.valueType.hidden`] = true;
+      valuesToSet[`${modPath}.fields.active.hidden`] = true;
+      valuesToSet[`${modPath}.fields.itemOnly.hidden`] = true;
+      valuesToSet[`${modPath}.fields.statPenalty.hidden`] = true;
+      valuesToSet[`${modPath}.fields.statMinimum.hidden`] = true;
+
+      valuesToSet[`${modPath}.fields.stat.hidden`] = false;
+      valuesToSet[`${modPath}.fields.statBonus.hidden`] = false;
+      valuesToSet[`${modPath}.fields.statSet.hidden`] = false;
+      valuesToSet[`${modPath}.fields.statMaximum.hidden`] = false;
+      valuesToSet[`${modPath}.fields.noDerivedAttributes.hidden`] = false;
     } else if (value === "statPenalty") {
-      valuesToHide.push("field");
-      valuesToHide.push("value");
-      valuesToHide.push("valueType");
-      valuesToHide.push("smartBonus");
-      valuesToHide.push("active");
-      valuesToHide.push("itemOnly");
-      valuesToHide.push("statBonus");
-      valuesToHide.push("statMaximum");
-      valuesToShow.push("stat");
-      valuesToShow.push("statPenalty");
-      valuesToShow.push("statSet");
-      valuesToShow.push("statMinimum");
-      valuesToShow.push("noDerivedAttributes");
+      valuesToSet[`${modPath}.fields.field.hidden`] = true;
+      valuesToSet[`${modPath}.fields.value.hidden`] = true;
+      valuesToSet[`${modPath}.fields.valueType.hidden`] = true;
+      valuesToSet[`${modPath}.fields.smartBonus.hidden`] = true;
+      valuesToSet[`${modPath}.fields.active.hidden`] = true;
+      valuesToSet[`${modPath}.fields.itemOnly.hidden`] = true;
+      valuesToSet[`${modPath}.fields.statBonus.hidden`] = true;
+      valuesToSet[`${modPath}.fields.statMaximum.hidden`] = true;
+
+      valuesToSet[`${modPath}.fields.stat.hidden`] = false;
+      valuesToSet[`${modPath}.fields.statPenalty.hidden`] = false;
+      valuesToSet[`${modPath}.fields.statSet.hidden`] = false;
+      valuesToSet[`${modPath}.fields.statMinimum.hidden`] = false;
+      valuesToSet[`${modPath}.fields.noDerivedAttributes.hidden`] = false;
     } else if (value === "smartAmmo") {
-      valuesToShow.push("field");
-      valuesToShow.push("value");
-      valuesToShow.push("valueType");
-      valuesToShow.push("smartBonus");
-      valuesToShow.push("active");
-      valuesToShow.push("itemOnly");
-      valuesToHide.push("stat");
-      valuesToHide.push("statBonus");
-      valuesToHide.push("statPenalty");
-      valuesToHide.push("statSet");
-      valuesToHide.push("statMaximum");
-      valuesToHide.push("statMinimum");
-      valuesToHide.push("noDerivedAttributes");
+      valuesToSet[`${modPath}.fields.field.hidden`] = false;
+      valuesToSet[`${modPath}.fields.value.hidden`] = false;
+      valuesToSet[`${modPath}.fields.valueType.hidden`] = false;
+      valuesToSet[`${modPath}.fields.smartBonus.hidden`] = false;
+      valuesToSet[`${modPath}.fields.active.hidden`] = false;
+      valuesToSet[`${modPath}.fields.itemOnly.hidden`] = false;
+
+      valuesToSet[`${modPath}.fields.stat.hidden`] = true;
+      valuesToSet[`${modPath}.fields.statBonus.hidden`] = true;
+      valuesToSet[`${modPath}.fields.statPenalty.hidden`] = true;
+      valuesToSet[`${modPath}.fields.statSet.hidden`] = true;
+      valuesToSet[`${modPath}.fields.statMaximum.hidden`] = true;
+      valuesToSet[`${modPath}.fields.statMinimum.hidden`] = true;
+      valuesToSet[`${modPath}.fields.noDerivedAttributes.hidden`] = true;
     } else {
-      valuesToShow.push("field");
-      valuesToShow.push("value");
-      valuesToShow.push("valueType");
-      valuesToHide.push("smartBonus");
-      valuesToShow.push("active");
-      valuesToShow.push("itemOnly");
-      valuesToHide.push("stat");
-      valuesToHide.push("statBonus");
-      valuesToHide.push("statPenalty");
-      valuesToHide.push("statSet");
-      valuesToHide.push("statMaximum");
-      valuesToHide.push("statMinimum");
-      valuesToHide.push("noDerivedAttributes");
+      valuesToSet[`${modPath}.fields.field.hidden`] = false;
+      valuesToSet[`${modPath}.fields.value.hidden`] = false;
+      valuesToSet[`${modPath}.fields.valueType.hidden`] = false;
+      valuesToSet[`${modPath}.fields.active.hidden`] = false;
+      valuesToSet[`${modPath}.fields.itemOnly.hidden`] = false;
+
+      valuesToSet[`${modPath}.fields.smartBonus.hidden`] = true;
+      valuesToSet[`${modPath}.fields.stat.hidden`] = true;
+      valuesToSet[`${modPath}.fields.statBonus.hidden`] = true;
+      valuesToSet[`${modPath}.fields.statPenalty.hidden`] = true;
+      valuesToSet[`${modPath}.fields.statSet.hidden`] = true;
+      valuesToSet[`${modPath}.fields.statMaximum.hidden`] = true;
+      valuesToSet[`${modPath}.fields.statMinimum.hidden`] = true;
+      valuesToSet[`${modPath}.fields.noDerivedAttributes.hidden`] = true;
     }
 
-    if (valuesToHide.length > 0) {
-      api.setHidden(valuesToHide, true, () => {
-        if (valuesToShow.length > 0) {
-          api.setHidden(valuesToShow, false);
-        }
-      });
-    }
+    api.setValues(valuesToSet);
   }
 </script>
 

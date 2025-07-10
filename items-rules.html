@@ -1,11 +1,18 @@
 <script>
   function onChangeModifiers() {
+    let itemDataPath = getNearestParentDataPath(dataPath);
     // Set itemOnly field visible on all modifiers
     const modifiers = value;
     const valuesToSet = {};
 
+    if (itemDataPath) {
+      itemDataPath = itemDataPath + ".";
+    }
+
     modifiers.forEach((modifier, index) => {
-      valuesToSet[`data.modifiers.${index}.fields.itemOnly.hidden`] = false;
+      valuesToSet[
+        `${itemDataPath}data.modifiers.${index}.fields.itemOnly.hidden`
+      ] = false;
     });
 
     if (Object.keys(valuesToSet).length > 0) {
