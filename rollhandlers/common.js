@@ -1111,6 +1111,11 @@ function setStatsAndSkills(
     return;
   }
 
+  if (record.data.type === "defense") {
+    // Defenses equip items which triggers this but they don't have these stats
+    return;
+  }
+
   // The stat we'll use when checking for skill changes
   let statToCheck = stat;
 
