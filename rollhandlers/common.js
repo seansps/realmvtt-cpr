@@ -2370,12 +2370,13 @@ api.addEffectById('${effectID}', target);
         // Pass along the total of this roll as the DV for the skill check
         const skillCheckMetadata = {
           isDodge: false,
-          dv: ${checkDv},
+          dv: ${checkDv || 0},
+          defenderSkill: "${defenderSkillName}",
         };
-    
+
         performSkillRoll(token, "${defenderSkillName}", skillCheckMetadata);
       }); 
-    \`\`\``;
+\`\`\``;
       markdownDescription += `\n${skillRollButton}`;
     }
 
