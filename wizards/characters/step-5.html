@@ -994,9 +994,23 @@
       let totalFashionSpent = 0;
 
       items.forEach((item) => {
-        const itemCost = item.data?.cost || 0;
+        let itemCost = item.data?.cost || 0;
+        // Convert to string if it's a number, then process
+        if (typeof itemCost === "string") {
+          itemCost = itemCost.replace("eb", "").replace(",", "").trim();
+          if (itemCost === "") {
+            itemCost = 0;
+          }
+          itemCost = parseInt(itemCost, 10);
+        }
+
+        let unitsPer = 1;
+        if (item.data.type === "ammo" && item.data?.rounds) {
+          unitsPer = item.data?.rounds;
+        }
+
         const itemCount = item.data?.count || 1;
-        const totalItemCost = itemCost * itemCount;
+        const totalItemCost = itemCost * Math.floor(itemCount / unitsPer);
 
         // Check if this is a fashion item or fashionware
         const isFashion =
@@ -1044,10 +1058,11 @@
 
       selectedItems.forEach((item) => {
         // Check if they have enough funds
-        let itemCost = (item.data?.cost || "0")
-          .replace("eb", "")
-          .replace(",", "")
-          .trim();
+        let itemCost = item.data?.cost || 0;
+        // Convert to string if it's a number, then process
+        if (typeof itemCost === "string") {
+          itemCost = itemCost.replace("eb", "").replace(",", "").trim();
+        }
         if (itemCost === "") {
           itemCost = 0;
         }
@@ -1084,16 +1099,21 @@
 
         // Check if the item is already in the list
         const itemIndex = items.findIndex((i) => i._id === item._id);
+        let unitsPer = 1;
+        if (item.data.type === "ammo" && item.data?.rounds) {
+          unitsPer = item.data?.rounds;
+        }
         if (itemIndex === -1) {
           // Add the item to the list with count
           const newItem = {
             ...item,
-            data: { ...item.data, count: 1 },
+            data: { ...item.data, count: unitsPer },
           };
           items.push(newItem);
         } else {
           // Update the item count
-          items[itemIndex].data.count = (items[itemIndex].data.count || 1) + 1;
+          items[itemIndex].data.count =
+            (items[itemIndex].data.count || 1) + unitsPer;
         }
 
         itemsAdded = true;
@@ -1115,10 +1135,11 @@
     const selectedItems = value || [];
     if (selectedItems) {
       value.forEach((item) => {
-        let itemCost = (item.data?.cost || "0")
-          .replace("eb", "")
-          .replace(",", "")
-          .trim();
+        let itemCost = item.data?.cost || 0;
+        // Convert to string if it's a number, then process
+        if (typeof itemCost === "string") {
+          itemCost = itemCost.replace("eb", "").replace(",", "").trim();
+        }
         if (itemCost === "") {
           itemCost = 0;
         }
