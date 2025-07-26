@@ -516,11 +516,6 @@
     const nearestParentDataPath = getNearestParentDataPath(dataPath);
     const item = api.getValue(nearestParentDataPath) || record;
 
-    // If this is an nested item, just return. (Like a weapon attachment)
-    let pathToFields = "fields";
-    if (nearestParentDataPath !== "") {
-      pathToFields = `${nearestParentDataPath}.fields`;
-    }
     let pathToData = "data";
     if (nearestParentDataPath !== "") {
       pathToData = `${nearestParentDataPath}.data`;
@@ -532,11 +527,14 @@
     const valuesToSet = {};
     attachments.forEach((attachment, index) => {
       if (attachment.data?.type !== "weapon attachment") {
-        valuesToSet[`${pathToData}.type`] = "weapon attachment";
+        valuesToSet[`${pathToData}.attachments.${index}.data.type`] =
+          "weapon attachment";
         valuesToSet[
-          `${pathToFields}.weaponAttachmentProperties.hidden`
+          `${pathToData}.attachments.${index}.fields.weaponAttachmentProperties.hidden`
         ] = false;
-        valuesToSet[`${pathToFields}.hasUseBtn.hidden`] = false;
+        valuesToSet[
+          `${pathToData}.attachments.${index}.fields.hasUseBtn.hidden`
+        ] = false;
       }
     });
 
