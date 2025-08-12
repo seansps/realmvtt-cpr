@@ -2150,7 +2150,7 @@ function useAbility(record, abilityDataPath) {
   }
 
   const itemIcon = portrait
-    ? `![${abilityName}](${assetUrl}${portrait}?width=40&height=40) `
+    ? `![${abilityName}](${assetUrl}${encodeURI(portrait)}?width=40&height=40) `
     : "";
   const abilityDescription = api.richTextToMarkdown(description || "");
 
@@ -2559,7 +2559,7 @@ function useItem(record, itemDataPath) {
   }
 
   const itemIcon = portrait
-    ? `![${itemName}](${assetUrl}${portrait}?width=40&height=40) `
+    ? `![${itemName}](${assetUrl}${encodeURI(portrait)}?width=40&height=40) `
     : "";
   const itemDescription = api.richTextToMarkdown(description || "");
   let markdownDescription = `
