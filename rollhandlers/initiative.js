@@ -100,11 +100,28 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
     tooltip: "Initiative Roll",
   });
 
-  api.getRecord(rollRecordType, recordId, (updatedRecord) => {
-    api.setValuesOnRecord(updatedRecord, {
-      "data.initiative": roll.total,
+  if (data.roll?.metadata?.group && data.roll?.metadata?.group.length > 0) {
+    data.roll?.metadata?.group.forEach((tokenId) => {
+      api.setValueOnTokenById(tokenId, "tokens", "data.initiative", roll.total);
     });
-  });
+    api.sendMessage(
+      message,
+      roll,
+      [],
+      [
+        {
+          name: "Group Initiative",
+          tooltip: "Group Initiative Roll",
+        },
+      ]
+    );
+  } else {
+    api.getRecord(rollRecordType, recordId, (updatedRecord) => {
+      api.setValuesOnRecord(updatedRecord, {
+        "data.initiative": roll.total,
+      });
+    });
 
-  api.sendMessage(message, roll, [], tags);
+    api.sendMessage(message, roll, [], tags);
+  }
 }
