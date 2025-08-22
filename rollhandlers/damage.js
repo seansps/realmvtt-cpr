@@ -437,7 +437,13 @@ targets.forEach(target => {
     }
     
     // Apply visual effects
-    if (curhp <= 0 && oldValues["data.curhp"] > 0) {
+    const targetCanBeMortallyWounded = 
+      target.data?.type !== "program" 
+      && target.data?.type !== "black ice" 
+      && target.data?.type !== "demon"
+      && target.data?.type !== "defense" 
+      && target.data?.type !== "vehicle";
+    if (curhp <= 0 && oldValues["data.curhp"] > 0 && targetCanBeMortallyWounded) {
       api.addEffect("Mortally Wounded", target);
       message += \`Mortally Wounded!\\n\`;
     }

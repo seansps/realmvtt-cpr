@@ -2742,7 +2742,6 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
   }
   
   checkDV = ${checkDV};
-
   performSkillRoll(updatedRecord, skillName, {
     isDodge: false,
     roleAbility: "Netrunner",

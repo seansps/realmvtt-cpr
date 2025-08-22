@@ -121,7 +121,13 @@ if (damage > 0) {
 // If damage > 0, float text
 const token = api.getToken();
 if (value > 0 && token) {
-  if (curhp <= 0) {
+  const targetCanBeMortallyWounded =
+    token.data?.type !== "program" &&
+    token.data?.type !== "black ice" &&
+    token.data?.type !== "demon" &&
+    token.data?.type !== "defense" &&
+    token.data?.type !== "vehicle";
+  if (curhp <= 0 && targetCanBeMortallyWounded) {
     api.addEffect("Mortally Wounded", token);
   }
   if (coverDamaged) {
