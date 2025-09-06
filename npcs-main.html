@@ -259,13 +259,32 @@
     addCondition(record, recordLink);
   }
 
-  function onDrop(type, recordLink) {
+  function onDrop(type, recordLink, sourceInfo) {
     const npcType = record.data?.type || "mook";
     if (type === "roles" && (npcType === "mook" || npcType === "team member")) {
       // Only mooks and team members have roles
       onDropRole(recordLink);
     } else if (type === "items") {
       onDropItem(recordLink);
+      if (sourceInfo) {
+        if (sourceInfo?.type === "list") {
+          // Query for the record first, then remove the item from the source list
+          api.getRecord(
+            sourceInfo.recordType,
+            sourceInfo.recordId,
+            (sourceRecord) => {
+              api.removeValueFromRecord(
+                sourceRecord,
+                sourceInfo.dataPath,
+                sourceInfo.index
+              );
+            }
+          );
+        } else if (sourceInfo?.type === "partysheet") {
+          // Remove the item from party sheet
+          api.removePartySheetItem(sourceInfo.itemId);
+        }
+      }
     } else if (type === "conditions") {
       onDropCondition(recordLink);
     }
@@ -287,9 +306,9 @@
     const isConsumable = item?.data?.consumable || false;
     const hasUseBtn = item?.data?.hasUseBtn || false;
 
-    let unitCount = 1;
+    let unitCount = item.data?.count || 1;
     // If ammo, get the unit count
-    if (item.data?.type === "ammo") {
+    if (item.data?.type === "ammo" && unitCount === 1) {
       unitCount = item.data?.rounds || 1;
     }
 
@@ -388,9 +407,9 @@
       if (existingItem) {
         // Add count to existing item
         const count = parseFloat(existingItem.data?.count || "0");
-        let unitCount = 1;
+        let unitCount = parseFloat(item.data?.count || "1");
         // If ammo, get the unit count
-        if (existingItem.data?.type === "ammo") {
+        if (existingItem.data?.type === "ammo" && unitCount === 1) {
           unitCount = existingItem.data?.rounds || 1;
         }
         // Update the value
