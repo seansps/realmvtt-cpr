@@ -215,43 +215,41 @@
     // on blur of the useLuck field.
     const recordId = record._id;
     // First, wait for the useLuck field to be updated, then re-query the record.
-    setTimeout(() => {
-      api.getRecord("characters", recordId, (record) => {
-        const useLuck = record.data?.useLuck || 0;
+    api.getRecord("characters", recordId, (record) => {
+      const useLuck = record.data?.useLuck || 0;
 
-        const valuesToSet = {
-          "data.useLuck": 0,
-        };
+      const valuesToSet = {
+        "data.useLuck": 0,
+      };
 
-        if (useLuck > 0) {
-          // Deduct the amount from curLuck, and add store the amount deducted
-          // so we can add it as a bonus to the next roll
-          const curLuck = record.data?.curLuck || 0;
-          const amountDeducted = Math.min(useLuck, curLuck);
-          valuesToSet["data.curLuck"] = curLuck - amountDeducted;
-          valuesToSet["data.nextRoll"] =
-            (record.data?.nextRoll || 0) + amountDeducted;
+      if (useLuck > 0) {
+        // Deduct the amount from curLuck, and add store the amount deducted
+        // so we can add it as a bonus to the next roll
+        const curLuck = record.data?.curLuck || 0;
+        const amountDeducted = Math.min(useLuck, curLuck);
+        valuesToSet["data.curLuck"] = curLuck - amountDeducted;
+        valuesToSet["data.nextRoll"] =
+          (record.data?.nextRoll || 0) + amountDeducted;
 
-          const tags = [
-            {
-              tooltip: "Used luck.",
-              name: "Luck",
-            },
-          ];
+        const tags = [
+          {
+            tooltip: "Used luck.",
+            name: "Luck",
+          },
+        ];
 
-          api.setValues(valuesToSet);
+        api.setValues(valuesToSet);
 
-          if (amountDeducted > 0) {
-            api.sendMessage(
-              `${amountDeducted} Luck used. Next roll will be at +${valuesToSet["data.nextRoll"]}`,
-              undefined,
-              [],
-              tags
-            );
-          }
+        if (amountDeducted > 0) {
+          api.sendMessage(
+            `${amountDeducted} Luck used. Next roll will be at +${valuesToSet["data.nextRoll"]}`,
+            undefined,
+            [],
+            tags
+          );
         }
-      });
-    }, 500);
+      }
+    });
   }
 
   function onRest() {

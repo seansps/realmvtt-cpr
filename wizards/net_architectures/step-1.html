@@ -1,11 +1,9 @@
 <script>
   function onStepEnd(stepIndex) {
-    // Requery after a short timeout to get the latest record data first
-    setTimeout(() => {
-      api.getRecord(record.recordType, record._id, (record) => {
-        generateNetArchitecture(record, record.data.wizard.difficulty);
-      });
-    }, 100);
+    // Get the latest record data first
+    api.getRecord(record.recordType, record._id, (record) => {
+      generateNetArchitecture(record, record.data.wizard.difficulty);
+    });
   }
 </script>
 

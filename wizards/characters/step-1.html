@@ -1,11 +1,9 @@
 <script>
   function onStepEnd(stepIndex) {
     // Update after a short delay
-    setTimeout(() => {
-      api.getRecord("characters", record._id, (currentRecord) => {
-        onMethodChange(currentRecord.data?.wizard?.creationMethod);
-      });
-    }, 100);
+    api.getRecord("characters", record._id, (currentRecord) => {
+      onMethodChange(currentRecord.data?.wizard?.creationMethod);
+    });
   }
 
   function onMethodChange(method) {

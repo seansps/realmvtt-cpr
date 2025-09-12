@@ -51,43 +51,36 @@
 
     // Get the current ac due to armor and set it on the
     // record
-    // Tokens have race conditions, for now, we'll just wait a bit
-    setTimeout(
-      () => {
-        const bestEquippedArmor = getBestEquippedArmor(record);
+    const bestEquippedArmor = getBestEquippedArmor(record);
+    // Update attributes as per modifiers
+    updateAttributes(valuesToSet, bestEquippedArmor.highestPenalty);
 
-        // Update attributes as per modifiers
-        updateAttributes(valuesToSet, bestEquippedArmor.highestPenalty);
-
-        // Update the fields to show/hide the correct buttons on attack list
-        // based on type incase it changed
-        valuesToSet[`${itemDataPath}.fields`] = {
-          ...itemFields,
-          // Hide use button unless it's consumable, has use button, of is ammo (with values) or drug
-          useBtn: {
-            hidden: !isConsumable && !hasUseBtn && !isAmmoWithValues && !isDrug,
-          },
-        };
-
-        valuesToSet["data.headArmor"] = bestEquippedArmor.head[0]?.name || "";
-        valuesToSet["data.headArmorSP"] = bestEquippedArmor.head[0]?.curSp || 0;
-        valuesToSet["data.headArmorPenalty"] =
-          bestEquippedArmor.head[0]?.penalty || 0;
-        valuesToSet["data.bodyArmor"] = bestEquippedArmor.body[0]?.name || "";
-        valuesToSet["data.bodyArmorSP"] = bestEquippedArmor.body[0]?.curSp || 0;
-        valuesToSet["data.bodyArmorPenalty"] =
-          bestEquippedArmor.body[0]?.penalty || 0;
-        valuesToSet["data.shield"] = bestEquippedArmor.shield[0]?.name || "";
-        valuesToSet["data.shieldHP"] = bestEquippedArmor.shield[0]?.curSp || 0;
-        valuesToSet["data.shieldPenalty"] =
-          bestEquippedArmor.shield[0]?.penalty || 0;
-
-        if (Object.keys(valuesToSet).length > 0) {
-          api.setValues(valuesToSet);
-        }
+    // Update the fields to show/hide the correct buttons on attack list
+    // based on type incase it changed
+    valuesToSet[`${itemDataPath}.fields`] = {
+      ...itemFields,
+      // Hide use button unless it's consumable, has use button, of is ammo (with values) or drug
+      useBtn: {
+        hidden: !isConsumable && !hasUseBtn && !isAmmoWithValues && !isDrug,
       },
-      record.linked === undefined ? 0 : 200
-    );
+    };
+
+    valuesToSet["data.headArmor"] = bestEquippedArmor.head[0]?.name || "";
+    valuesToSet["data.headArmorSP"] = bestEquippedArmor.head[0]?.curSp || 0;
+    valuesToSet["data.headArmorPenalty"] =
+      bestEquippedArmor.head[0]?.penalty || 0;
+    valuesToSet["data.bodyArmor"] = bestEquippedArmor.body[0]?.name || "";
+    valuesToSet["data.bodyArmorSP"] = bestEquippedArmor.body[0]?.curSp || 0;
+    valuesToSet["data.bodyArmorPenalty"] =
+      bestEquippedArmor.body[0]?.penalty || 0;
+    valuesToSet["data.shield"] = bestEquippedArmor.shield[0]?.name || "";
+    valuesToSet["data.shieldHP"] = bestEquippedArmor.shield[0]?.curSp || 0;
+    valuesToSet["data.shieldPenalty"] =
+      bestEquippedArmor.shield[0]?.penalty || 0;
+
+    if (Object.keys(valuesToSet).length > 0) {
+      api.setValues(valuesToSet);
+    }
   }
 
   function useInvItem() {

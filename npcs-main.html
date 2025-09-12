@@ -575,139 +575,135 @@
     const recordId = record._id;
     // First, wait for the skillText field to be updated, then re-query the record.
     let recordType = record.linked === undefined ? "npcs" : "tokens";
-    setTimeout(() => {
-      api.getRecord(recordType, recordId, (record) => {
-        let skillText = record.data?.skillText || "";
 
-        if (!skillText.trim()) {
-          return;
-        }
+    api.getRecord(recordType, recordId, (record) => {
+      let skillText = record.data?.skillText || "";
 
-        // Convert bullet points to commas
-        skillText = skillText.split("•").join(",");
+      if (!skillText.trim()) {
+        return;
+      }
 
-        // Remove all newline characters first - use character codes to avoid sanitization issues
-        skillText = skillText.split(String.fromCharCode(13, 10)).join(","); // \r\n
-        skillText = skillText.split(String.fromCharCode(10)).join(","); // \n
-        skillText = skillText.split(String.fromCharCode(13)).join(","); // \r
+      // Convert bullet points to commas
+      skillText = skillText.split("•").join(",");
 
-        // First try comma-separated parsing
-        let skillsArray = [];
-        const skillEntries = skillText.split(",");
-        let allSkillParts = [];
+      // Remove all newline characters first - use character codes to avoid sanitization issues
+      skillText = skillText.split(String.fromCharCode(13, 10)).join(","); // \r\n
+      skillText = skillText.split(String.fromCharCode(10)).join(","); // \n
+      skillText = skillText.split(String.fromCharCode(13)).join(","); // \r
 
-        // Check if comma-separated parsing works well
-        let commaParsingWorked = true;
-        for (let i = 0; i < skillEntries.length; i++) {
-          const entry = skillEntries[i].trim();
-          if (entry) {
-            // Split by spaces and find the last number as the skill value
-            const parts = entry.split(" ");
-            let skillValue = "";
-            let skillNameParts = [];
+      // First try comma-separated parsing
+      let skillsArray = [];
+      const skillEntries = skillText.split(",");
+      let allSkillParts = [];
 
-            // Work backwards to find the skill value (last number)
-            for (let j = parts.length - 1; j >= 0; j--) {
-              const part = parts[j].trim();
-              if (part && !isNaN(parseInt(part)) && !skillValue) {
-                skillValue = part;
-              } else if (part) {
-                skillNameParts.unshift(part);
-              }
+      // Check if comma-separated parsing works well
+      let commaParsingWorked = true;
+      for (let i = 0; i < skillEntries.length; i++) {
+        const entry = skillEntries[i].trim();
+        if (entry) {
+          // Split by spaces and find the last number as the skill value
+          const parts = entry.split(" ");
+          let skillValue = "";
+          let skillNameParts = [];
+
+          // Work backwards to find the skill value (last number)
+          for (let j = parts.length - 1; j >= 0; j--) {
+            const part = parts[j].trim();
+            if (part && !isNaN(parseInt(part)) && !skillValue) {
+              skillValue = part;
+            } else if (part) {
+              skillNameParts.unshift(part);
             }
+          }
 
-            if (skillValue && skillNameParts.length > 0) {
-              const skillName = skillNameParts.join(" ");
+          if (skillValue && skillNameParts.length > 0) {
+            const skillName = skillNameParts.join(" ");
+            allSkillParts.push(skillName);
+            allSkillParts.push(skillValue);
+          } else {
+            // If we can't parse this entry properly, comma parsing might not be working
+            commaParsingWorked = false;
+            break;
+          }
+        }
+      }
+
+      // If comma parsing didn't work well, try space-based parsing
+      if (!commaParsingWorked || allSkillParts.length === 0) {
+        allSkillParts = [];
+
+        // Split the entire text by spaces
+        const allParts = skillText.split(" ");
+        let currentSkillParts = [];
+
+        for (let i = 0; i < allParts.length; i++) {
+          const part = allParts[i].trim();
+          if (!part) continue;
+
+          // Check if this part is a number
+          if (!isNaN(parseInt(part))) {
+            // This is a skill value
+            if (currentSkillParts.length > 0) {
+              // We have a skill name, so add the skill
+              const skillName = currentSkillParts.join(" ");
               allSkillParts.push(skillName);
-              allSkillParts.push(skillValue);
-            } else {
-              // If we can't parse this entry properly, comma parsing might not be working
-              commaParsingWorked = false;
-              break;
+              allSkillParts.push(part);
+              currentSkillParts = [];
             }
+          } else {
+            // This is part of a skill name
+            currentSkillParts.push(part);
           }
         }
+      }
 
-        // If comma parsing didn't work well, try space-based parsing
-        if (!commaParsingWorked || allSkillParts.length === 0) {
-          allSkillParts = [];
+      // Process skills in pairs (name, value)
+      for (let i = 0; i < allSkillParts.length; i += 2) {
+        const skillName = allSkillParts[i]?.trim();
+        const skillValue = allSkillParts[i + 1]?.trim();
 
-          // Split the entire text by spaces
-          const allParts = skillText.split(" ");
-          let currentSkillParts = [];
+        if (skillName && skillValue && !isNaN(parseInt(skillValue))) {
+          const baseValue = parseInt(skillValue);
+          const skillStat = findSkillStat(skillName);
 
-          for (let i = 0; i < allParts.length; i++) {
-            const part = allParts[i].trim();
-            if (!part) continue;
-
-            // Check if this part is a number
-            if (!isNaN(parseInt(part))) {
-              // This is a skill value
-              if (currentSkillParts.length > 0) {
-                // We have a skill name, so add the skill
-                const skillName = currentSkillParts.join(" ");
-                allSkillParts.push(skillName);
-                allSkillParts.push(part);
-                currentSkillParts = [];
-              }
-            } else {
-              // This is part of a skill name
-              currentSkillParts.push(part);
-            }
+          // Get the stat value from the record
+          let statFieldName;
+          if (skillStat === "luck") {
+            statFieldName = "totalCurLuck";
+          } else if (skillStat === "emp") {
+            statFieldName = "totalCurEmp";
+          } else {
+            statFieldName = `total${
+              skillStat.charAt(0).toUpperCase() + skillStat.slice(1)
+            }`;
           }
-        }
 
-        // Process skills in pairs (name, value)
-        for (let i = 0; i < allSkillParts.length; i += 2) {
-          const skillName = allSkillParts[i]?.trim();
-          const skillValue = allSkillParts[i + 1]?.trim();
+          const statValue = parseInt(record?.data?.[statFieldName] || "0", 10);
 
-          if (skillName && skillValue && !isNaN(parseInt(skillValue))) {
-            const baseValue = parseInt(skillValue);
-            const skillStat = findSkillStat(skillName);
+          // Calculate level (base value minus stat)
+          const levelValue = Math.max(baseValue - statValue, 0);
 
-            // Get the stat value from the record
-            let statFieldName;
-            if (skillStat === "luck") {
-              statFieldName = "totalCurLuck";
-            } else if (skillStat === "emp") {
-              statFieldName = "totalCurEmp";
-            } else {
-              statFieldName = `total${
-                skillStat.charAt(0).toUpperCase() + skillStat.slice(1)
-              }`;
-            }
-
-            const statValue = parseInt(
-              record?.data?.[statFieldName] || "0",
-              10
-            );
-
-            // Calculate level (base value minus stat)
-            const levelValue = Math.max(baseValue - statValue, 0);
-
-            skillsArray.push({
-              _id: generateUuid(),
-              name: skillName.split(",").join(" ").trim(),
-              unidentifiedName: skillName.split(",").join(" ").trim(),
-              data: {
-                base: baseValue,
-                lvl: levelValue,
-                stat: skillStat,
-              },
-            });
-          }
-        }
-
-        // Set the skills array to the record
-        if (skillsArray.length > 0) {
-          api.setValuesOnRecord(record, {
-            "data.skills": skillsArray,
-            "data.skillText": "",
+          skillsArray.push({
+            _id: generateUuid(),
+            name: skillName.split(",").join(" ").trim(),
+            unidentifiedName: skillName.split(",").join(" ").trim(),
+            data: {
+              base: baseValue,
+              lvl: levelValue,
+              stat: skillStat,
+            },
           });
         }
-      });
-    }, 500);
+      }
+
+      // Set the skills array to the record
+      if (skillsArray.length > 0) {
+        api.setValuesOnRecord(record, {
+          "data.skills": skillsArray,
+          "data.skillText": "",
+        });
+      }
+    });
   }
 
   function onUpdateSp(field) {
