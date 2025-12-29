@@ -46,13 +46,6 @@
     options='[{"icon": "IconCornerDownRight", "label": "Attachments", "value": "asttachments"}]'
   ></iconbutton>
 
-  <list
-    field="weaponAttached"
-    listtype="attack_list"
-    variant="standard"
-    getfilters="return getWeaponAttachmentFilters();"
-  ></list>
-
   <box field="attachmentProperties" hidden="true">
     <div
       style="display: flex; flex-direction: row; align-items: center; gap: 4px"
@@ -65,4 +58,11 @@
       ></namefield>
     </div>
   </box>
+
+  <list
+    field="weaponAttached"
+    listtype="attack_list"
+    variant="standard"
+    getfilters="return getWeaponAttachmentFilters();"
+  ></list>
 </div>
