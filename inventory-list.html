@@ -58,14 +58,14 @@
       ) {
         const optionSlots = api.getValue(`${itemDataPath}.data.optionSlots`);
         const foundationalSlot = api.getValue(
-          `${itemDataPath}.data.foundationalSlot`
+          `${itemDataPath}.data.foundationalSlot`,
         );
         const leftOrRight = foundationalSlot.toLowerCase().includes("left")
           ? "left"
           : "right";
         const optionSlotValue = getOptionSlotValue(
           foundationalSlot,
-          leftOrRight
+          leftOrRight,
         );
         if (optionSlotValue.fieldName) {
           valuesToSet[`data.${optionSlotValue.fieldName}`] =
@@ -82,14 +82,14 @@
                 item.data?.cyberwareInstallSlot === "foundational" &&
                 item.data?.foundationalSlot === "left cybereye" &&
                 item.data?.carried === "equipped" &&
-                item.data?.type === "cyberware"
+                item.data?.type === "cyberware",
             )?.[0];
             const rightEye = (record?.data?.inventory || []).filter(
               (item) =>
                 item.data?.cyberwareInstallSlot === "foundational" &&
                 item.data?.foundationalSlot === "right cybereye" &&
                 item.data?.carried === "equipped" &&
-                item.data?.type === "cyberware"
+                item.data?.type === "cyberware",
             )?.[0];
             const numSlotsLeftEye =
               record?.data?.usedLeftCyberEyeOptionSlots || 0;
@@ -120,14 +120,14 @@
                 item.data?.cyberwareInstallSlot === "foundational" &&
                 item.data?.foundationalSlot === "left hand" &&
                 item.data?.carried === "equipped" &&
-                item.data?.type === "cyberware"
+                item.data?.type === "cyberware",
             )?.[0];
             const rightHand = (record?.data?.inventory || []).filter(
               (item) =>
                 item.data?.cyberwareInstallSlot === "foundational" &&
                 item.data?.foundationalSlot === "right hand" &&
                 item.data?.carried === "equipped" &&
-                item.data?.type === "cyberware"
+                item.data?.type === "cyberware",
             )?.[0];
             const numSlotsLeftHand =
               record?.data?.usedLeftCyberFingerOptionSlots || 0;
@@ -162,14 +162,14 @@
                 item.data?.cyberwareInstallSlot === "foundational" &&
                 item.data?.foundationalSlot === "left cyberarm" &&
                 item.data?.carried === "equipped" &&
-                item.data?.type === "cyberware"
+                item.data?.type === "cyberware",
             )?.[0];
             const rightArm = (record?.data?.inventory || []).filter(
               (item) =>
                 item.data?.cyberwareInstallSlot === "foundational" &&
                 item.data?.foundationalSlot === "right cyberarm" &&
                 item.data?.carried === "equipped" &&
-                item.data?.type === "cyberware"
+                item.data?.type === "cyberware",
             )?.[0];
             const numSlotsLeftArm =
               record?.data?.usedLeftCyberArmOptionSlots || 0;
@@ -215,14 +215,14 @@
                 item.data?.cyberwareInstallSlot === "foundational" &&
                 item.data?.foundationalSlot === "left cyberleg" &&
                 item.data?.carried === "equipped" &&
-                item.data?.type === "cyberware"
+                item.data?.type === "cyberware",
             )?.[0];
             const rightLeg = (record?.data?.inventory || []).filter(
               (item) =>
                 item.data?.cyberwareInstallSlot === "foundational" &&
                 item.data?.foundationalSlot === "right cyberleg" &&
                 item.data?.carried === "equipped" &&
-                item.data?.type === "cyberware"
+                item.data?.type === "cyberware",
             )?.[0];
             const numSlotsLeftLeg =
               record?.data?.usedLeftCyberLegOptionSlots || 0;
@@ -331,10 +331,10 @@
   </div>
   <button
     hidden="true"
-    size="xs"
+    size="xxs"
     field="useBtn"
-    variant="light"
-    onclick="useInvItem();"
+    width="40px"
+    onclick="useInvItem()"
     label="Use"
   ></button>
   <stringfield
@@ -355,6 +355,6 @@
     defaultvalue="carried"
     disablediflocked="false"
     options='[{"label": "Carried", "value": "carried"}, {"label": "Equipped", "value": "equipped"}, {"label": "Dropped", "value": "dropped"}]'
-    onchange="onItemEquipped();"
+    onchange="onItemEquipped()"
   ></dropdown>
 </div>
