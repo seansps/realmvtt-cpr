@@ -61,7 +61,7 @@ function updateSkillPointsForEdgerunner() {
         // Check skill level requirements based on creation method
         if (creationMethod === "edgerunner" && level < 2) {
           errors.push(
-            `${skill.name} must be at least level 2 (Edgerunner mode)`
+            `${skill.name} must be at least level 2 (Edgerunner mode)`,
           );
         } else if (
           creationMethod === "complete" &&
@@ -70,7 +70,7 @@ function updateSkillPointsForEdgerunner() {
           level < 2
         ) {
           errors.push(
-            `${skill.name} cannot be level 1 - must be 0 or at least 2`
+            `${skill.name} cannot be level 1 - must be 0 or at least 2`,
           );
         }
 
@@ -102,7 +102,7 @@ function updateSkillPointsForEdgerunner() {
           // Check subskill level requirements based on creation method
           if (creationMethod === "edgerunner" && level < 2) {
             errors.push(
-              `${subSkill.name} must be at least level 2 (Edgerunner mode)`
+              `${subSkill.name} must be at least level 2 (Edgerunner mode)`,
             );
           } else if (creationMethod === "complete") {
             if (
@@ -112,7 +112,7 @@ function updateSkillPointsForEdgerunner() {
               level < 2
             ) {
               errors.push(
-                "Language (Streetslang) cannot be level 1 - must be 0 or at least 2"
+                "Language (Streetslang) cannot be level 1 - must be 0 or at least 2",
               );
             }
             if (
@@ -122,7 +122,7 @@ function updateSkillPointsForEdgerunner() {
               level < 2
             ) {
               errors.push(
-                "Local Expert (Your Home) cannot be level 1 - must be 0 or at least 2"
+                "Local Expert (Your Home) cannot be level 1 - must be 0 or at least 2",
               );
             }
           }
@@ -212,7 +212,7 @@ function checkForReplacements(value, replacements = {}, recordOverride = null) {
     if (roleRanks) {
       value = value.replaceAll(
         matchLevel[0],
-        Math.floor(parseInt(roleRanks || "1", 10) / 2)
+        Math.floor(parseInt(roleRanks || "1", 10) / 2),
       );
     }
   }
@@ -225,7 +225,7 @@ function checkForReplacements(value, replacements = {}, recordOverride = null) {
     if (roleRanks) {
       value = value.replaceAll(
         matchClassLevel[0],
-        parseInt(roleRanks || "1", 10)
+        parseInt(roleRanks || "1", 10),
       );
     }
   }
@@ -265,7 +265,7 @@ function getResultFromTable(table, total) {
 
   // Find the row where the total falls between minValue and maxValue (inclusive)
   const matchingRow = table.rows.find(
-    (row) => total >= row.minValue && total <= row.maxValue
+    (row) => total >= row.minValue && total <= row.maxValue,
   );
 
   return matchingRow || null;
@@ -1100,7 +1100,7 @@ function setStatsAndSkills(
   stat,
   moreValuesToSet = null,
   penalty = 0,
-  updateCurHp = false
+  updateCurHp = false,
 ) {
   // Create an object to hold all the values we want to set
   const valuesToSet = {};
@@ -1143,7 +1143,7 @@ function setStatsAndSkills(
   const modifiers = getEffectsAndModifiersForToken(
     record,
     ["statBonus", "statPenalty"],
-    stat
+    stat,
   );
 
   const sortedModifiers = [...modifiers].sort((a, b) => {
@@ -1181,7 +1181,7 @@ function setStatsAndSkills(
         valuesToSet[`data.total${capitalize(modifier.field)}`] + modifier.value;
       valuesToSet[`data.total${capitalize(modifier.field)}`] = Math.min(
         Math.max(newValue, minValue),
-        maxValue
+        maxValue,
       );
 
       if (trackActual && !modifier.noDerivedAttributes) {
@@ -1195,12 +1195,12 @@ function setStatsAndSkills(
   if (penalty > 0) {
     valuesToSet[`data.total${capitalize(stat)}`] = Math.max(
       0,
-      valuesToSet[`data.total${capitalize(stat)}`] - penalty
+      valuesToSet[`data.total${capitalize(stat)}`] - penalty,
     );
     if (trackActual) {
       valuesToSet[`data.actual${capitalize(stat)}`] = Math.max(
         0,
-        valuesToSet[`data.actual${capitalize(stat)}`] - penalty
+        valuesToSet[`data.actual${capitalize(stat)}`] - penalty,
       );
     }
   }
@@ -1281,7 +1281,7 @@ function setStatsAndSkills(
     // Go through all equipped cyberware and determine humanity loss
     const equippedCyberware = (record.data?.inventory || []).filter(
       (item) =>
-        item.data?.carried === "equipped" && item.data?.type === "cyberware"
+        item.data?.carried === "equipped" && item.data?.type === "cyberware",
     );
     let maxHumanityLoss = 0;
     equippedCyberware.forEach((cyberware) => {
@@ -1404,7 +1404,7 @@ function getEffectsAndModifiersForToken(
   weapon = undefined,
   // If Ammo is provided, we also look for modifiers on it
   ammoItem = undefined,
-  subField = ""
+  subField = "",
 ) {
   if (!target) {
     return [];
@@ -1481,7 +1481,7 @@ function getEffectsAndModifiersForToken(
         stackModifiers[`${effect?._id}-${JSON.stringify(rule)}`] = true;
         // The value is the number of times they have this effect
         let value = target?.effectIds?.filter(
-          (id) => id === effect?._id
+          (id) => id === effect?._id,
         ).length;
         if (isPenalty && value > 0) {
           value = -value;
@@ -1523,7 +1523,7 @@ function getEffectsAndModifiersForToken(
       item.data?.carried === "equipped" &&
       (item.data?.type !== "cyberware" ||
         item.data?.active === true ||
-        item.data?.active === undefined)
+        item.data?.active === undefined),
   );
 
   const criticalInjuries = target?.data?.criticalInjuries || [];
@@ -1539,7 +1539,7 @@ function getEffectsAndModifiersForToken(
       (attachment) =>
         attachment.data?.active === true ||
         attachment.data?.active === undefined ||
-        attachment.data?.active === null
+        attachment.data?.active === null,
     )
     .map((attachment) => ({
       ...attachment,
@@ -1548,7 +1548,7 @@ function getEffectsAndModifiersForToken(
 
   // If this is a cyberdeck, we check for active programs and hardware in it
   const cyberdecks = equippedItems.filter(
-    (item) => item.data?.type === "cyberdeck"
+    (item) => item.data?.type === "cyberdeck",
   );
   let activePrograms = [];
   if (cyberdecks.length > 0) {
@@ -1669,14 +1669,14 @@ function getEffectsAndModifiersForToken(
         (item) =>
           item.name === modifier.requiredItem &&
           item.data?.carried === "equipped" &&
-          (item.data?.type !== "cyberware" || item.data?.active)
+          (item.data?.type !== "cyberware" || item.data?.active),
       );
       if (!requiredItem) {
         modifiersToRemove.push(modifier._id);
       } else {
         // Find modiifer with the requiredItem
         const requiredItemModifier = results.find(
-          (m) => m.name === modifier.requiredItem
+          (m) => m.name === modifier.requiredItem,
         );
 
         if (!requiredItemModifier) {
@@ -1700,7 +1700,7 @@ function getEffectsAndModifiersForToken(
             m.name === modifier.name &&
             modifier.value === m.value &&
             modifier.field === m.field &&
-            modifier.modifierType === m.modifierType
+            modifier.modifierType === m.modifierType,
         );
         if (otherModifiers.length < modifier.requiredCount) {
           // Remove them all if under the count
@@ -1846,7 +1846,7 @@ function getEffectsAndModifiersForToken(
 
   if (field && field !== "") {
     results = results.filter(
-      (r) => r.field === field || r.field === "all" || !r.field
+      (r) => r.field === field || r.field === "all" || !r.field,
     );
   }
 
@@ -1855,7 +1855,7 @@ function getEffectsAndModifiersForToken(
     (r) =>
       r.itemId === itemId ||
       r.itemId === undefined ||
-      (ammoItem && r.itemId === ammoItem._id)
+      (ammoItem && r.itemId === ammoItem._id),
   );
 
   return results;
@@ -1949,11 +1949,12 @@ function updateAttributes(valuesToSet, highestPenalty) {
 function getWoundedPenalty(record) {
   // Only PCs / mooks / team members / and backup can be wounded
   if (
-    record.recordType === "npcs" &&
-    (record.data?.type === "program" ||
-      record.data?.type === "black ice" ||
-      record.data?.type === "defense" ||
-      record.data?.type === "vehicle")
+    (record.recordType === "npcs" &&
+      (record.data?.type === "program" ||
+        record.data?.type === "black ice" ||
+        record.data?.type === "defense" ||
+        record.data?.type === "vehicle")) ||
+    record.recordType === "vehicles"
   ) {
     return null;
   }
@@ -1968,7 +1969,7 @@ function getWoundedPenalty(record) {
     // Check for ignoreSeriouslyWounded modifier
     const ignoreSeriouslyWoundedModifiers = getEffectsAndModifiersForToken(
       record,
-      ["ignoreSeriouslyWounded"]
+      ["ignoreSeriouslyWounded"],
     );
     if (ignoreSeriouslyWoundedModifiers.length === 0 || isMortallyWounded) {
       // Add a penalty of -2 to the skill roll
@@ -2000,7 +2001,7 @@ function getBestEquippedArmor(record) {
 
   // First look at all items of type armor
   const armor = items.filter(
-    (item) => item.data?.type === "armor" && item.data?.carried === "equipped"
+    (item) => item.data?.type === "armor" && item.data?.carried === "equipped",
   );
 
   armor.forEach((item) => {
@@ -2037,7 +2038,7 @@ function getBestEquippedArmor(record) {
       item.data?.carried === "equipped" &&
       (item.data?.type !== "cyberware" ||
         item.data?.active === true ||
-        item.data?.active === undefined)
+        item.data?.active === undefined),
   );
 
   otherItems.forEach((item) => {
@@ -2081,30 +2082,30 @@ function useAbility(record, abilityDataPath) {
   const portrait = api.getValueOnRecord(record, `${abilityDataPath}.portrait`);
   const description = api.getValueOnRecord(
     record,
-    `${abilityDataPath}.data.description`
+    `${abilityDataPath}.data.description`,
   );
   const effects = api.getValueOnRecord(
     record,
-    `${abilityDataPath}.data.effects`
+    `${abilityDataPath}.data.effects`,
   );
   const conditions = api.getValueOnRecord(
     record,
-    `${abilityDataPath}.data.conditions`
+    `${abilityDataPath}.data.conditions`,
   );
 
   const damageOverride = api.getValueOnRecord(
     record,
-    `${abilityDataPath}.data.damage`
+    `${abilityDataPath}.data.damage`,
   );
 
   const isAttack = api.getValueOnRecord(
     record,
-    `${abilityDataPath}.data.isAttack`
+    `${abilityDataPath}.data.isAttack`,
   );
 
   const animation = api.getValueOnRecord(
     record,
-    `${abilityDataPath}.data.animation`
+    `${abilityDataPath}.data.animation`,
   );
 
   // Get damage amount
@@ -2115,7 +2116,7 @@ function useAbility(record, abilityDataPath) {
     // Check the radio button for damageType
     const damageType = api.getValueOnRecord(
       record,
-      `${abilityDataPath}.data.damageType`
+      `${abilityDataPath}.data.damageType`,
     );
     const useBrawling = damageType === "Use Default Brawling Damage";
     const useMartialArts = damageType === "Use Default Martial Arts Damage";
@@ -2128,7 +2129,7 @@ function useAbility(record, abilityDataPath) {
       (item) =>
         item.data?.type === "cyberware" &&
         item.data?.carried === "equipped" &&
-        (item.data?.foundationalSlot || "").includes("cyberarm")
+        (item.data?.foundationalSlot || "").includes("cyberarm"),
     );
 
     if (useBrawling || useMartialArts) {
@@ -2167,20 +2168,20 @@ ${abilityDescription}
 
   const ignoreArmor = api.getValueOnRecord(
     record,
-    `${abilityDataPath}.data.ignoreArmor`
+    `${abilityDataPath}.data.ignoreArmor`,
   );
   const nonLethal = api.getValueOnRecord(
     record,
-    `${abilityDataPath}.data.nonlethal`
+    `${abilityDataPath}.data.nonlethal`,
   );
   const bonusAblation = api.getValueOnRecord(
     record,
-    `${abilityDataPath}.data.bonusAblation`
+    `${abilityDataPath}.data.bonusAblation`,
   );
   const ablationAmount = bonusAblation + 1 || 1;
   const critInjuryDamage = api.getValueOnRecord(
     record,
-    `${abilityDataPath}.data.critInjuryDamage`
+    `${abilityDataPath}.data.critInjuryDamage`,
   );
 
   // Only attack rolls have a targeted location
@@ -2319,7 +2320,7 @@ api.addEffectById('${effectID}', target);
 
   const defenderSkill = api.getValueOnRecord(
     record,
-    `${abilityDataPath}.data.defenderSkill`
+    `${abilityDataPath}.data.defenderSkill`,
   );
   let defenderSkillName = "";
   if (defenderSkill) {
@@ -2330,7 +2331,7 @@ api.addEffectById('${effectID}', target);
   // Roll skill macro, if defined, with DV if set
   const checkSkill = api.getValueOnRecord(
     record,
-    `${abilityDataPath}.data.checkSkill`
+    `${abilityDataPath}.data.checkSkill`,
   );
   let checkSkillName = "";
   if (checkSkill) {
@@ -2363,7 +2364,7 @@ api.addEffectById('${effectID}', target);
     if (defenderSkillName) {
       const skillRollButton = `\`\`\`Roll_${defenderSkillName.replace(
         / /g,
-        "_"
+        "_",
       )}
       const selectedTokens = api.getSelectedOrDroppedToken();
       selectedTokens.forEach(token => {
@@ -2414,7 +2415,7 @@ function performProgramDamageRoll(programName, damage) {
     damage,
     modifiers,
     damageMetadata,
-    "damage"
+    "damage",
   );
 }
 
@@ -2439,10 +2440,12 @@ function useItem(record, itemDataPath) {
   let conditions =
     api.getValueOnRecord(record, `${itemDataPath}.data.conditions`) || [];
   const itemType = api.getValueOnRecord(record, `${itemDataPath}.data.type`);
+  const isVehicle =
+    api.getValueOnRecord(record, `${itemDataPath}.recordType`) === "vehicles";
 
   const checkSkill = api.getValueOnRecord(
     record,
-    `${itemDataPath}.data.checkSkill`
+    `${itemDataPath}.data.checkSkill`,
   );
   const checkDV = api.getValueOnRecord(record, `${itemDataPath}.data.checkDV`);
 
@@ -2505,11 +2508,11 @@ function useItem(record, itemDataPath) {
     // Check if there's a linked NPC - if so, we'll use these props instead
     const linkedIce = api.getValueOnRecord(
       record,
-      `${itemDataPath}.data.blackICE`
+      `${itemDataPath}.data.blackICE`,
     );
     const linkedProgram = api.getValueOnRecord(
       record,
-      `${itemDataPath}.data.program`
+      `${itemDataPath}.data.program`,
     );
     if (linkedIce && linkedIce.length > 0) {
       linkedNpc = linkedIce[0];
@@ -2551,7 +2554,7 @@ function useItem(record, itemDataPath) {
     }
   }
 
-  if (itemType === "vehicle") {
+  if (itemType === "vehicle" || isVehicle) {
     const vehicle = api.getValueOnRecord(record, itemDataPath);
     if (vehicle) {
       linkedNpc = vehicle;
@@ -2615,7 +2618,7 @@ api.getRecord('conditions', '${conditionID}', (conditionRecord) => {
     markdownDescription += `\n${conditionButtons}`;
   }
 
-  if (itemType === "vehicle" && linkedNpc) {
+  if ((itemType === "vehicle" || isVehicle) && linkedNpc) {
     // Add a macro to apply the data of the linked vehicle to the NPC token
     const linkedNpcData = JSON.stringify({
       data: {
@@ -2632,7 +2635,7 @@ if (targets.length !== 1) {
     );
     return;
 }
-else if (targets[0].data?.type !== "vehicle") {
+else if (targets[0].data?.type !== "vehicle" && targets[0].recordType !== "vehicles") {
     api.showNotification(
       "Selected token is not a vehicle.",
       "red",
@@ -2719,7 +2722,7 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
   if (showInterfaceRoll) {
     const rollInterfaceButton = `\`\`\`Roll_${interfaceRollName.replace(
       / /g,
-      "_"
+      "_",
     )}
 // Find NET Runner rank
 // Requery the record and get the rank
@@ -2792,25 +2795,25 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
   // Check for primary or secondary Humanity Loss and add macros
   let primaryHumanityLossValue = api.getValueOnRecord(
     record,
-    `${itemDataPath}.data.primaryHumanityLoss`
+    `${itemDataPath}.data.primaryHumanityLoss`,
   );
   const primaryHumanityLoss = primaryHumanityLossValue
     ? `${primaryHumanityLossValue}`
     : "";
   const primaryDiceRoll = api.getValueOnRecord(
     record,
-    `${itemDataPath}.data.primaryDiceRoll`
+    `${itemDataPath}.data.primaryDiceRoll`,
   );
   let secondaryHumanityLossValue = api.getValueOnRecord(
     record,
-    `${itemDataPath}.data.secondaryHumanityLoss`
+    `${itemDataPath}.data.secondaryHumanityLoss`,
   );
   const secondaryHumanityLoss = secondaryHumanityLossValue
     ? `${secondaryHumanityLossValue}`
     : "";
   const secondaryDiceRoll = api.getValueOnRecord(
     record,
-    `${itemDataPath}.data.secondaryDiceRoll`
+    `${itemDataPath}.data.secondaryDiceRoll`,
   );
   if (primaryHumanityLoss || primaryDiceRoll) {
     const primaryLossButton = `\`\`\`Roll_Primary_Humanity_Loss
@@ -2866,8 +2869,8 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
   if (linkedNpc) {
     recordLinks.push({
       value: linkedNpcWithoutData,
-      type: "npcs",
-      tooltip: linkedNpc.name || "NPC",
+      type: isVehicle ? "vehicles" : "npcs",
+      tooltip: linkedNpc.name || (isVehicle ? "Vehicle" : "NPC"),
     });
   }
 
@@ -2898,7 +2901,7 @@ function performSkillRoll(
   record,
   skillName,
   additionalMetadata = {},
-  recordLinks = []
+  recordLinks = [],
 ) {
   // Find the skill with the same name
   const skillGroups = [
@@ -2949,7 +2952,7 @@ function performSkillRoll(
     const statModifiers = getEffectsAndModifiersForToken(
       record,
       ["statBonusSkill", "statPenaltySkill"],
-      skill.data?.stat || "int"
+      skill.data?.stat || "int",
     );
     // For penalties, assume minimum of 1
     statModifiers.forEach((modifier) => {
@@ -3016,7 +3019,7 @@ function performSkillRoll(
   const additionalModifiers = getEffectsAndModifiersForToken(
     record,
     ["skillBonus", "skillPenalty"],
-    skillName
+    skillName,
   );
   skillModifiers.push(...additionalModifiers);
 
@@ -3072,7 +3075,7 @@ function performSkillRoll(
     const additionalModifiers = getEffectsAndModifiersForToken(
       record,
       ["roleAbilityBonus", "roleAbilityPenalty"],
-      roleAbility
+      roleAbility,
     );
     skillModifiers.push(...additionalModifiers);
 
@@ -3085,7 +3088,7 @@ function performSkillRoll(
       const abilityNameModifiers = getEffectsAndModifiersForToken(
         record,
         ["roleAbilityBonus", "roleAbilityPenalty"],
-        abilityNameField
+        abilityNameField,
       );
 
       skillModifiers.push(...abilityNameModifiers);
@@ -3100,7 +3103,7 @@ function performSkillRoll(
     // If abilityName provided, filter out modifiers with subfield !== to it
     if (abilityName) {
       skillModifiers = skillModifiers.filter(
-        (m) => m.subField === abilityName || !m.subField
+        (m) => m.subField === abilityName || !m.subField,
       );
     }
   }
@@ -3162,7 +3165,7 @@ function performSkillRoll(
       "1d10",
       skillModifiers,
       metadata,
-      "skill"
+      "skill",
     );
   } else {
     api.promptRollForToken(
@@ -3171,7 +3174,7 @@ function performSkillRoll(
       "1d10",
       skillModifiers,
       metadata,
-      "skill"
+      "skill",
     );
   }
 }
@@ -3181,7 +3184,7 @@ function performAttackRoll(
   weapon,
   weaponDataPath,
   type = "single",
-  range = "auto"
+  range = "auto",
 ) {
   const isMelee = weapon?.data?.type === "melee weapon";
 
@@ -3256,7 +3259,7 @@ function performAttackRoll(
         (s) =>
           sanitizeSkillName(s.name) === sanitizeSkillName(skillName) ||
           (sanitizeSkillName(skillName) === "Martial Arts" &&
-            sanitizeSkillName(s.name).includes("Martial Arts"))
+            sanitizeSkillName(s.name).includes("Martial Arts")),
       );
       const subSkills = skill?.data?.subSkills || [];
       // If it's a subskill, look there for highest skill
@@ -3336,7 +3339,7 @@ function performAttackRoll(
     field,
     weapon?._id,
     weapon,
-    ammoItem
+    ammoItem,
   );
 
   attackModifiers.push(...modifiers);
@@ -3358,14 +3361,14 @@ function performAttackRoll(
       attackSkill.name || "New Skill",
       weapon?._id,
       weapon,
-      ammoItem
+      ammoItem,
     );
     attackModifiers.push(...skillModifiers);
     // Check for penalties/bonuses for the stat
     const statModifiers = getEffectsAndModifiersForToken(
       record,
       ["statBonusSkill", "statPenaltySkill"],
-      attackSkill.data?.stat || "int"
+      attackSkill.data?.stat || "int",
     );
     // For penalties, assume minimum of 1
     statModifiers.forEach((modifier) => {
@@ -3398,7 +3401,7 @@ function performAttackRoll(
     isMelee ? "melee" : "ranged",
     weapon?._id,
     weapon,
-    ammoItem
+    ammoItem,
   );
   let smartAmmoValue = null;
   let smartBonus = null;
@@ -3549,7 +3552,7 @@ function performAttackRoll(
       [ammoModifierType],
       "",
       weapon?._id,
-      weapon
+      weapon,
     );
     ammoModifiers.forEach((modifier) => {
       let value = parseInt(modifier.value, 10) || 0;
@@ -3588,7 +3591,7 @@ function performAttackRoll(
       api.showNotification(
         "You are out of this type of thrown ammo!",
         "red",
-        "Out of Ammo"
+        "Out of Ammo",
       );
     } else {
       api.showNotification("You need to reload first!", "red", "Out of Ammo");
@@ -3619,7 +3622,7 @@ function performAttackRoll(
           targetName: dv.targetName,
           targetId: dv.targetId,
         },
-        "attack"
+        "attack",
       );
     });
   } else {
@@ -3629,7 +3632,7 @@ function performAttackRoll(
       "1d10",
       attackModifiers,
       attackMetadata,
-      "attack"
+      "attack",
     );
   }
 }
@@ -3673,7 +3676,7 @@ function performFaceDownRoll(record) {
       isSeriouslyWounded: woundedPenalty?.value === -2,
       fumbleRecovery: fumbleRecovery,
     },
-    "facedown"
+    "facedown",
   );
 }
 
@@ -3700,7 +3703,7 @@ function performThrowObject(record) {
     api.showNotification(
       "You need to select an ammo type to throw!",
       "red",
-      "Throw Object"
+      "Throw Object",
     );
     return;
   }
@@ -3799,7 +3802,7 @@ function performDamageRoll(record, weapon, type = "single") {
     isMelee ? "melee" : "ranged",
     weapon._id,
     weapon,
-    ammoItem
+    ammoItem,
   );
 
   let ablationModifiers = getEffectsAndModifiersForToken(
@@ -3808,7 +3811,7 @@ function performDamageRoll(record, weapon, type = "single") {
     isMelee ? "melee" : "ranged",
     weapon._id,
     weapon,
-    ammoItem
+    ammoItem,
   );
   if (ablationModifiers.length > 0) {
     ablationModifiers.forEach((modifier) => {
@@ -3824,7 +3827,7 @@ function performDamageRoll(record, weapon, type = "single") {
     isMelee ? "melee" : "ranged",
     weapon._id,
     weapon,
-    ammoItem
+    ammoItem,
   );
   if (ignoresArmorUnderModifiers.length > 0) {
     ignoresArmorUnderModifiers.forEach((modifier) => {
@@ -3845,7 +3848,7 @@ function performDamageRoll(record, weapon, type = "single") {
     isMelee ? "melee" : "ranged",
     weapon._id,
     weapon,
-    ammoItem
+    ammoItem,
   );
   if (nonLethalModifiers.length > 0) {
     nonLethalModifiers.forEach((modifier) => {
@@ -3874,7 +3877,7 @@ function performDamageRoll(record, weapon, type = "single") {
       damage,
       modifiers,
       damageMetadata,
-      "damage"
+      "damage",
     );
   } else {
     api.promptRollForToken(
@@ -3883,7 +3886,7 @@ function performDamageRoll(record, weapon, type = "single") {
       damage,
       modifiers,
       damageMetadata,
-      "damage"
+      "damage",
     );
   }
 }
@@ -4065,14 +4068,14 @@ function updateRoles(record) {
       // Fumble recovery is capped at 4
       valuesToSet[`data.roles.${roleIndex}.data.maxFumbleRecovery`] = Math.min(
         4,
-        (role.data?.fumbleRecoveryRank || 0) + unallocatedRanks
+        (role.data?.fumbleRecoveryRank || 0) + unallocatedRanks,
       );
       valuesToSet[`data.roles.${roleIndex}.data.maxInitiativeReaction`] =
         (role.data?.initiativeReactionRank || 0) + unallocatedRanks;
       // Precision attack is capped at 9
       valuesToSet[`data.roles.${roleIndex}.data.maxPrecisionAttack`] = Math.min(
         9,
-        (role.data?.precisionAttackRank || 0) + unallocatedRanks
+        (role.data?.precisionAttackRank || 0) + unallocatedRanks,
       );
       valuesToSet[`data.roles.${roleIndex}.data.maxSpotWeakness`] =
         (role.data?.spotWeaknessRank || 0) + unallocatedRanks;
@@ -4155,7 +4158,7 @@ function addConditionToRecord(record, recordLink, deductHp = 0) {
       // Merge updates with the original record
       updatedRecord,
       valuesToSet,
-      bestEquippedArmor.highestPenalty
+      bestEquippedArmor.highestPenalty,
     );
     valuesToSet["data.headArmor"] = bestEquippedArmor.head[0]?.name || "";
     valuesToSet["data.headArmorSP"] = bestEquippedArmor.head[0]?.curSp || 0;
@@ -4184,7 +4187,7 @@ function addConditionToRecord(record, recordLink, deductHp = 0) {
         api.floatText(
           token,
           `Applied ${conditionObj.name}\n\n-${deductHp}`,
-          "#FF0000"
+          "#FF0000",
         );
       }
     } else if (token) {
@@ -4217,7 +4220,7 @@ function addConditionToRecord(record, recordLink, deductHp = 0) {
           () => {
             // Process next effect (only after current addition is complete)
             processEffectsSequentially(effects, index + 1);
-          }
+          },
         );
       });
     }
@@ -4235,14 +4238,14 @@ function addConditionToRecord(record, recordLink, deductHp = 0) {
       record,
       "data.criticalInjuries",
       [conditionObj],
-      addEffects
+      addEffects,
     );
   } else if (conditionType === "addiction") {
     api.addValuesToRecord(
       record,
       isNpc ? "data.criticalInjuries" : "data.addictions",
       [conditionObj],
-      addEffects
+      addEffects,
     );
   } else if (conditionType === "cover") {
     // For cover, we just reset the character's Cover HP
@@ -4253,7 +4256,7 @@ function addConditionToRecord(record, recordLink, deductHp = 0) {
       `Taking Cover: ${coverName}.`,
       undefined,
       [],
-      [{ tooltip: `Cover (${coverHp}): ${coverName}`, name: "Cover" }]
+      [{ tooltip: `Cover (${coverHp}): ${coverName}`, name: "Cover" }],
     );
   }
 }
@@ -4388,7 +4391,7 @@ function setCyberwareSlotValues(record) {
         item.data?.cyberwareInstallSlot === installSlot &&
         item.data?.carried === "equipped" &&
         item.data?.type === "cyberware" &&
-        item.data?.withinGear !== true
+        item.data?.withinGear !== true,
     );
     if (installSlot === "cyberarms") {
       cyberwareFiltered = (record?.data?.inventory || []).filter(
@@ -4400,7 +4403,7 @@ function setCyberwareSlotValues(record) {
             item.data?.carried === "equipped" &&
             item.data?.type === "cyberware" &&
             (item.data?.foundationalSlot === "right hand" ||
-              item.data?.foundationalSlot === "left hand"))
+              item.data?.foundationalSlot === "left hand")),
       );
     } else if (installSlot === "cyberlegs") {
       cyberwareFiltered = (record?.data?.inventory || []).filter(
@@ -4412,7 +4415,7 @@ function setCyberwareSlotValues(record) {
             item.data?.carried === "equipped" &&
             item.data?.type === "cyberware" &&
             (item.data?.foundationalSlot === "right foot" ||
-              item.data?.foundationalSlot === "left foot"))
+              item.data?.foundationalSlot === "left foot")),
       );
     }
     let cyberwareFilteredLeft = cyberwareFiltered;
@@ -4421,18 +4424,18 @@ function setCyberwareSlotValues(record) {
     if (installSlot === "cyberoptics") {
       leftOrRight = "left";
       cyberwareFilteredLeft = cyberwareFiltered.filter(
-        (item) => item.data?.cyberLocation === "left"
+        (item) => item.data?.cyberLocation === "left",
       );
       cyberwareFilteredRight = cyberwareFiltered.filter(
-        (item) => item.data?.cyberLocation === "right"
+        (item) => item.data?.cyberLocation === "right",
       );
     } else if (installSlot === "cyberfingers") {
       leftOrRight = "left";
       cyberwareFilteredLeft = cyberwareFiltered.filter(
-        (item) => item.data?.cyberLocation === "left"
+        (item) => item.data?.cyberLocation === "left",
       );
       cyberwareFilteredRight = cyberwareFiltered.filter(
-        (item) => item.data?.cyberLocation === "right"
+        (item) => item.data?.cyberLocation === "right",
       );
     } else if (
       installSlot === "cyberarms" ||
@@ -4441,10 +4444,10 @@ function setCyberwareSlotValues(record) {
     ) {
       leftOrRight = "left";
       cyberwareFilteredLeft = cyberwareFiltered.filter(
-        (item) => item.data?.cyberLocation === "left"
+        (item) => item.data?.cyberLocation === "left",
       );
       cyberwareFilteredRight = cyberwareFiltered.filter(
-        (item) => item.data?.cyberLocation === "right"
+        (item) => item.data?.cyberLocation === "right",
       );
     } else if (
       installSlot === "cyberlegs" ||
@@ -4453,10 +4456,10 @@ function setCyberwareSlotValues(record) {
     ) {
       leftOrRight = "left";
       cyberwareFilteredLeft = cyberwareFiltered.filter(
-        (item) => item.data?.cyberLocation === "left"
+        (item) => item.data?.cyberLocation === "left",
       );
       cyberwareFilteredRight = cyberwareFiltered.filter(
-        (item) => item.data?.cyberLocation === "right"
+        (item) => item.data?.cyberLocation === "right",
       );
     }
 
@@ -4467,7 +4470,7 @@ function setCyberwareSlotValues(record) {
       // Get the total slots used for this cyberware
       const totalSlots = cyberwareFilteredLeft.reduce(
         (acc, item) => acc + item.data?.slots,
-        0
+        0,
       );
       valuesToSet[`data.${slotValue}`] = totalSlots;
     }
@@ -4478,7 +4481,7 @@ function setCyberwareSlotValues(record) {
       if (slotValue) {
         const totalSlots = cyberwareFilteredRight.reduce(
           (acc, item) => acc + item.data?.slots,
-          0
+          0,
         );
         valuesToSet[`data.${slotValue}`] = totalSlots;
       }
@@ -4507,7 +4510,7 @@ function isDrone(value) {
 }
 
 function isVehicle(value) {
-  return value.data?.type === "vehicle";
+  return value.data?.type === "vehicle" || value.recordType === "vehicles";
 }
 
 function isProgramOrHardware(value) {
@@ -4861,7 +4864,7 @@ function rollOnTable(tableName, columnIndex = 0, callback) {
       api.showNotification(
         `No table found for ${tableName}. You may need to import the module that contains this table.`,
         "red",
-        "Table Not Found"
+        "Table Not Found",
       );
       // Always call callback even when table is not found
       if (callback) {
@@ -4909,7 +4912,7 @@ function rollOnTable(tableName, columnIndex = 0, callback) {
       api.showNotification(
         `Error finding result for ${tableName} with total ${total} and column ${columnIndex}.`,
         "red",
-        "Invalid Table Result"
+        "Invalid Table Result",
       );
       // Always call callback even when result is invalid
       if (callback) {
@@ -4946,7 +4949,7 @@ function rollOnTable(tableName, columnIndex = 0, callback) {
 
 function generateNetArchitecture(
   architecture,
-  difficultyRating = "Standard Floor"
+  difficultyRating = "Standard Floor",
 ) {
   const valuesToSet = {};
 
@@ -5040,12 +5043,12 @@ function generateNetArchitecture(
               branch_left: generateBranchFloors(
                 subLeftFloors,
                 `${branchPrefix}L`,
-                currentDepth + 1
+                currentDepth + 1,
               ),
               branch_right: generateBranchFloors(
                 subRightFloors,
                 `${branchPrefix}R`,
-                currentDepth + 1
+                currentDepth + 1,
               ),
             },
           };

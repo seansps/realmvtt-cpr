@@ -51,7 +51,7 @@ if (damage > 0) {
       // Find the index directly by searching through the inventory array
       const inventoryArray = record?.data?.inventory || [];
       const armorItemIndex = inventoryArray.findIndex(
-        (item) => item._id === shield._id
+        (item) => item._id === shield._id,
       );
 
       if (armorItemIndex !== -1) {
@@ -126,7 +126,8 @@ if (value > 0 && token) {
     token.data?.type !== "black ice" &&
     token.data?.type !== "demon" &&
     token.data?.type !== "defense" &&
-    token.data?.type !== "vehicle";
+    token.data?.type !== "vehicle" &&
+    token.recordType !== "vehicles";
   if (curhp <= 0 && targetCanBeMortallyWounded) {
     api.addEffect("Mortally Wounded", token);
   }
@@ -146,16 +147,16 @@ if (value > 0 && token) {
     api.floatText(
       token,
       `${capitalize(targetLocation)} Armor Prevented Damage`,
-      "#0000FF"
+      "#0000FF",
     );
   } else {
     if (armorAblated) {
       api.floatText(
         token,
         `-${damage}\n${capitalize(
-          targetLocation
+          targetLocation,
         )} Armor Ablated by ${ablationAmount}`,
-        "#FF0000"
+        "#FF0000",
       );
     } else {
       if (damage > 0) {

@@ -9,7 +9,7 @@ let roll = {
 
 // Find all undropped d6s that rolled a 6 and color them red
 const d6s = (roll?.dice || []).filter(
-  (d) => d.value === 6 && d.reason !== "dropped"
+  (d) => d.value === 6 && d.reason !== "dropped",
 );
 
 // We roll critical injuries by rolling 2 or more d6s
@@ -193,7 +193,7 @@ targets.forEach(target => {
       isAutofire ? `${roll.total} * ${afMultiplier}` : `${roll.total}`
     };
 
-    let isVehicle = target.data?.type === "vehicle";
+    let isVehicle = target.data?.type === "vehicle" || target.recordType === "vehicles";
     let headshotMultiplier = 2;
     // Check for headshot multiplier effects
     const headshotMultiplierEffects = getEffectsAndModifiersForToken(
@@ -438,7 +438,8 @@ targets.forEach(target => {
     
     // Apply visual effects
     const targetCanBeMortallyWounded = 
-      target.data?.type !== "program" 
+      target.recordType !== "vehicles"
+      && target.data?.type !== "program" 
       && target.data?.type !== "black ice" 
       && target.data?.type !== "demon"
       && target.data?.type !== "defense" 
@@ -556,7 +557,7 @@ if (tokens.length > 0) {
     const targetName = target.identified
       ? target.name || target.record?.name
       : target.unidentifiedName || target.record?.unidentifiedName;
-    if (!NO_INJURIES.includes(target.data?.type || "")) {
+    if (!NO_INJURIES.includes(target.data?.type || "") || target.recordType !== "vehicles") {
       api.roll(
         "2d6",
         {
