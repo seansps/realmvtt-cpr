@@ -2869,7 +2869,7 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
   if (linkedNpc) {
     recordLinks.push({
       value: linkedNpcWithoutData,
-      type: isVehicle ? "vehicles" : "npcs",
+      type: isVehicle ? "records" : "npcs",
       tooltip: linkedNpc.name || (isVehicle ? "Vehicle" : "NPC"),
     });
   }
