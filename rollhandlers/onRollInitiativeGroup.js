@@ -7,7 +7,7 @@ if (token) {
   // Get modifiers for initiative, which is REF
   const modifiers = [];
 
-  // Add ref if Mook or Team Member
+  // Add ref if Mook or Team Member; simple uses INIT instead
   if (
     token.data.type === undefined ||
     token.data.type === "" ||
@@ -18,6 +18,13 @@ if (token) {
     modifiers.push({
       name: "REF",
       value: ref,
+      active: true,
+    });
+  } else if (token.data.type === "simple") {
+    const init = parseInt(token?.data?.totalInit || "0", 10);
+    modifiers.push({
+      name: "INIT",
+      value: init,
       active: true,
     });
   }

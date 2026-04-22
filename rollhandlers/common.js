@@ -2984,8 +2984,9 @@ function performSkillRoll(
         valueType: "number",
       });
     }
-  } else if (record.recordType === "npcs") {
+  } else if (record.recordType === "npcs" && record.data.type !== "simple") {
     // NPCs don't have all skills, so they should check if the skill has an associated stat and add it
+    // Simple NPCs skip this — they fall back to combatNumber below when skill is not found
     const stat = getStatForSkill(skillName);
     if (stat) {
       skillModifiers.push({
@@ -2997,8 +2998,12 @@ function performSkillRoll(
     }
   }
 
-  // If this is an attack from an ability and this is a backup or defense, we add the combat number
-  if (record.data.type === "backup" || record.data.type === "defense") {
+  // Backup/defense always use combat number; simple uses it when the skill is not in their list
+  if (
+    record.data.type === "backup" ||
+    record.data.type === "defense" ||
+    (record.data.type === "simple" && !skill)
+  ) {
     // If the skill is "Evasion" and there is an evasion field set, use that instead
     // since Active drones will have a field for the controller's evasion
     if (skillName === "Evasion" && record.data.evasion) {
@@ -3300,7 +3305,9 @@ function performAttackRoll(
   }
 
   let attackModifiers =
-    record.data.type !== "backup" && record.data.type !== "defense"
+    record.data.type !== "backup" &&
+    record.data.type !== "defense" &&
+    record.data.type !== "simple"
       ? [
           {
             name: skillName,
@@ -3385,8 +3392,12 @@ function performAttackRoll(
     });
   }
 
-  // If this is a NPC of type backup or defense, we use the combat number
-  if (record.data.type === "backup" || record.data.type === "defense") {
+  // If this is a NPC of type backup, defense, or simple, we use the combat number
+  if (
+    record.data.type === "backup" ||
+    record.data.type === "defense" ||
+    record.data.type === "simple"
+  ) {
     attackModifiers.push({
       name: "Combat Number",
       value: record.data.combatNumber || 0,

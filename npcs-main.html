@@ -7,7 +7,8 @@
       npcType === "mook" ||
       npcType === "team member" ||
       npcType === "backup" ||
-      npcType === "defense"
+      npcType === "defense" ||
+      npcType === "simple"
     ) {
       if (npcType !== "defense") {
         fieldsToShow.push("npcLevel");
@@ -37,9 +38,8 @@
       } else {
         fieldsToHide.push("teamMemberLoyalty");
       }
-      if (npcType === "backup" || npcType === "defense") {
-        // Backup use a combatNumber instead of skills, and the only stats shown is
-        // Move and Body
+      if (npcType === "backup" || npcType === "defense" || npcType === "simple") {
+        // Backup/Defense/Simple use a combatNumber instead of full stats
         if (npcType !== "defense" || defenseType !== "environmental") {
           fieldsToShow.push("combatNumber");
           fieldsToShow.push("totalMove");
@@ -47,7 +47,8 @@
         if (
           (npcType !== "defense" ||
             (defenseType !== "emplaced" && defenseType !== "environmental")) &&
-          npcType !== "backup"
+          npcType !== "backup" &&
+          npcType !== "simple"
         ) {
           fieldsToShow.push("totalMove");
         }
@@ -60,7 +61,13 @@
           fieldsToHide.push("environmentalLabel");
           fieldsToShow.push("totalBody");
         }
-        fieldsToHide.push("skillProps");
+        if (npcType === "simple") {
+          fieldsToShow.push("skillProps");
+          fieldsToShow.push("totalInit");
+        } else {
+          fieldsToHide.push("skillProps");
+          fieldsToHide.push("totalInit");
+        }
         fieldsToHide.push("totalInt");
         fieldsToHide.push("totalRef");
         fieldsToHide.push("totalDex");
@@ -71,6 +78,7 @@
         fieldsToHide.push("totalCurEmp");
       } else {
         fieldsToHide.push("combatNumber");
+        fieldsToHide.push("totalInit");
         fieldsToShow.push("skillProps");
         fieldsToShow.push("totalInt");
         fieldsToShow.push("totalBody");
@@ -86,7 +94,8 @@
       if (
         npcType === "mook" ||
         npcType === "team member" ||
-        npcType === "backup"
+        npcType === "backup" ||
+        npcType === "simple"
       ) {
         fieldsToShow.push("conditionsList");
       } else {
@@ -430,7 +439,7 @@
     // Get modifiers for initiative, which is REF
     const modifiers = [];
     const ref = parseInt(record?.data?.totalRef || "0", 10);
-    // Only mook and team members use REF
+    // Only mook and team members use REF; simple uses INIT
     if (
       record.data.type === undefined ||
       record.data.type === "" ||
@@ -440,6 +449,13 @@
       modifiers.push({
         name: "REF",
         value: ref,
+        active: true,
+      });
+    } else if (record.data.type === "simple") {
+      const init = parseInt(record?.data?.totalInit || "0", 10);
+      modifiers.push({
+        name: "INIT",
+        value: init,
         active: true,
       });
     }
@@ -1025,6 +1041,15 @@ ${whiplashMacro}
             <numberfield
               size="xs"
               width="100%"
+              field="totalInit"
+              label="INIT"
+              defaultvalue="0"
+              placeholder="0"
+              hidden="true"
+            ></numberfield>
+            <numberfield
+              size="xs"
+              width="100%"
               field="totalWill"
               label="WILL"
               defaultvalue="0"
@@ -1296,7 +1321,7 @@ ${whiplashMacro}
           label="Type"
           placeholder="NPC Type..."
           onchange="onTypeChange(value)"
-          options='[{"value": "mook", "label": "Mook"}, {"value": "backup", "label": "Backup"}, {"value": "team member", "label": "Team Member"}, {"value": "vehicle", "label": "Vehicle"}, {"value": "program", "label": "Program"}, {"value": "black ice", "label": "Black ICE"}, {"value": "demon", "label": "Demon"}, {"value": "defense", "label": "Defense"}]'
+          options='[{"value": "mook", "label": "Mook"}, {"value": "simple", "label": "Simple"}, {"value": "backup", "label": "Backup"}, {"value": "team member", "label": "Team Member"}, {"value": "vehicle", "label": "Vehicle"}, {"value": "program", "label": "Program"}, {"value": "black ice", "label": "Black ICE"}, {"value": "demon", "label": "Demon"}, {"value": "defense", "label": "Defense"}]'
         ></dropdown>
         <box field="healthAndCover" width="100%">
           <div style="display: flex; flex-direction: row; gap: 4px">
