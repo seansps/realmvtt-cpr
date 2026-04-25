@@ -300,7 +300,8 @@
   function rollInterface(abilityName = "Interface") {
     const nearestParentDataPath = getNearestParentDataPath(dataPath);
     const role = api.getValue(nearestParentDataPath);
-    const interface = role.data?.rank || 0;
+    // 'interface' is a strict-mode reserved word; use interfaceLevel instead.
+    const interfaceLevel = role.data?.rank || 0;
 
     let defenderSkill = undefined;
     if (abilityName === "Zap") {
@@ -316,7 +317,7 @@
       roleAbility: "Netrunner",
       defenderSkill: defenderSkill,
       abilityName: abilityName,
-      skillLevel: interface,
+      skillLevel: interfaceLevel,
     });
   }
 

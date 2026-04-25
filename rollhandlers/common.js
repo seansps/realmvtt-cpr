@@ -2196,6 +2196,7 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
     rollName: "Damage",
     tooltip: "Damage with ${abilityName}",
     weaponName: "${abilityName}",
+    portrait: ${JSON.stringify(portrait || "")},
     isMelee: true,
     ignoreHalfSp: ${ignoreArmor === "Ignore Half Armor" ? true : false},
     isAutofire: false,
@@ -2394,12 +2395,13 @@ api.addEffectById('${effectID}', target);
   }
 }
 
-function performProgramDamageRoll(programName, damage) {
+function performProgramDamageRoll(programName, damage, programPortrait) {
   const modifiers = [];
   const damageMetadata = {
     rollName: "Damage",
     tooltip: `Damage with ${programName}`,
-    weaponName: "${programName}",
+    weaponName: programName,
+    portrait: programPortrait || undefined,
     isMelee: false,
     targetedLocation: "body",
     ignoresArmorUnder: 100,
@@ -2424,6 +2426,8 @@ function useItem(record, itemDataPath) {
   // and output the description to Chat
   // Include macros to relevant fields
   const itemName = api.getValueOnRecord(record, `${itemDataPath}.name`);
+  const itemPortrait =
+    api.getValueOnRecord(record, `${itemDataPath}.portrait`) || "";
   const itemCount = api.getValueOnRecord(record, `${itemDataPath}.data.count`);
   const indexValue = parseInt(itemDataPath.split(".").pop());
   const isConsumable =
@@ -2729,28 +2733,29 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
 api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
   const roles = updatedRecord.data?.roles || [];
   const netrunnerRole = roles.find(role => role.data?.panel === "netrunner");
-  let interface = netrunnerRole?.data?.rank || 0;
-  
+  // 'interface' is a strict-mode reserved word; use interfaceLevel instead.
+  let interfaceLevel = netrunnerRole?.data?.rank || 0;
+
   // If it's a program attack we also add the program's ATK to the roll
   let skillName = '${isProgramAtk ? "Interface + ATK" : "Interface"}';
   let abilityName = "Interface";
   if ('${interfaceRollName}' === "Program Attack") {
-    interface += ${programATK};
+    interfaceLevel += ${programATK};
   }
   else if ('${interfaceRollName}' === "Black ICE Attack") {
     // Black ICE is just ATK + 1d10
-    interface = ${programATK};
+    interfaceLevel = ${programATK};
     skillName = "Attack";
     abilityName = "Black ICE";
   }
-  
+
   checkDV = ${checkDV};
   performSkillRoll(updatedRecord, skillName, {
     isDodge: false,
     roleAbility: "Netrunner",
     defenderSkill: "Interface or DEF",
     abilityName: abilityName,
-    skillLevel: interface,
+    skillLevel: interfaceLevel,
     dv: checkDV ? checkDV : undefined,
   });
 });
@@ -2761,14 +2766,14 @@ api.getRecord('${record.recordType}', '${record._id}', (updatedRecord) => {
   // Macros to roll damage
   if (damage && (linkedNpc || showInterfaceRoll)) {
     const damageButton = `\`\`\`Roll_Damage
-    performProgramDamageRoll('${itemName}', '${damage}')
+    performProgramDamageRoll('${itemName}', '${damage}', '${itemPortrait}')
   \`\`\``;
     markdownDescription += `\n${damageButton}`;
   }
 
   if (damageIce) {
     const damageButton = `\`\`\`Roll_ICE_Damage
-    performProgramDamageRoll('${itemName}', '${damageIce}')
+    performProgramDamageRoll('${itemName}', '${damageIce}', '${itemPortrait}')
 \`\`\``;
     markdownDescription += `\n${damageButton}`;
   }
@@ -3537,6 +3542,7 @@ function performAttackRoll(
     smartBonus: smartBonus,
     dv: 0,
     icon,
+    portrait: weapon?.portrait,
     targetName: "",
     tokenId: api.getToken()?._id,
     targetId: api.getTargets()?.[0]?.token?._id,
@@ -3788,10 +3794,47 @@ function performDamageRoll(record, weapon, type = "single") {
     }
   });
 
+  // Pick a directional icon based on weapon type / skill, mirroring performAttackRoll.
+  let icon = "GiPistolGun";
+  if (weapon?.data?.type === "ranged weapon") {
+    if (skillName === "Shoulder Arms") {
+      icon = "GiWinchesterRifle";
+    } else if (skillName === "Heavy Weapons") {
+      icon = "GiRocket";
+    } else if (skillName === "Autofire" || skillName === "Autofire (x2)") {
+      icon = "GiThompsonM1";
+    } else if (skillName === "Archery") {
+      icon = "GiPocketBow";
+    } else if (
+      (skillName || "").includes("Pilot") ||
+      (skillName || "").includes("Drive")
+    ) {
+      icon = "GiTurret";
+    }
+  } else if (weapon?.data?.type === "melee weapon") {
+    icon = "GiKatana";
+    if (skillName === "Brawling") {
+      icon = "GiPunch";
+    } else if (
+      skillName === "Martial Arts (x2)" ||
+      skillName === "Judo" ||
+      skillName === "Aikido" ||
+      skillName === "Karate"
+    ) {
+      icon = "GiHighPunch";
+    } else if (skillName === "Taekwondo") {
+      icon = "GiHighKick";
+    }
+  } else if (weapon?.data?.type === "ammo") {
+    icon = "GiGrenade";
+  }
+
   const damageMetadata = {
     rollName: "Damage",
     tooltip: `Damage with ${weapon.name}`,
     weaponName: weapon.name,
+    icon: icon,
+    portrait: weapon?.portrait,
     isMelee: isMelee,
     ignoreHalfSp: ignoreHalfSp,
     isAutofire: type === "autofire",

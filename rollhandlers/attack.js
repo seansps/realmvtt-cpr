@@ -18,6 +18,13 @@ const weaponId = metadata?.weaponId;
 const weaponDataPath = metadata?.weaponDataPath;
 const tooltip = metadata?.tooltip;
 const icon = metadata?.icon;
+const portrait = metadata?.portrait;
+// Prefer portrait at 30x30 if set, fall back to the icon glyph.
+const iconStr = portrait
+  ? `![](${assetUrl}${encodeURI(portrait)}?width=30&height=30)`
+  : icon
+    ? `:${icon}:`
+    : "";
 const isSeriouslyWounded = metadata?.isSeriouslyWounded || false;
 const isMortallyWounded = metadata?.isMortallyWounded || false;
 const targetName = metadata?.targetName;
@@ -195,16 +202,16 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
     // Success or failure if DV was defined
     // In Cyberpunk RED, you need to roll higher than the DV to succeed
     if (dv >= 99) {
-      message = `[center]${icon ? `:${icon}:` : ""} ${weaponName} ${
+      message = `[center]${iconStr} ${weaponName} ${
         targetName ? ` :IconTargetArrow: ${targetName}` : ""
       }[/center]\n\n**[center][color=red]IMPOSSIBLE SHOT[/color] (Out of Range)[/center]**`;
     } else if (roll.total > dv) {
       beatDvBy = roll.total - dv;
-      message = `[center]${icon ? `:${icon}:` : ""} ${weaponName} ${
+      message = `[center]${iconStr} ${weaponName} ${
         targetName ? ` :IconTargetArrow: ${targetName}` : ""
       }[/center]\n\n**[center][color=green]Hit[/color] [gm](vs DV ${dv})[/gm][/center]**`;
     } else {
-      message = `[center]${icon ? `:${icon}:` : ""} ${weaponName} ${
+      message = `[center]${iconStr} ${weaponName} ${
         targetName ? ` :IconTargetArrow: ${targetName}` : ""
       }[/center]\n\n**[center][color=red]MISS[/color] [gm](vs DV ${dv})[/gm][/center]**`;
       if (smartAmmoValue && dv - roll.total <= smartAmmoValue) {
@@ -213,7 +220,7 @@ if (d10.value === 10 && !metadata.critSuccess && !metadata.critFail) {
       }
     }
   } else {
-    message = `[center]${icon ? `:${icon}:` : ""} ${weaponName} ${
+    message = `[center]${iconStr} ${weaponName} ${
       targetName ? ` :IconTargetArrow: ${targetName}` : ""
     }[/center]`;
     if (smartAmmoValue) {

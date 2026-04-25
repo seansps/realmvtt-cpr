@@ -1,6 +1,21 @@
 // Set up the roll so we can re-color d6s
 let noCriticalInjuries = data?.roll?.metadata?.noCriticalInjuries || false;
 
+// Optional header — when the damage roll came from a weapon/ability/program,
+// render its portrait (or icon) + name above the damage breakdown.
+const damageWeaponName = data?.roll?.metadata?.weaponName || "";
+const damageIcon = data?.roll?.metadata?.icon;
+const damagePortrait = data?.roll?.metadata?.portrait;
+const damageIconStr = damagePortrait
+  ? `![](${assetUrl}${encodeURI(damagePortrait)}?width=30&height=30)`
+  : damageIcon
+    ? `:${damageIcon}:`
+    : "";
+const damageHeader =
+  damageWeaponName || damageIconStr
+    ? `[center]${damageIconStr} ${damageWeaponName}[/center]`
+    : "";
+
 let roll = {
   ...data.roll,
   dice: [...(data?.roll?.dice || [])],
@@ -583,11 +598,13 @@ const totalDamage = isAutofire
 
 const message = isAutofire
   ? `
+${damageHeader}
 **[center]Autofire Damage: ${totalDamage}[/center]**
 ${damageMacro}
 ${criticalInjuryMacro}
 `
   : `
+${damageHeader}
 ${damageMacro}
 ${criticalInjuryMacro}
 `;

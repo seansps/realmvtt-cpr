@@ -200,14 +200,15 @@ if (
         // Find NET Runner rank
         const roles = token.data?.roles || [];
         const netrunnerRole = roles.find(role => role.data?.panel === "netrunner");
-        let interface = netrunnerRole?.data?.rank || 0;
+        // 'interface' is a strict-mode reserved word; use interfaceLevel instead.
+        let interfaceLevel = netrunnerRole?.data?.rank || 0;
 
         // Programs use DEF
         let rollName = "Interface";
         const isProgramOrIce = token.data?.type === "program" || token.data?.type === "black ice";
         if (isProgramOrIce) {
           rollName = "DEF";
-          interface = token.data?.def || 0;
+          interfaceLevel = token.data?.def || 0;
         }
 
         performSkillRoll(token, rollName, {
@@ -216,7 +217,7 @@ if (
           roleAbility: "Netrunner",
           defenderSkill: rollName,
           abilityName: rollName,
-          skillLevel: interface,
+          skillLevel: interfaceLevel,
         });
       }
       // Special case for Encounter ICE
