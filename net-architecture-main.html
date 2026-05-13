@@ -60,15 +60,23 @@
     api.requestAnimationFrame(`netArchFitTick(${remaining - 1})`);
   }
 
-  // Hidden floors are invisible to players entirely — they're filtered out of
-  // the player layout so the column collapses around them (matches the old
-  // `hideforplayers="..hidden"` behavior, where the whole row disappeared).
+  // Player view: hidden floors are dropped from the rendered tree, but we
+  // tag each kept floor with the count of hidden floors that preceded it
+  // (`_hiddenGapBefore`). The layout pass uses that to insert a visual gap
+  // (extra vertical space + no spine edge) so the player can see "something
+  // is here but I can't see it" instead of two visible floors looking like
+  // they're directly connected.
   function filterForPlayer(floors) {
-    return floors
-      .filter((f) => f?.data?.hidden !== "true")
-      .map((f) => {
-        const br = readBranch(f);
-        if (!br) return f;
+    const result = [];
+    let pendingGap = 0;
+    for (const f of floors) {
+      if (f?.data?.hidden === "true") {
+        pendingGap += 1;
+        continue;
+      }
+      const br = readBranch(f);
+      let mapped = f;
+      if (br) {
         const newChildren = br.children.map(filterForPlayer);
         const oldBr = f.data?.branches?.[0] || {};
         const newBr = br.fromOldShape
@@ -84,11 +92,18 @@
               ...oldBr,
               data: { ...(oldBr.data || {}), children: newChildren },
             };
-        return {
+        mapped = {
           ...f,
           data: { ...(f.data || {}), branches: [newBr] },
         };
-      });
+      }
+      if (pendingGap > 0) {
+        mapped = { ...mapped, _hiddenGapBefore: pendingGap };
+      }
+      result.push(mapped);
+      pendingGap = 0;
+    }
+    return result;
   }
 
   // ---------- Branch normalization (old + new shape) ----------
@@ -194,18 +209,26 @@
     };
 
     if (floors.length === 0) {
+      // Use a world the width of one node card so the empty-state button
+      // sits in the same column the first real floor would occupy. Center
+      // the button horizontally within that world, leave a small vertical
+      // inset. fit (capped at zoom 1.0 in computeFitView) then drops the
+      // whole world neatly into the middle of the canvas at natural size.
+      const buttonW = 160;
+      const worldW = NODE_W + PAD_X * 2;
+      const worldH = BUTTON_H + PAD_Y * 2 + 16;
       if (gm) {
         out.buttons.push({
           kind: "newFloor",
           parentPath: "data.floors",
-          x: PAD_X,
-          y: PAD_Y + 16,
-          w: 160,
+          x: (worldW - buttonW) / 2,
+          y: (worldH - BUTTON_H) / 2,
+          w: buttonW,
           h: BUTTON_H,
         });
       }
-      out.width = 220;
-      out.height = 80;
+      out.width = worldW;
+      out.height = worldH;
       return out;
     }
 
@@ -229,6 +252,14 @@
         const f = col[i];
         const path = `${colPath}.${i}`;
         const id = `f_${path}`;
+        // Player view leaves an empty slot for each hidden floor that
+        // preceded this one, so the column reads as "something is here
+        // but you can't see it" rather than smashing visible neighbors
+        // together. Each missing slot takes the full normal floor pitch.
+        const gapBefore = f?._hiddenGapBefore || 0;
+        if (gapBefore > 0) {
+          y += gapBefore * (NODE_H + NODE_GAP_V);
+        }
         const nx = centerX - NODE_W / 2;
         out.nodes.push({
           id,
@@ -243,9 +274,9 @@
           parentArrayPath: colPath,
           indexInParent: i,
         });
-        if (prevId) {
+        if (prevId && gapBefore === 0) {
           out.edges.push({ kind: "v", fromId: prevId, toId: id });
-        } else if (parentNodeId) {
+        } else if (!prevId && parentNodeId) {
           out.edges.push({
             kind: "fork",
             fromId: parentNodeId,
@@ -381,12 +412,7 @@
     // it on every paint is fine and means the FINAL stable canvas state
     // always produces the right fit, regardless of how many intermediate
     // ticks autosize emits during mount.
-    if (
-      api.getSession("netArchNeedFit") &&
-      c.width >= 400 &&
-      c.height >= 200 &&
-      layout.nodes.length > 0
-    ) {
+    if (api.getSession("netArchNeedFit") && c.width >= 400 && c.height >= 200) {
       vSet(computeFitView(c, layout));
     }
 
@@ -1040,6 +1066,17 @@
 
   // ---------- Mutations ----------
   function addFloorToColumn(parentArrayPath) {
+    // If we're adding the very first floor to a previously-empty arch,
+    // re-arm fit so the new floor lands centered. The world dimensions
+    // change significantly between the empty-state placeholder and a
+    // real one-floor layout, so the empty-state fit view doesn't
+    // line up with the new content.
+    if (parentArrayPath === "data.floors") {
+      const parent = api.getValue(parentArrayPath) || [];
+      if (parent.length === 0) {
+        api.setSession("netArchNeedFit", true);
+      }
+    }
     const newFloor = {
       _id: generateUuid(),
       name: "Floor",
@@ -1144,7 +1181,9 @@
     // Min 0.2 so wide trees actually fit (clamping at 0.4 was leaving large
     // architectures still overflowing horizontally; users read "overflowing"
     // as "not fitted" even though it's the fit math hitting the clamp).
-    const zoom = Math.max(0.2, Math.min(2.5, fitZoom));
+    // Max 1.0 so small content (one floor, the empty-arch button) doesn't
+    // get blown up to fill the canvas — it sits at natural size, centered.
+    const zoom = Math.max(0.2, Math.min(1.0, fitZoom));
     const panX = (c.width - contentW * zoom) / 2;
     const panY = (c.height - contentH * zoom) / 2;
     return { panX, panY, zoom };
@@ -1300,12 +1339,14 @@
     <button
       variant="outline"
       size="xs"
+      label="Zoom In"
       icon="IconZoomIn"
       onclick="onZoomIn()"
     ></button>
     <button
       variant="outline"
       size="xs"
+      label="Zoom Out"
       icon="IconZoomOut"
       onclick="onZoomOut()"
     ></button>
@@ -1314,6 +1355,7 @@
       variant="outline"
       size="xs"
       label="Show/Hide All Floors"
+      hideforplayers="true"
       onclick="onShowHideAllFloors()"
     ></button>
   </div>
