@@ -655,11 +655,15 @@
     if (gm) {
       const eyeX = x + w - dvW - 18;
       const eyeY = y + 8;
-      drawEyeIcon(c, eyeX, eyeY, hiddenFlag, colors);
+      const eyeHovered =
+        hover && hover.kind === "nodeEye" && hover.id === node.id;
+      drawEyeIcon(c, eyeX, eyeY, hiddenFlag, colors, eyeHovered);
 
       // Trash gutter (outside card, right side) — hidden on locked records
       if (!isRecordLocked()) {
-        drawTrashIcon(c, x + w + 8, y + h - 18, colors);
+        const trashHovered =
+          hover && hover.kind === "nodeTrash" && hover.id === node.id;
+        drawTrashIcon(c, x + w + 8, y + h - 18, colors, trashHovered);
       }
     }
 
@@ -726,20 +730,36 @@
     return lines;
   }
 
-  function drawEyeIcon(c, x, y, hidden, colors) {
-    // Simple eye glyph: open eye when shown, slashed when hidden
-    c.setStrokeStyle(hidden ? colors.colDim : colors.colWarning);
-    c.setLineWidth(1.4);
+  function drawEyeIcon(c, x, y, hidden, colors, hovered) {
+    // Hover halo: a soft cyan disc behind the icon. Signals "this is
+    // clickable" without changing the icon's semantic color (warning/dim
+    // still tell you whether the floor is currently visible to players).
+    if (hovered) {
+      c.save();
+      c.setFillStyle(colors.colPrimary);
+      c.setGlobalAlpha(0.22);
+      c.beginPath();
+      c.arc(x + 7, y + 7, 12, 0, Math.PI * 2);
+      c.fill();
+      c.restore();
+    }
+    const stroke = hovered
+      ? colors.colWarning
+      : hidden
+        ? colors.colDim
+        : colors.colWarning;
+    c.setStrokeStyle(stroke);
+    c.setLineWidth(hovered ? 1.7 : 1.4);
     c.beginPath();
     c.ellipse(x + 7, y + 7, 7, 4, 0, 0, Math.PI * 2);
     c.stroke();
-    c.setFillStyle(hidden ? colors.colDim : colors.colWarning);
+    c.setFillStyle(stroke);
     c.beginPath();
     c.arc(x + 7, y + 7, 1.6, 0, Math.PI * 2);
     c.fill();
     if (hidden) {
-      c.setStrokeStyle(colors.colDim);
-      c.setLineWidth(1.4);
+      c.setStrokeStyle(hovered ? colors.colWarning : colors.colDim);
+      c.setLineWidth(hovered ? 1.7 : 1.4);
       c.beginPath();
       c.moveTo(x, y + 14);
       c.lineTo(x + 14, y);
@@ -747,9 +767,20 @@
     }
   }
 
-  function drawTrashIcon(c, x, y, colors) {
+  function drawTrashIcon(c, x, y, colors, hovered) {
+    // Hover halo: red disc behind the icon, signalling "destructive
+    // action on click."
+    if (hovered) {
+      c.save();
+      c.setFillStyle(colors.colError);
+      c.setGlobalAlpha(0.28);
+      c.beginPath();
+      c.arc(x + 6, y + 6, 12, 0, Math.PI * 2);
+      c.fill();
+      c.restore();
+    }
     c.setStrokeStyle(colors.colError);
-    c.setLineWidth(1.3);
+    c.setLineWidth(hovered ? 1.7 : 1.3);
     c.beginPath();
     // Lid
     c.moveTo(x - 2, y);
@@ -1023,6 +1054,21 @@
     // No-op — the host's drag tracker needs an onmousedown handler attached
     // for `event.dragging` to read true in subsequent mousemove events.
     // Pan logic lives in onCanvasMove; this just turns drag tracking on.
+  }
+
+  function onCanvasWheel() {
+    // Zoom around the cursor position. Clears the auto-fit flag — the user
+    // is taking control of the view.
+    api.removeSession("netArchNeedFit");
+    const v = vGet();
+    const factor = event.deltaY > 0 ? 0.9 : 1.1;
+    const newZoom = Math.max(0.2, Math.min(2.5, v.zoom * factor));
+    const cx = event.x;
+    const cy = event.y;
+    const newPanX = cx - ((cx - v.panX) / v.zoom) * newZoom;
+    const newPanY = cy - ((cy - v.panY) / v.zoom) * newZoom;
+    vSet({ panX: newPanX, panY: newPanY, zoom: newZoom });
+    paintArch();
   }
 
   function handleCanvasClick(cx, cy) {
@@ -1387,6 +1433,7 @@
       onmouseup="onCanvasUp()"
       onmouseleave="onCanvasLeave()"
       onclick="onCanvasClick()"
+      onwheel="onCanvasWheel()"
     ></canvas>
   </div>
 </div>
