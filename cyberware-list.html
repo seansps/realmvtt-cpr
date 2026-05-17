@@ -83,93 +83,110 @@
   }
 </script>
 
+<!-- Two-line row: portrait on the left, item name on its own line, and the
+     action controls on a second line so the name is never crowded. -->
 <div
   class="rvtt-cpr-row"
-  style="height: 30px; display: flex; gap: 4px; align-items: center"
+  style="
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    align-items: center;
+    padding: 3px 2px;
+    min-height: 46px;
+  "
 >
-  <div style="width: 30px; min-width: 30px">
-    <portrait width="30px" height="30px" name="portrait"></portrait>
+  <div style="width: 40px; min-width: 40px">
+    <portrait width="40px" height="40px" name="portrait"></portrait>
   </div>
-  <div style="flex-grow: 1">
+  <div
+    style="
+      flex-grow: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    "
+  >
     <namefield
       size="xs"
       variant="standard"
       placeholder="Item"
       field="namefield"
+      width="100%"
     ></namefield>
-  </div>
-  <checkbox
-    field="active"
-    size="xs"
-    label="Active"
-    textalign="right"
-  ></checkbox>
-  <popover field="popover">
-    <popover.target>
+    <div
+      style="display: flex; flex-direction: row; gap: 4px; align-items: center"
+    >
+      <checkbox field="active" size="xs" label="Active"></checkbox>
+      <popover field="popover">
+        <popover.target>
+          <iconbutton
+            size="sm"
+            hidden="true"
+            field="humanityLossBtn"
+            variant="default"
+            options='[{"icon": "IconBrain", "label": "Roll Humanity Loss", "value": "humanityLoss"}]'
+          ></iconbutton>
+        </popover.target>
+        <popover.dropdown>
+          <label
+            size="sm"
+            variant="bold"
+            textalign="center"
+            label="Humanity Loss"
+          ></label>
+          <div style="display: flex; gap: 4px; align-items: center">
+            <button
+              field="baseLossBtn"
+              size="sm"
+              variant="outline"
+              color="primary"
+              label="Apply Base Loss"
+              onclick="rollHumanityLoss('Base')"
+            ></button>
+            <button
+              field="rollLossBtn"
+              size="sm"
+              variant="outline"
+              color="secondary"
+              label="Roll for Loss"
+              onclick="rollHumanityLoss('Roll')"
+            ></button>
+          </div>
+        </popover.dropdown>
+      </popover>
       <iconbutton
-        size="md"
-        hidden="true"
-        field="humanityLossBtn"
-        variant="default"
-        options='[{"icon": "IconBrain", "label": "Roll Humanity Loss", "value": "humanityLoss"}]'
-      ></iconbutton>
-    </popover.target>
-    <popover.dropdown>
-      <label
+        field="moveToGearBtn"
         size="sm"
-        variant="bold"
-        textalign="center"
-        label="Humanity Loss"
-      ></label>
-      <div style="display: flex; gap: 4px; align-items: center">
-        <button
-          field="baseLossBtn"
-          size="sm"
-          variant="outline"
-          color="primary"
-          label="Apply Base Loss"
-          onclick="rollHumanityLoss('Base')"
-        ></button>
-        <button
-          field="rollLossBtn"
-          size="sm"
-          variant="outline"
-          color="secondary"
-          label="Roll for Loss"
-          onclick="rollHumanityLoss('Roll')"
-        ></button>
-      </div>
-    </popover.dropdown>
-  </popover>
-  <iconbutton
-    field="moveToGearBtn"
-    size="md"
-    variant="default"
-    options='[{"icon": "IconBackpack", "label": "Move to Gear Section", "value": "moveToGear"}]'
-    onclick="onMove('gear')"
-  ></iconbutton>
-  <iconbutton
-    field="removeFromGearBtn"
-    size="md"
-    hidden="true"
-    variant="default"
-    options='[{"icon": "IconBackpackOff", "label": "Remove from Gear", "value": "removeFromGear"}]'
-    onclick="onMove('removeFromGear')"
-  ></iconbutton>
-  <iconbutton
-    field="moveLeftBtn"
-    size="md"
-    hidden="true"
-    variant="default"
-    options='[{"icon": "IconArrowDown", "label": "Move to Left", "value": "moveLeft"}]'
-    onclick="onMove('left')"
-  ></iconbutton>
-  <iconbutton
-    field="moveRightBtn"
-    size="md"
-    hidden="true"
-    variant="default"
-    options='[{"icon": "IconArrowUp", "label": "Move to Right", "value": "moveRight"}]'
-    onclick="onMove('right')"
-  ></iconbutton>
+        variant="default"
+        options='[{"icon": "IconBackpack", "label": "Move to Gear Section", "value": "moveToGear"}]'
+        onclick="onMove('gear')"
+      ></iconbutton>
+      <iconbutton
+        field="removeFromGearBtn"
+        size="sm"
+        hidden="true"
+        variant="default"
+        options='[{"icon": "IconBackpackOff", "label": "Remove from Gear", "value": "removeFromGear"}]'
+        onclick="onMove('removeFromGear')"
+      ></iconbutton>
+      <iconbutton
+        field="moveLeftBtn"
+        size="sm"
+        hidden="true"
+        variant="default"
+        options='[{"icon": "IconArrowRight", "label": "Move to Left", "value": "moveLeft"}]'
+        onclick="onMove('left')"
+      ></iconbutton>
+      <iconbutton
+        field="moveRightBtn"
+        size="sm"
+        hidden="true"
+        variant="default"
+        options='[{"icon": "IconArrowLeft", "label": "Move to Right", "value": "moveRight"}]'
+        onclick="onMove('right')"
+      ></iconbutton>
+    </div>
+  </div>
 </div>
