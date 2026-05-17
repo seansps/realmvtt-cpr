@@ -66,12 +66,9 @@ function updateSkillPointsForEdgerunner() {
         } else if (
           creationMethod === "complete" &&
           requiredDefaultSkills.includes(skill.name) &&
-          level > 0 &&
           level < 2
         ) {
-          errors.push(
-            `${skill.name} cannot be level 1 - must be 0 or at least 2`,
-          );
+          errors.push(`${skill.name} must be at least level 2`);
         }
 
         // Calculate points used (all levels count towards 86 total)
@@ -108,21 +105,19 @@ function updateSkillPointsForEdgerunner() {
             if (
               skill.name === "Language" &&
               subSkill.name === "Streetslang" &&
-              level > 0 &&
               level < 2
             ) {
               errors.push(
-                "Language (Streetslang) cannot be level 1 - must be 0 or at least 2",
+                "Language (Streetslang) must be at least level 2",
               );
             }
             if (
               skill.name === "Local Expert" &&
               subSkill.name === "Your Home" &&
-              level > 0 &&
               level < 2
             ) {
               errors.push(
-                "Local Expert (Your Home) cannot be level 1 - must be 0 or at least 2",
+                "Local Expert (Your Home) must be at least level 2",
               );
             }
           }

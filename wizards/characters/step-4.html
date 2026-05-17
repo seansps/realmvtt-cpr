@@ -197,12 +197,9 @@
           } else if (
             creationMethod === "complete" &&
             requiredDefaultSkills.includes(skill.name) &&
-            level > 0 &&
             level < 2
           ) {
-            errors.push(
-              `${skill.name} cannot be level 1 - must be 0 or at least 2`
-            );
+            errors.push(`${skill.name} must be at least level 2`);
           }
 
           // Calculate points used (all levels count towards 86 total)
@@ -239,21 +236,19 @@
               if (
                 skill.name === "Language" &&
                 subSkill.name === "Streetslang" &&
-                level > 0 &&
                 level < 2
               ) {
                 errors.push(
-                  "Language (Streetslang) cannot be level 1 - must be 0 or at least 2"
+                  "Language (Streetslang) must be at least level 2"
                 );
               }
               if (
                 skill.name === "Local Expert" &&
                 subSkill.name === "Your Home" &&
-                level > 0 &&
                 level < 2
               ) {
                 errors.push(
-                  "Local Expert (Your Home) cannot be level 1 - must be 0 or at least 2"
+                  "Local Expert (Your Home) must be at least level 2"
                 );
               }
             }
@@ -972,7 +967,7 @@
       ></label>
     </box>
     <label
-      label="Complete Package Mode: You have 86 skill points to distribute among ALL available skills. Default skills (Athletics, Brawling, etc.) must be at least level 2 if you put points into them."
+      label="Complete Package Mode: You have 86 skill points to distribute among ALL available skills. No skill can be higher than 6, and the required default skills (Athletics, Brawling, etc.) must be at least level 2."
       size="sm"
       variant="default"
     ></label>
