@@ -408,554 +408,664 @@
   }
 </script>
 
-<numberfield field="hiddenField" hidden="true" onload="onLoad()"></numberfield>
+<!-- Datapad-themed Cyberpunk RED cyberware tab. Each install location is a
+     datapad section; every list type, filter, counter and field binding is
+     preserved verbatim. The onLoad() handler stays on the hidden field. -->
+<div
+  class="sheet--datapad sheet--datapad--cpr"
+  style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px"
+>
+  <numberfield field="hiddenField" hidden="true" onload="onLoad()"></numberfield>
 
-<div>
-  <label variant="bold" textalign="center" label="Cyberware"></label>
-</div>
-
-<!-- Neural Link -->
-<label size="sm" variant="bold" textalign="left" label="Neural Link"></label>
-<box variant="card" field="neuralLinkGroup" size="xs">
-  <list
-    field="inventory"
-    listtype="cyberware_foundational_list"
-    emptylisttext="No Neural Link Equipped"
-    getfilters="return getCyberwareFoundationalFiltersFor('neural link');"
-  ></list>
-
-  <div style="margin-top: 2px">
-    <divider
-      field="neuralLinkDivider"
-      label="Option Slots"
-      color="primary"
-    ></divider>
-  </div>
-
-  <div style="display: flex; flex-direction: row; gap: 4px">
-    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
-    <counter
-      field="usedNeuralLinkOptionSlots"
-      size="xs"
-      maxvaluefield="neuralLinkOptionSlots"
-    ></counter>
-  </div>
-  <numberfield
-    field="neuralLinkOptionSlots"
-    minvalue="1"
-    hideonlocked="true"
-    label="Max Slots"
-    width="100px"
-    size="xs"
-  ></numberfield>
-
-  <div style="margin-top: 4px">
+  <!-- Neural Link -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Neural Link</span>
+    </div>
     <list
       field="inventory"
-      listtype="cyberware_list"
-      variant="striped"
-      getfilters="return getCyberwareFiltersFor('neuralware');"
-      emptylisttext="No Neuralware Equipped"
+      listtype="cyberware_foundational_list"
+      emptylisttext="No Neural Link Equipped"
+      getfilters="return getCyberwareFoundationalFiltersFor('neural link');"
     ></list>
+
+    <div style="margin-top: 2px">
+      <divider
+        field="neuralLinkDivider"
+        label="Option Slots"
+        color="primary"
+      ></divider>
+    </div>
+
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        align-items: flex-end;
+        width: fit-content;
+      "
+    >
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center">
+        <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+        <counter
+          field="usedNeuralLinkOptionSlots"
+          size="xs"
+          maxvaluefield="neuralLinkOptionSlots"
+        ></counter>
+      </div>
+      <numberfield
+        field="neuralLinkOptionSlots"
+        minvalue="1"
+        hideonlocked="true"
+        label="Max Slots"
+        width="100px"
+        size="xs"
+      ></numberfield>
+    </div>
+
+    <div style="margin-top: 4px">
+      <list
+        field="inventory"
+        listtype="cyberware_list"
+        variant="striped"
+        getfilters="return getCyberwareFiltersFor('neuralware');"
+        emptylisttext="No Neuralware Equipped"
+      ></list>
+    </div>
+
+    <div style="margin-top: 2px">
+      <divider
+        field="chipwareDivider"
+        label="Chipware"
+        color="secondary"
+      ></divider>
+    </div>
+    <div style="margin-top: 4px">
+      <list
+        field="inventory"
+        listtype="cyberware_list"
+        variant="striped"
+        getfilters="return getCyberwareFiltersFor('chipware');"
+        emptylisttext="No Chipware Equipped"
+      ></list>
+    </div>
   </div>
-  <!-- Chipware if slot is in neuralware -->
-  <div style="margin-top: 2px">
-    <divider
-      field="chipwareDivider"
-      label="Chipware"
-      color="secondary"
-    ></divider>
-  </div>
-  <div style="margin-top: 4px">
+
+  <!-- Cyberaudio Suite -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Cyberaudio Suite</span>
+    </div>
     <list
       field="inventory"
-      listtype="cyberware_list"
-      variant="striped"
-      getfilters="return getCyberwareFiltersFor('chipware');"
-      emptylisttext="No Chipware Equipped"
+      listtype="cyberware_foundational_list"
+      emptylisttext="No Cyberaudio Suite Equipped"
+      getfilters="return getCyberwareFoundationalFiltersFor('cyberaudio suite');"
     ></list>
+
+    <div style="margin-top: 2px">
+      <divider
+        field="cyberaudioSuiteDivider"
+        label="Option Slots"
+        color="primary"
+      ></divider>
+    </div>
+
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        align-items: flex-end;
+        width: fit-content;
+      "
+    >
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center">
+        <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+        <counter
+          field="usedCyberaudioSuiteOptionSlots"
+          size="xs"
+          maxvaluefield="cyberaudioSuiteOptionSlots"
+        ></counter>
+      </div>
+      <numberfield
+        field="cyberaudioSuiteOptionSlots"
+        minvalue="1"
+        hideonlocked="true"
+        label="Max Slots"
+        width="100px"
+        size="xs"
+      ></numberfield>
+    </div>
+
+    <div style="margin-top: 4px">
+      <list
+        field="inventory"
+        listtype="cyberware_list"
+        variant="striped"
+        getfilters="return getCyberwareFiltersFor('cyberaudio');"
+        emptylisttext="No Cyberaudio Equipped"
+      ></list>
+    </div>
   </div>
-</box>
 
-<!-- Cyberaudio Suite -->
-<div style="margin-top: 8px"></div>
-<label
-  size="sm"
-  variant="bold"
-  textalign="left"
-  label="Cyberaudio Suite"
-></label>
-<box variant="card" field="cyberaudioSuiteGroup" size="xs">
-  <list
-    field="inventory"
-    listtype="cyberware_foundational_list"
-    emptylisttext="No Cyberaudio Suite Equipped"
-    getfilters="return getCyberwareFoundationalFiltersFor('cyberaudio suite');"
-  ></list>
-
-  <div style="margin-top: 2px">
-    <divider
-      field="cyberaudioSuiteDivider"
-      label="Option Slots"
-      color="primary"
-    ></divider>
-  </div>
-
-  <div style="display: flex; flex-direction: row; gap: 4px">
-    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
-    <counter
-      field="usedCyberaudioSuiteOptionSlots"
-      size="xs"
-      maxvaluefield="cyberaudioSuiteOptionSlots"
-    ></counter>
-  </div>
-  <numberfield
-    field="cyberaudioSuiteOptionSlots"
-    minvalue="1"
-    hideonlocked="true"
-    label="Max Slots"
-    width="100px"
-    size="xs"
-  ></numberfield>
-
-  <div style="margin-top: 4px">
+  <!-- Right Cybereye -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Right Cybereye</span>
+    </div>
     <list
       field="inventory"
-      listtype="cyberware_list"
-      variant="striped"
-      getfilters="return getCyberwareFiltersFor('cyberaudio');"
-      emptylisttext="No Cyberaudio Equipped"
+      listtype="cyberware_foundational_list"
+      emptylisttext="No Right Cybereye Equipped"
+      getfilters="return getCyberwareFoundationalFiltersFor('right cybereye');"
     ></list>
+
+    <div style="margin-top: 2px">
+      <divider
+        field="rightCybereyeDivider"
+        label="Option Slots"
+        color="primary"
+      ></divider>
+    </div>
+
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        align-items: flex-end;
+        width: fit-content;
+      "
+    >
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center">
+        <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+        <counter
+          field="usedRightCyberEyeOptionSlots"
+          size="xs"
+          maxvaluefield="rightCyberEyeOptionSlots"
+        ></counter>
+      </div>
+      <numberfield
+        field="rightCyberEyeOptionSlots"
+        minvalue="1"
+        hideonlocked="true"
+        label="Max Slots"
+        width="100px"
+        size="xs"
+      ></numberfield>
+    </div>
+
+    <div style="margin-top: 4px">
+      <list
+        field="inventory"
+        listtype="cyberware_list"
+        variant="striped"
+        getfilters="return getCyberwareFiltersFor('cyberoptics', 'right');"
+        emptylisttext="No Cyberoptics Equipped in Right Eye"
+      ></list>
+    </div>
   </div>
-</box>
 
-<!-- Right Cybereye -->
-<div style="margin-top: 8px"></div>
-<label size="sm" variant="bold" textalign="left" label="Right Cybereye"></label>
-<box variant="card" field="rightCybereyeGroup" size="xs">
-  <list
-    field="inventory"
-    listtype="cyberware_foundational_list"
-    emptylisttext="No Right Cybereye Equipped"
-    getfilters="return getCyberwareFoundationalFiltersFor('right cybereye');"
-  ></list>
-
-  <div style="margin-top: 2px">
-    <divider
-      field="rightCybereyeDivider"
-      label="Option Slots"
-      color="primary"
-    ></divider>
-  </div>
-
-  <div style="display: flex; flex-direction: row; gap: 4px">
-    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
-    <counter
-      field="usedRightCyberEyeOptionSlots"
-      size="xs"
-      maxvaluefield="rightCyberEyeOptionSlots"
-    ></counter>
-  </div>
-  <numberfield
-    field="rightCyberEyeOptionSlots"
-    minvalue="1"
-    hideonlocked="true"
-    label="Max Slots"
-    width="100px"
-    size="xs"
-  ></numberfield>
-
-  <div style="margin-top: 4px">
+  <!-- Left Cybereye -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Left Cybereye</span>
+    </div>
     <list
       field="inventory"
-      listtype="cyberware_list"
-      variant="striped"
-      getfilters="return getCyberwareFiltersFor('cyberoptics', 'right');"
-      emptylisttext="No Cyberoptics Equipped in Right Eye"
+      listtype="cyberware_foundational_list"
+      emptylisttext="No Left Cybereye Equipped"
+      getfilters="return getCyberwareFoundationalFiltersFor('left cybereye');"
     ></list>
+
+    <div style="margin-top: 2px">
+      <divider
+        field="leftCybereyeDivider"
+        label="Option Slots"
+        color="primary"
+      ></divider>
+    </div>
+
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        align-items: flex-end;
+        width: fit-content;
+      "
+    >
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center">
+        <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+        <counter
+          field="usedLeftCyberEyeOptionSlots"
+          size="xs"
+          maxvaluefield="leftCyberEyeOptionSlots"
+        ></counter>
+      </div>
+      <numberfield
+        field="leftCyberEyeOptionSlots"
+        minvalue="1"
+        hideonlocked="true"
+        label="Max Slots"
+        width="100px"
+        size="xs"
+      ></numberfield>
+    </div>
+
+    <div style="margin-top: 4px">
+      <list
+        field="inventory"
+        listtype="cyberware_list"
+        variant="striped"
+        getfilters="return getCyberwareFiltersFor('cyberoptics', 'left');"
+        emptylisttext="No Cyberoptics Equipped in Left Eye"
+      ></list>
+    </div>
   </div>
-</box>
 
-<!-- Left Cybereye -->
-<div style="margin-top: 8px"></div>
-<label size="sm" variant="bold" textalign="left" label="Left Cybereye"></label>
-<box variant="card" field="leftCybereyeGroup" size="xs">
-  <list
-    field="inventory"
-    listtype="cyberware_foundational_list"
-    emptylisttext="No Left Cybereye Equipped"
-    getfilters="return getCyberwareFoundationalFiltersFor('left cybereye');"
-  ></list>
-
-  <div style="margin-top: 2px">
-    <divider
-      field="leftCybereyeDivider"
-      label="Option Slots"
-      color="primary"
-    ></divider>
-  </div>
-
-  <div style="display: flex; flex-direction: row; gap: 4px">
-    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
-    <counter
-      field="usedLeftCyberEyeOptionSlots"
-      size="xs"
-      maxvaluefield="leftCyberEyeOptionSlots"
-    ></counter>
-  </div>
-  <numberfield
-    field="leftCyberEyeOptionSlots"
-    minvalue="1"
-    hideonlocked="true"
-    label="Max Slots"
-    width="100px"
-    size="xs"
-  ></numberfield>
-
-  <div style="margin-top: 4px">
+  <!-- Right Cyberarm -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Right Cyberarm</span>
+    </div>
     <list
       field="inventory"
-      listtype="cyberware_list"
-      variant="striped"
-      getfilters="return getCyberwareFiltersFor('cyberoptics', 'left');"
-      emptylisttext="No Cyberoptics Equipped in Left Eye"
+      listtype="cyberware_foundational_list"
+      emptylisttext="No Right Cyberarm Equipped"
+      getfilters="return getCyberwareFoundationalFiltersFor('right cyberarm');"
     ></list>
+
+    <div style="margin-top: 2px">
+      <divider
+        field="rightCyberarmDivider"
+        label="Option Slots"
+        color="primary"
+      ></divider>
+    </div>
+
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        align-items: flex-end;
+        width: fit-content;
+      "
+    >
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center">
+        <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+        <counter
+          field="usedRightCyberArmOptionSlots"
+          size="xs"
+          maxvaluefield="rightCyberArmOptionSlots"
+        ></counter>
+      </div>
+      <numberfield
+        field="rightCyberArmOptionSlots"
+        minvalue="1"
+        hideonlocked="true"
+        label="Max Slots"
+        width="100px"
+        size="xs"
+      ></numberfield>
+    </div>
+
+    <div style="margin-top: 4px">
+      <list
+        field="inventory"
+        listtype="cyberware_list"
+        variant="striped"
+        getfilters="return getCyberwareFiltersFor('cyberarms', 'right');"
+        emptylisttext="No Cyberware Equipped in Right Arm"
+      ></list>
+    </div>
+
+    <div style="margin-top: 2px">
+      <divider
+        field="rightCyberFingerDivider"
+        label="Right Hand Cyberfingers"
+        color="secondary"
+      ></divider>
+    </div>
+    <div style="margin-top: 4px">
+      <list
+        field="inventory"
+        listtype="cyberware_list"
+        variant="striped"
+        getfilters="return getCyberwareFiltersFor('cyberfingers', 'right');"
+        emptylisttext="No Cyberfingers Equipped in Right Hand"
+      ></list>
+    </div>
   </div>
-</box>
 
-<!-- Right Cyberarm -->
-<div style="margin-top: 8px"></div>
-<label size="sm" variant="bold" textalign="left" label="Right Cyberarm"></label>
-<box variant="card" field="rightCyberarmGroup" size="xs">
-  <list
-    field="inventory"
-    listtype="cyberware_foundational_list"
-    emptylisttext="No Right Cyberarm Equipped"
-    getfilters="return getCyberwareFoundationalFiltersFor('right cyberarm');"
-  ></list>
-
-  <div style="margin-top: 2px">
-    <divider
-      field="rightCyberarmDivider"
-      label="Option Slots"
-      color="primary"
-    ></divider>
-  </div>
-
-  <div style="display: flex; flex-direction: row; gap: 4px">
-    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
-    <counter
-      field="usedRightCyberArmOptionSlots"
-      size="xs"
-      maxvaluefield="rightCyberArmOptionSlots"
-    ></counter>
-  </div>
-  <numberfield
-    field="rightCyberArmOptionSlots"
-    minvalue="1"
-    hideonlocked="true"
-    label="Max Slots"
-    width="100px"
-    size="xs"
-  ></numberfield>
-
-  <div style="margin-top: 4px">
+  <!-- Left Cyberarm -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Left Cyberarm</span>
+    </div>
     <list
       field="inventory"
-      listtype="cyberware_list"
-      variant="striped"
-      getfilters="return getCyberwareFiltersFor('cyberarms', 'right');"
-      emptylisttext="No Cyberware Equipped in Right Arm"
+      listtype="cyberware_foundational_list"
+      emptylisttext="No Left Cyberarm Equipped"
+      getfilters="return getCyberwareFoundationalFiltersFor('left cyberarm');"
     ></list>
+
+    <div style="margin-top: 2px">
+      <divider
+        field="leftCyberarmDivider"
+        label="Option Slots"
+        color="primary"
+      ></divider>
+    </div>
+
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        align-items: flex-end;
+        width: fit-content;
+      "
+    >
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center">
+        <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+        <counter
+          field="usedLeftCyberArmOptionSlots"
+          size="xs"
+          maxvaluefield="leftCyberArmOptionSlots"
+        ></counter>
+      </div>
+      <numberfield
+        field="leftCyberArmOptionSlots"
+        minvalue="1"
+        hideonlocked="true"
+        label="Max Slots"
+        width="100px"
+        size="xs"
+      ></numberfield>
+    </div>
+
+    <div style="margin-top: 4px">
+      <list
+        field="inventory"
+        listtype="cyberware_list"
+        variant="striped"
+        getfilters="return getCyberwareFiltersFor('cyberarms', 'left');"
+        emptylisttext="No Cyberware Equipped in Left Arm"
+      ></list>
+    </div>
+
+    <div style="margin-top: 2px">
+      <divider
+        field="leftCyberFingerDivider"
+        label="Left Hand Cyberfingers"
+        color="secondary"
+      ></divider>
+    </div>
+    <div style="margin-top: 4px">
+      <list
+        field="inventory"
+        listtype="cyberware_list"
+        variant="striped"
+        getfilters="return getCyberwareFiltersFor('cyberfingers', 'left');"
+        emptylisttext="No Cyberfingers Equipped in Left Hand"
+      ></list>
+    </div>
   </div>
-  <!-- Cyberfingers on Right Hand -->
-  <div style="margin-top: 2px">
-    <divider
-      field="rightCyberFingerDivider"
-      label="Right Hand Cyberfingers"
-      color="secondary"
-    ></divider>
-  </div>
-  <div style="margin-top: 4px">
+
+  <!-- Right Cyberleg -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Right Cyberleg</span>
+    </div>
     <list
       field="inventory"
-      listtype="cyberware_list"
-      variant="striped"
-      getfilters="return getCyberwareFiltersFor('cyberfingers', 'right');"
-      emptylisttext="No Cyberfingers Equipped in Right Hand"
+      listtype="cyberware_foundational_list"
+      emptylisttext="No Right Cyberleg Equipped"
+      getfilters="return getCyberwareFoundationalFiltersFor('right cyberleg');"
     ></list>
+
+    <div style="margin-top: 2px">
+      <divider
+        field="rightCyberlegDivider"
+        label="Option Slots"
+        color="primary"
+      ></divider>
+    </div>
+
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        align-items: flex-end;
+        width: fit-content;
+      "
+    >
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center">
+        <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+        <counter
+          field="usedRightCyberLegOptionSlots"
+          size="xs"
+          maxvaluefield="rightCyberLegOptionSlots"
+        ></counter>
+      </div>
+      <numberfield
+        field="rightCyberLegOptionSlots"
+        minvalue="1"
+        hideonlocked="true"
+        label="Max Slots"
+        width="100px"
+        size="xs"
+      ></numberfield>
+    </div>
+
+    <div style="margin-top: 4px">
+      <list
+        field="inventory"
+        listtype="cyberware_list"
+        variant="striped"
+        getfilters="return getCyberwareFiltersFor('cyberlegs', 'right');"
+        emptylisttext="No Cyberware Equipped in Right Leg"
+      ></list>
+    </div>
   </div>
-</box>
 
-<!-- Left Cyberarm -->
-<div style="margin-top: 8px"></div>
-<label size="sm" variant="bold" textalign="left" label="Left Cyberarm"></label>
-<box variant="card" field="leftCyberarmGroup" size="xs">
-  <list
-    field="inventory"
-    listtype="cyberware_foundational_list"
-    emptylisttext="No Left Cyberarm Equipped"
-    getfilters="return getCyberwareFoundationalFiltersFor('left cyberarm');"
-  ></list>
-
-  <div style="margin-top: 2px">
-    <divider
-      field="leftCyberarmDivider"
-      label="Option Slots"
-      color="primary"
-    ></divider>
-  </div>
-
-  <div style="display: flex; flex-direction: row; gap: 4px">
-    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
-    <counter
-      field="usedLeftCyberArmOptionSlots"
-      size="xs"
-      maxvaluefield="leftCyberArmOptionSlots"
-    ></counter>
-  </div>
-  <numberfield
-    field="leftCyberArmOptionSlots"
-    minvalue="1"
-    hideonlocked="true"
-    label="Max Slots"
-    width="100px"
-    size="xs"
-  ></numberfield>
-
-  <div style="margin-top: 4px">
+  <!-- Left Cyberleg -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Left Cyberleg</span>
+    </div>
     <list
       field="inventory"
-      listtype="cyberware_list"
-      variant="striped"
-      getfilters="return getCyberwareFiltersFor('cyberarms', 'left');"
-      emptylisttext="No Cyberware Equipped in Left Arm"
+      listtype="cyberware_foundational_list"
+      emptylisttext="No Left Cyberleg Equipped"
+      getfilters="return getCyberwareFoundationalFiltersFor('left cyberleg');"
     ></list>
-  </div>
-  <!-- Cyberfingers on Left Hand -->
-  <div style="margin-top: 2px">
-    <divider
-      field="leftCyberFingerDivider"
-      label="Left Hand Cyberfingers"
-      color="secondary"
-    ></divider>
-  </div>
-  <div style="margin-top: 4px">
-    <list
-      field="inventory"
-      listtype="cyberware_list"
-      variant="striped"
-      getfilters="return getCyberwareFiltersFor('cyberfingers', 'left');"
-      emptylisttext="No Cyberfingers Equipped in Left Hand"
-    ></list>
-  </div>
-</box>
 
-<!-- Right Cyberleg -->
-<div style="margin-top: 8px"></div>
-<label size="sm" variant="bold" textalign="left" label="Right Cyberleg"></label>
-<box variant="card" field="rightCyberlegGroup" size="xs">
-  <list
-    field="inventory"
-    listtype="cyberware_foundational_list"
-    emptylisttext="No Right Cyberleg Equipped"
-    getfilters="return getCyberwareFoundationalFiltersFor('right cyberleg');"
-  ></list>
+    <div style="margin-top: 2px">
+      <divider
+        field="leftCyberlegDivider"
+        label="Option Slots"
+        color="primary"
+      ></divider>
+    </div>
 
-  <div style="margin-top: 2px">
-    <divider
-      field="rightCyberlegDivider"
-      label="Option Slots"
-      color="primary"
-    ></divider>
-  </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        align-items: flex-end;
+        width: fit-content;
+      "
+    >
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center">
+        <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+        <counter
+          field="usedLeftCyberLegOptionSlots"
+          size="xs"
+          maxvaluefield="leftCyberLegOptionSlots"
+        ></counter>
+      </div>
+      <numberfield
+        field="leftCyberLegOptionSlots"
+        minvalue="1"
+        hideonlocked="true"
+        label="Max Slots"
+        width="100px"
+        size="xs"
+      ></numberfield>
+    </div>
 
-  <div style="display: flex; flex-direction: row; gap: 4px">
-    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
-    <counter
-      field="usedRightCyberLegOptionSlots"
-      size="xs"
-      maxvaluefield="rightCyberLegOptionSlots"
-    ></counter>
-  </div>
-  <numberfield
-    field="rightCyberLegOptionSlots"
-    minvalue="1"
-    hideonlocked="true"
-    label="Max Slots"
-    width="100px"
-    size="xs"
-  ></numberfield>
-
-  <div style="margin-top: 4px">
-    <list
-      field="inventory"
-      listtype="cyberware_list"
-      variant="striped"
-      getfilters="return getCyberwareFiltersFor('cyberlegs', 'right');"
-      emptylisttext="No Cyberware Equipped in Right Leg"
-    ></list>
-  </div>
-</box>
-
-<!-- Left Cyberleg -->
-<div style="margin-top: 8px"></div>
-<label size="sm" variant="bold" textalign="left" label="Left Cyberleg"></label>
-<box variant="card" field="leftCyberlegGroup" size="xs">
-  <list
-    field="inventory"
-    listtype="cyberware_foundational_list"
-    emptylisttext="No Left Cyberleg Equipped"
-    getfilters="return getCyberwareFoundationalFiltersFor('left cyberleg');"
-  ></list>
-
-  <div style="margin-top: 2px">
-    <divider
-      field="leftCyberlegDivider"
-      label="Option Slots"
-      color="primary"
-    ></divider>
+    <div style="margin-top: 4px">
+      <list
+        field="inventory"
+        listtype="cyberware_list"
+        variant="striped"
+        getfilters="return getCyberwareFiltersFor('cyberlegs', 'left');"
+        emptylisttext="No Cyberware Equipped in Left Leg"
+      ></list>
+    </div>
   </div>
 
-  <div style="display: flex; flex-direction: row; gap: 4px">
-    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
-    <counter
-      field="usedLeftCyberLegOptionSlots"
-      size="xs"
-      maxvaluefield="leftCyberLegOptionSlots"
-    ></counter>
-  </div>
-  <numberfield
-    field="leftCyberLegOptionSlots"
-    minvalue="1"
-    hideonlocked="true"
-    label="Max Slots"
-    width="100px"
-    size="xs"
-  ></numberfield>
+  <!-- Internal Cyberware -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Internal Cyberware</span>
+    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        align-items: flex-end;
+        width: fit-content;
+      "
+    >
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center">
+        <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+        <counter
+          field="usedInternalCyberwareOptionSlots"
+          size="xs"
+          maxvaluefield="internalCyberwareOptionSlots"
+        ></counter>
+      </div>
+      <numberfield
+        field="internalCyberwareOptionSlots"
+        minvalue="1"
+        hideonlocked="true"
+        label="Max Slots"
+        width="100px"
+        size="xs"
+      ></numberfield>
+    </div>
 
-  <div style="margin-top: 4px">
-    <list
-      field="inventory"
-      listtype="cyberware_list"
-      variant="striped"
-      getfilters="return getCyberwareFiltersFor('cyberlegs', 'left');"
-      emptylisttext="No Cyberware Equipped in Left Leg"
-    ></list>
+    <div style="margin-top: 4px">
+      <list
+        field="inventory"
+        listtype="cyberware_list"
+        variant="striped"
+        getfilters="return getCyberwareFiltersFor('internal body cyberware');"
+        emptylisttext="No Cyberware Equipped in Internal Body"
+      ></list>
+    </div>
   </div>
-</box>
 
-<!-- Internal Cyberware -->
-<div style="margin-top: 8px"></div>
-<label
-  size="sm"
-  variant="bold"
-  textalign="left"
-  label="Internal Cyberware"
-></label>
-<box variant="card" field="internalCyberwareGroup" size="xs">
-  <div style="display: flex; flex-direction: row; gap: 4px">
-    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
-    <counter
-      field="usedInternalCyberwareOptionSlots"
-      size="xs"
-      maxvaluefield="internalCyberwareOptionSlots"
-    ></counter>
+  <!-- External Cyberware -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">External Cyberware</span>
+    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        align-items: flex-end;
+        width: fit-content;
+      "
+    >
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center">
+        <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+        <counter
+          field="usedExternalCyberwareOptionSlots"
+          size="xs"
+          maxvaluefield="externalCyberwareOptionSlots"
+        ></counter>
+      </div>
+      <numberfield
+        field="externalCyberwareOptionSlots"
+        minvalue="1"
+        hideonlocked="true"
+        label="Max Slots"
+        width="100px"
+        size="xs"
+      ></numberfield>
+    </div>
+
+    <div style="margin-top: 4px">
+      <list
+        field="inventory"
+        listtype="cyberware_list"
+        variant="striped"
+        getfilters="return getCyberwareFiltersFor('external body cyberware');"
+        emptylisttext="No Cyberware Equipped in External Body"
+      ></list>
+    </div>
   </div>
-  <numberfield
-    field="internalCyberwareOptionSlots"
-    minvalue="1"
-    hideonlocked="true"
-    label="Max Slots"
-    width="100px"
-    size="xs"
-  ></numberfield>
 
-  <div style="margin-top: 4px">
-    <list
-      field="inventory"
-      listtype="cyberware_list"
-      variant="striped"
-      getfilters="return getCyberwareFiltersFor('internal body cyberware');"
-      emptylisttext="No Cyberware Equipped in Internal Body"
-    ></list>
+  <!-- Fashionware -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Fashionware</span>
+    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        align-items: flex-end;
+        width: fit-content;
+      "
+    >
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center">
+        <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
+        <counter
+          field="usedFashionwareOptionSlots"
+          size="xs"
+          maxvaluefield="fashionwareOptionSlots"
+        ></counter>
+      </div>
+      <numberfield
+        field="fashionwareOptionSlots"
+        minvalue="1"
+        hideonlocked="true"
+        label="Max Slots"
+        width="100px"
+        size="xs"
+      ></numberfield>
+    </div>
+
+    <div style="margin-top: 4px">
+      <list
+        field="inventory"
+        listtype="cyberware_list"
+        variant="striped"
+        getfilters="return getCyberwareFiltersFor('fashionware');"
+        emptylisttext="No Fashionware Equipped"
+      ></list>
+    </div>
   </div>
-</box>
 
-<!-- External Cyberware -->
-<div style="margin-top: 8px"></div>
-<label
-  size="sm"
-  variant="bold"
-  textalign="left"
-  label="External Cyberware"
-></label>
-<box variant="card" field="externalCyberwareGroup" size="xs">
-  <div style="display: flex; flex-direction: row; gap: 4px">
-    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
-    <counter
-      field="usedExternalCyberwareOptionSlots"
-      size="xs"
-      maxvaluefield="externalCyberwareOptionSlots"
-    ></counter>
-  </div>
-  <numberfield
-    field="externalCyberwareOptionSlots"
-    minvalue="1"
-    hideonlocked="true"
-    label="Max Slots"
-    width="100px"
-    size="xs"
-  ></numberfield>
-
-  <div style="margin-top: 4px">
-    <list
-      field="inventory"
-      listtype="cyberware_list"
-      variant="striped"
-      getfilters="return getCyberwareFiltersFor('external body cyberware');"
-      emptylisttext="No Cyberware Equipped in External Body"
-    ></list>
-  </div>
-</box>
-
-<!-- Fashionware -->
-<div style="margin-top: 8px"></div>
-<label size="sm" variant="bold" textalign="left" label="Fashionware"></label>
-<box variant="card" field="fashionwareGroup" size="xs">
-  <div style="display: flex; flex-direction: row; gap: 4px">
-    <label size="xs" variant="bold" textalign="left" label="Used Slots"></label>
-    <counter
-      field="usedFashionwareOptionSlots"
-      size="xs"
-      maxvaluefield="fashionwareOptionSlots"
-    ></counter>
-  </div>
-  <numberfield
-    field="fashionwareOptionSlots"
-    minvalue="1"
-    hideonlocked="true"
-    label="Max Slots"
-    width="100px"
-    size="xs"
-  ></numberfield>
-
-  <div style="margin-top: 4px">
-    <list
-      field="inventory"
-      listtype="cyberware_list"
-      variant="striped"
-      getfilters="return getCyberwareFiltersFor('fashionware');"
-      emptylisttext="No Fashionware Equipped"
-    ></list>
-  </div>
-</box>
-
-<!-- Borgware -->
-<div style="margin-top: 8px"></div>
-<label size="sm" variant="bold" textalign="left" label="Borgware"></label>
-<box variant="card" field="borgwareGroup" size="xs">
-  <div style="display: flex; flex-direction: row; gap: 4px">
+  <!-- Borgware -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Borgware</span>
+    </div>
     <list
       field="inventory"
       listtype="cyberware_list"
@@ -963,17 +1073,19 @@
       getfilters="return getCyberwareFiltersFor('borgware');"
       emptylisttext="No Borgware Equipped"
     ></list>
-</box>
+  </div>
 
-<!-- Gear Cyberware (does not count towards HL) -->
-<div style="margin-top: 8px"></div>
-<label size="sm" variant="bold" textalign="left" label="Cyberware within Gear"></label>
-<box variant="card" field="gearCyberwareGroup" size="xs">
-  <list
-    field="inventory"
-    listtype="cyberware_list"
-    variant="striped"
-    getfilters="return getCyberwareFiltersFor('gear');"
-    emptylisttext="No Cyberware Equipped within Gear"
-  ></list>
-</box>
+  <!-- Gear Cyberware (does not count towards HL) -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Cyberware within Gear</span>
+    </div>
+    <list
+      field="inventory"
+      listtype="cyberware_list"
+      variant="striped"
+      getfilters="return getCyberwareFiltersFor('gear');"
+      emptylisttext="No Cyberware Equipped within Gear"
+    ></list>
+  </div>
+</div>

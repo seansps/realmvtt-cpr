@@ -263,150 +263,188 @@
   }
 </script>
 
-<div>
-  <label variant="bold" textalign="center" label="Inventory"></label>
-</div>
+<!-- Datapad-themed Cyberpunk RED inventory tab. All field bindings,
+     option functions and on* handlers preserved verbatim. -->
+<div
+  class="sheet--datapad sheet--datapad--cpr"
+  style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px"
+>
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Inventory</span>
+    </div>
 
-<div style="display: flex; flex-direction: row; gap: 4px">
-  <dropdown
-    field="filterList"
-    label="Filter by Type"
-    onload="onLoad()"
-    size="xs"
-    disablediflocked="false"
-    defaultvalue=""
-    options='[{"label": "All", "value": ""}, {"label": "Agent App", "value": "agent app"}, {"label": "Ammo", "value": "ammo"}, {"label": "Armor", "value": "armor"}, {"label": "Black ICE", "value": "black ice"}, {"label": "Cyberdeck", "value": "cyberdeck"}, {"label": "Cyberware", "value": "cyberware"}, {"label": "Demon", "value": "demon"}, {"label": "Drone", "value": "drone"}, {"label": "Drug", "value": "drug"}, {"label": "Fashion", "value": "fashion"}, {"label": "Gear", "value": "gear"}, {"label": "Item Pack", "value": "pack"}, {"label": "Melee Weapon", "value": "melee weapon"}, {"label": "Program or Hardware", "value": "program or hardware"}, {"label": "Ranged Weapon", "value": "ranged weapon"}, {"label": "Vehicle", "value": "vehicle"}, {"label": "Vehicle Upgrade", "value": "vehicle upgrade"}, {"label": "Weapon Attachment", "value": "weapon attachment"}]'
-  ></dropdown>
-  <dropdown
-    field="filterByLocation"
-    label="Filter by Location"
-    size="xs"
-    defaultvalue=""
-    placeholder="Select Location..."
-    optionsFunction="return getLocations();"
-    disablediflocked="false"
-  ></dropdown>
-  <div
-    style="
-      margin-left: auto;
-      display: flex;
-      flex-direction: row;
-      gap: 4px;
-      align-items: flex-end;
-    "
-  >
-    <numberfield
-      width="100px"
-      size="xs"
-      placeholder="0"
-      field="cash"
-      label="Cash"
-    ></numberfield>
-    <label variant="bold" size="xs" textalign="left" label="eb"></label>
-    <popover position="bottom" offset="4" witharrow="true">
-      <popover.target>
-        <iconbutton
-          size="md"
-          variant="default"
-          hideonlocked="true"
-          options='[{"icon": "IconPlus", "label": "Add Cash", "value": "add"}]'
-          field="addCurrencyBtn"
-        ></iconbutton>
-      </popover.target>
-      <popover.dropdown>
-        <div
-          style="display: flex; flex-direction: column; gap: 4px; width: 150px"
-        >
-          <label size="xs" variant="bold" label="Add Cash (eb)"></label>
-          <numberfield
-            placeholder="0"
-            field="addCash"
-            width="100%"
-            disablediflocked="false"
-          ></numberfield>
-          <button
-            size="xs"
-            variant="outline"
-            label="Add"
-            onclick="addCurrency();"
-          ></button>
-        </div>
-      </popover.dropdown>
-    </popover>
-    <popover position="bottom" offset="4" witharrow="true">
-      <popover.target>
-        <iconbutton
-          size="md"
-          variant="default"
-          hideonlocked="true"
-          options='[{"icon": "IconMinus", "label": "Deduct Cash", "value": "deduct"}]'
-          field="deductCurrencyBtn"
-        ></iconbutton>
-      </popover.target>
-      <popover.dropdown>
-        <div
-          style="display: flex; flex-direction: column; gap: 4px; width: 150px"
-        >
-          <label size="xs" variant="bold" label="Deduct Cash (eb)"></label>
-          <numberfield
-            placeholder="0"
-            field="deductCash"
-            width="100%"
-            disablediflocked="false"
-          ></numberfield>
-          <button
-            size="xs"
-            variant="outline"
-            label="Deduct"
-            onclick="deductCurrency();"
-          ></button>
-        </div>
-      </popover.dropdown>
-    </popover>
-  </div>
-</div>
+    <div style="display: flex; flex-direction: row; gap: 4px">
+      <dropdown
+        field="filterList"
+        label="Filter by Type"
+        onload="onLoad()"
+        size="xs"
+        disablediflocked="false"
+        defaultvalue=""
+        options='[{"label": "All", "value": ""}, {"label": "Agent App", "value": "agent app"}, {"label": "Ammo", "value": "ammo"}, {"label": "Armor", "value": "armor"}, {"label": "Black ICE", "value": "black ice"}, {"label": "Cyberdeck", "value": "cyberdeck"}, {"label": "Cyberware", "value": "cyberware"}, {"label": "Demon", "value": "demon"}, {"label": "Drone", "value": "drone"}, {"label": "Drug", "value": "drug"}, {"label": "Fashion", "value": "fashion"}, {"label": "Gear", "value": "gear"}, {"label": "Item Pack", "value": "pack"}, {"label": "Melee Weapon", "value": "melee weapon"}, {"label": "Program or Hardware", "value": "program or hardware"}, {"label": "Ranged Weapon", "value": "ranged weapon"}, {"label": "Vehicle", "value": "vehicle"}, {"label": "Vehicle Upgrade", "value": "vehicle upgrade"}, {"label": "Weapon Attachment", "value": "weapon attachment"}]'
+      ></dropdown>
+      <dropdown
+        field="filterByLocation"
+        label="Filter by Location"
+        size="xs"
+        defaultvalue=""
+        placeholder="Select Location..."
+        optionsFunction="return getLocations();"
+        disablediflocked="false"
+      ></dropdown>
+      <div
+        style="
+          margin-left: auto;
+          display: flex;
+          flex-direction: row;
+          gap: 4px;
+          align-items: flex-end;
+        "
+      >
+        <numberfield
+          width="100px"
+          size="xs"
+          placeholder="0"
+          field="cash"
+          label="Cash"
+        ></numberfield>
+        <label variant="bold" size="xs" textalign="left" label="eb"></label>
+        <popover position="bottom" offset="4" witharrow="true">
+          <popover.target>
+            <iconbutton
+              size="md"
+              variant="default"
+              hideonlocked="true"
+              options='[{"icon": "IconPlus", "label": "Add Cash", "value": "add"}]'
+              field="addCurrencyBtn"
+            ></iconbutton>
+          </popover.target>
+          <popover.dropdown>
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                width: 150px;
+              "
+            >
+              <label size="xs" variant="bold" label="Add Cash (eb)"></label>
+              <numberfield
+                placeholder="0"
+                field="addCash"
+                width="100%"
+                disablediflocked="false"
+              ></numberfield>
+              <button
+                size="xs"
+                variant="outline"
+                label="Add"
+                onclick="addCurrency();"
+              ></button>
+            </div>
+          </popover.dropdown>
+        </popover>
+        <popover position="bottom" offset="4" witharrow="true">
+          <popover.target>
+            <iconbutton
+              size="md"
+              variant="default"
+              hideonlocked="true"
+              options='[{"icon": "IconMinus", "label": "Deduct Cash", "value": "deduct"}]'
+              field="deductCurrencyBtn"
+            ></iconbutton>
+          </popover.target>
+          <popover.dropdown>
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                width: 150px;
+              "
+            >
+              <label
+                size="xs"
+                variant="bold"
+                label="Deduct Cash (eb)"
+              ></label>
+              <numberfield
+                placeholder="0"
+                field="deductCash"
+                width="100%"
+                disablediflocked="false"
+              ></numberfield>
+              <button
+                size="xs"
+                variant="outline"
+                label="Deduct"
+                onclick="deductCurrency();"
+              ></button>
+            </div>
+          </popover.dropdown>
+        </popover>
+      </div>
+    </div>
 
-<div style="display: flex; flex-direction: row; margin-top: 8px">
-  <div style="margin-left: 34px">
-    <label variant="bold" size="xs" textalign="left" label="Count"></label>
-  </div>
-  <div style="margin-left: 30px; flex-grow: 1">
-    <label variant="bold" size="xs" textalign="left" label="Item"></label>
-  </div>
-  <div
-    style="
-      margin-left: 4px;
-      max-width: 100px;
-      min-width: 68px;
-      flex: 1;
-      display: flex;
-    "
-  >
-    <label variant="bold" size="xs" textalign="left" label="Location"></label>
-  </div>
-  <div
-    style="
-      margin-left: 4px;
-      max-width: 95px;
-      min-width: 65px;
-      flex: 1;
-      display: flex;
-    "
-  >
-    <label variant="bold" size="xs" textalign="left" label="Equipped"></label>
-  </div>
-  <box field="spacerRight" hideonlocked="true">
-    <div style="width: 16px"></div>
-  </box>
-</div>
+    <div
+      class="rvtt-cpr-colhead"
+      style="display: flex; flex-direction: row; margin-top: 8px"
+    >
+      <div style="margin-left: 34px">
+        <label
+          class="rvtt-datapad-label rvtt-datapad-label--accent"
+          label="Count"
+        ></label>
+      </div>
+      <div style="margin-left: 30px; flex-grow: 1">
+        <label
+          class="rvtt-datapad-label rvtt-datapad-label--accent"
+          label="Item"
+        ></label>
+      </div>
+      <div
+        style="
+          margin-left: 4px;
+          max-width: 100px;
+          min-width: 68px;
+          flex: 1;
+          display: flex;
+        "
+      >
+        <label
+          class="rvtt-datapad-label rvtt-datapad-label--accent"
+          label="Location"
+        ></label>
+      </div>
+      <div
+        style="
+          margin-left: 4px;
+          max-width: 95px;
+          min-width: 65px;
+          flex: 1;
+          display: flex;
+        "
+      >
+        <label
+          class="rvtt-datapad-label rvtt-datapad-label--accent"
+          label="Equipped"
+        ></label>
+      </div>
+      <box field="spacerRight" hideonlocked="true">
+        <div style="width: 16px"></div>
+      </box>
+    </div>
 
-<div style="display: flex; flex-direction: column; flex-grow: 1">
-  <list
-    listtype="inventory_list"
-    radius="none"
-    variant="striped"
-    field="inventory"
-    onchange="onItemDeleted();"
-  >
-  </list>
+    <div style="display: flex; flex-direction: column; flex-grow: 1">
+      <list
+        listtype="inventory_list"
+        radius="none"
+        variant="striped"
+        field="inventory"
+        onchange="onItemDeleted();"
+      >
+      </list>
+    </div>
+  </div>
 </div>

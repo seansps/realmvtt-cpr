@@ -552,6 +552,7 @@
 </script>
 <numberfield field="order" hidden="true"></numberfield>
 <div
+  class="rvtt-cpr-card"
   style="
     display: flex;
     flex-direction: row;
@@ -564,7 +565,13 @@
     <portrait width="35px" height="35px" field="portrait"></portrait>
   </div>
   <div style="width: 30%">
-    <label textalign="left" variant="bold" size="md" field="namefield"></label>
+    <label
+      class="rvtt-cpr-role-name"
+      textalign="left"
+      variant="bold"
+      size="md"
+      field="namefield"
+    ></label>
   </div>
   <div
     style="
@@ -575,8 +582,15 @@
       width: 70%;
     "
   >
-    <label textalign="left" variant="bold" size="md" label="Ability:"></label>
     <label
+      class="rvtt-cpr-ability-name"
+      textalign="left"
+      variant="bold"
+      size="md"
+      label="Ability:"
+    ></label>
+    <label
+      class="rvtt-cpr-ability-name"
       textalign="left"
       variant="bold"
       size="md"

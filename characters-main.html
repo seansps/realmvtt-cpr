@@ -245,7 +245,7 @@
             `${amountDeducted} Luck used. Next roll will be at +${valuesToSet["data.nextRoll"]}`,
             undefined,
             [],
-            tags
+            tags,
           );
         }
       }
@@ -256,11 +256,11 @@
     // Get modifiers for healing
     const healingModifiers = getEffectsAndModifiersForToken(
       record,
-      "healingBonus"
+      "healingBonus",
     );
     let healingBonus = healingModifiers.reduce(
       (acc, mod) => acc + mod.value,
-      0
+      0,
     );
     healingBonus = parseInt(healingBonus || "0", 10);
 
@@ -287,7 +287,7 @@
         record,
         ["healCurrentSp"],
         "",
-        item._id
+        item._id,
       );
       if (healCurrentSpEffects.length > 0) {
         healCurrentSpEffects.forEach((effect) => {
@@ -350,7 +350,7 @@
             const newBodySp = Math.min(maxBodySp, curBodySp + spHealAmount);
             const newShieldSp = Math.min(
               maxShieldSp,
-              curShieldSp + spHealAmount
+              curShieldSp + spHealAmount,
             );
 
             // If this is cyberware, set all SP to the same value else just set the ones that are different
@@ -397,10 +397,10 @@
       // Remove any effects for Mortally Wounded or Death Save Penalties
       const effects = record?.effects || [];
       const deathSavePenaltyEffect = effects.find(
-        (effect) => effect.name === "Death Save Penalty"
+        (effect) => effect.name === "Death Save Penalty",
       );
       const mortallyWoundedEffect = effects.find(
-        (effect) => effect.name === "Mortally Wounded"
+        (effect) => effect.name === "Mortally Wounded",
       );
 
       if (deathSavePenaltyEffect || mortallyWoundedEffect) {
@@ -409,7 +409,7 @@
         // Function to remove Mortally Wounded effect
         const removeMortallyWounded = (currentRecord) => {
           const currentMortallyWoundedEffect = currentRecord?.effects?.find(
-            (effect) => effect.name === "Mortally Wounded"
+            (effect) => effect.name === "Mortally Wounded",
           );
 
           if (currentMortallyWoundedEffect) {
@@ -417,7 +417,7 @@
 
             api.removeEffectById(
               currentMortallyWoundedEffect._id,
-              tokenForRecord
+              tokenForRecord,
             );
           }
         };
@@ -429,7 +429,7 @@
             tokenForRecord,
             (updatedRecord) => {
               removeMortallyWounded(updatedRecord);
-            }
+            },
           );
         } else {
           // Only remove Mortally Wounded
@@ -483,7 +483,7 @@
       // Find the index directly by searching through the inventory array
       const inventoryArray = record?.data?.inventory || [];
       const armorItemIndex = inventoryArray.findIndex(
-        (item) => item._id === armor._id
+        (item) => item._id === armor._id,
       );
 
       if (armorItemIndex !== -1) {
@@ -508,7 +508,7 @@
       // Find the index directly by searching through the inventory array
       const inventoryArray = record?.data?.inventory || [];
       const armorItemIndex = inventoryArray.findIndex(
-        (item) => item._id === armor._id
+        (item) => item._id === armor._id,
       );
       if (armorItemIndex !== -1) {
         valuesToSet[`data.inventory.${armorItemIndex}.data.penalty`] =
@@ -527,189 +527,206 @@
   }
 </script>
 
-<div style="display: flex; margin-top: 4px; flex-direction: row">
-  <!-- STATs Column: Hide total values if unlocked, Show base values if locked -->
-  <div style="display: flex; flex-direction: column; margin-right: 4px">
-    <div
-      style="
-        display: flex;
-        flex-direction: column;
-        margin-left: 4px;
-        width: fit-content;
-      "
-    >
-      <!-- INT -->
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        hidecontrols="true"
-        field="int"
-        hideonlocked="true"
-        label="INT"
-        textalign="center"
-        minvalue="0"
-        onchange="onUpdateStat(value, 'int')"
-        onload="onLoad()"
-      ></numberfield>
+<!-- Compact one-page Cyberpunk RED main tab: original two-column layout
+     (stats column + details column), no section frames/dividers/headers.
+     Keeps the datapad stat-cell styling and shows the character name. -->
+<div
+  class="sheet--datapad sheet--datapad--cpr"
+  style="display: flex; flex-direction: row; gap: 8px; margin-top: 4px"
+>
+  <!-- ===== STATS COLUMN ===== -->
+  <div
+    style="
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 90px;
+      min-width: 90px;
+    "
+  >
+    <!-- INT -->
+    <div class="rvtt-cpr-cell">
+      <div class="rvtt-cpr-cell__fill">
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="100%"
+          hidecontrols="true"
+          field="int"
+          hideonlocked="true"
+          label="INT"
+          textalign="center"
+          minvalue="0"
+          onchange="onUpdateStat(value, 'int')"
+          onload="onLoad()"
+        ></numberfield>
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="100%"
+          hidecontrols="true"
+          field="totalInt"
+          hideonlocked="false"
+          label="INT"
+          textalign="center"
+          minvalue="0"
+        ></numberfield>
+      </div>
+    </div>
 
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        hidecontrols="true"
-        field="totalInt"
-        hideonlocked="false"
-        label="INT"
-        textalign="center"
-        minvalue="0"
-      ></numberfield>
+    <!-- REF -->
+    <div class="rvtt-cpr-cell">
+      <div class="rvtt-cpr-cell__fill">
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="100%"
+          hidecontrols="true"
+          hideonlocked="true"
+          field="ref"
+          label="REF"
+          textalign="center"
+          minvalue="0"
+          onchange="onUpdateStat(value, 'ref')"
+        ></numberfield>
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="100%"
+          hidecontrols="true"
+          hideonlocked="false"
+          field="totalRef"
+          label="REF"
+          textalign="center"
+          minvalue="0"
+        ></numberfield>
+      </div>
+    </div>
 
-      <!-- REF -->
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        hidecontrols="true"
-        hideonlocked="true"
-        field="ref"
-        label="REF"
-        textalign="center"
-        minvalue="0"
-        onchange="onUpdateStat(value, 'ref')"
-      ></numberfield>
+    <!-- DEX -->
+    <div class="rvtt-cpr-cell">
+      <div class="rvtt-cpr-cell__fill">
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="100%"
+          hidecontrols="true"
+          hideonlocked="true"
+          field="dex"
+          label="DEX"
+          textalign="center"
+          minvalue="0"
+          onchange="onUpdateStat(value, 'dex')"
+        ></numberfield>
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="100%"
+          hidecontrols="true"
+          hideonlocked="false"
+          field="totalDex"
+          label="DEX"
+          textalign="center"
+          minvalue="0"
+        ></numberfield>
+      </div>
+    </div>
 
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        hidecontrols="true"
-        hideonlocked="false"
-        field="totalRef"
-        label="REF"
-        textalign="center"
-        minvalue="0"
-      ></numberfield>
+    <!-- TECH -->
+    <div class="rvtt-cpr-cell">
+      <div class="rvtt-cpr-cell__fill">
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="100%"
+          hidecontrols="true"
+          hideonlocked="true"
+          field="tech"
+          label="TECH"
+          textalign="center"
+          minvalue="0"
+          onchange="onUpdateStat(value, 'tech')"
+        ></numberfield>
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="100%"
+          hidecontrols="true"
+          hideonlocked="false"
+          field="totalTech"
+          label="TECH"
+          textalign="center"
+          minvalue="0"
+        ></numberfield>
+      </div>
+    </div>
 
-      <!-- DEX -->
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        hidecontrols="true"
-        hideonlocked="true"
-        field="dex"
-        label="DEX"
-        textalign="center"
-        minvalue="0"
-        onchange="onUpdateStat(value, 'dex')"
-      ></numberfield>
+    <!-- COOL -->
+    <div class="rvtt-cpr-cell">
+      <div class="rvtt-cpr-cell__fill">
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="100%"
+          hidecontrols="true"
+          hideonlocked="true"
+          field="cool"
+          label="COOL"
+          textalign="center"
+          minvalue="0"
+          onchange="onUpdateStat(value, 'cool')"
+        ></numberfield>
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="100%"
+          hidecontrols="true"
+          hideonlocked="false"
+          field="totalCool"
+          label="COOL"
+          textalign="center"
+          minvalue="0"
+        ></numberfield>
+      </div>
+    </div>
 
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        hidecontrols="true"
-        hideonlocked="false"
-        field="totalDex"
-        label="DEX"
-        textalign="center"
-        minvalue="0"
-      ></numberfield>
+    <!-- WILL -->
+    <div class="rvtt-cpr-cell">
+      <div class="rvtt-cpr-cell__fill">
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="100%"
+          hidecontrols="true"
+          hideonlocked="true"
+          field="will"
+          label="WILL"
+          textalign="center"
+          minvalue="0"
+          onchange="onUpdateStat(value, 'will')"
+        ></numberfield>
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="100%"
+          hidecontrols="true"
+          hideonlocked="false"
+          field="totalWill"
+          label="WILL"
+          textalign="center"
+          minvalue="0"
+        ></numberfield>
+      </div>
+    </div>
 
-      <!-- TECH -->
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        hidecontrols="true"
-        hideonlocked="true"
-        field="tech"
-        label="TECH"
-        textalign="center"
-        minvalue="0"
-        onchange="onUpdateStat(value, 'tech')"
-      ></numberfield>
-
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        hidecontrols="true"
-        hideonlocked="false"
-        field="totalTech"
-        label="TECH"
-        textalign="center"
-        minvalue="0"
-      ></numberfield>
-
-      <!-- COOL -->
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        hidecontrols="true"
-        hideonlocked="true"
-        field="cool"
-        label="COOL"
-        textalign="center"
-        minvalue="0"
-        onchange="onUpdateStat(value, 'cool')"
-      ></numberfield>
-
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        hidecontrols="true"
-        hideonlocked="false"
-        field="totalCool"
-        label="COOL"
-        textalign="center"
-        minvalue="0"
-      ></numberfield>
-
-      <!-- WILL -->
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        hidecontrols="true"
-        hideonlocked="true"
-        field="will"
-        label="WILL"
-        textalign="center"
-        minvalue="0"
-        onchange="onUpdateStat(value, 'will')"
-      ></numberfield>
-
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        hidecontrols="true"
-        hideonlocked="false"
-        field="totalWill"
-        label="WILL"
-        textalign="center"
-        minvalue="0"
-      ></numberfield>
-
-      <!-- LUCK -->
-      <div style="display: flex; flex-direction: column; gap: 4px">
-        <div
-          style="
-            display: flex;
-            flex-direction: row;
-            gap: 4px;
-            align-items: flex-end;
-          "
-        >
-          <!-- Luck Current -->
+    <!-- LUCK | MAX -->
+    <div class="rvtt-cpr-cell">
+      <div class="rvtt-cpr-cell__fill" style="flex-direction: row">
+        <div class="rvtt-cpr-cell-half">
           <numberfield
             placeholder="0"
             size="xs"
-            width="40px"
+            width="100%"
             label="LUCK"
             field="curLuck"
             hidecontrols="true"
@@ -718,16 +735,13 @@
             maxvaluefield="luck"
             onchange="onUpdateStat(value, 'curLuck')"
           ></numberfield>
-
-          <div style="height: 30px; display: flex; align-items: center">
-            <divider orientation="vertical" size="xs" color="primary"></divider>
-          </div>
-
-          <!-- Luck Max -->
+        </div>
+        <div class="rvtt-cpr-cell-sep"></div>
+        <div class="rvtt-cpr-cell-half">
           <numberfield
             placeholder="0"
             size="xs"
-            width="40px"
+            width="100%"
             field="luck"
             hideonlocked="true"
             label="MAX"
@@ -736,11 +750,10 @@
             minvalue="0"
             onchange="onUpdateStat(value, 'luck')"
           ></numberfield>
-
           <numberfield
             placeholder="0"
             size="xs"
-            width="40px"
+            width="100%"
             field="totalLuck"
             hideonlocked="false"
             label="MAX"
@@ -749,206 +762,214 @@
             minvalue="0"
           ></numberfield>
         </div>
-
-        <popover onclose="onUseLuck()">
-          <popover.target>
-            <button
-              field="useLuckBtn"
-              label="Use Luck"
-              size="xs"
-              width="88px"
-              color="primary"
-              variant="outline"
-              onclick=""
-            ></button>
-          </popover.target>
-          <popover.dropdown>
-            <label variant="bold" size="md" label="Use Luck"></label>
-            <label
-              variant="default"
-              size="sm"
-              label="Enter the desired amount to use."
-            ></label>
-            <div
-              style="
-                display: flex;
-                flex-direction: row;
-                gap: 4px;
-                align-items: flex-end;
-              "
-            >
-              <numberfield
-                placeholder="0"
-                defaultvalue="0"
-                size="xs"
-                width="80px"
-                label="Amount"
-                field="useLuck"
-                minvalue="0"
-                updateonblur="true"
-                editable="true"
-              ></numberfield>
-              <button
-                field="useLuckBtn2"
-                label="Use Luck"
-                size="xs"
-                color="primary"
-                variant="outline"
-                onclick="useLuck()"
-              ></button>
-            </div>
-            <div
-              style="
-                display: flex;
-                flex-direction: row;
-                gap: 4px;
-                align-items: flex-end;
-                margin-top: 4px;
-              "
-            >
-              <button
-                field="Reset Luck"
-                size="xs"
-                color="secondary"
-                variant="outline"
-                onclick="onResetLuck()"
-              ></button>
-            </div>
-          </popover.dropdown>
-        </popover>
       </div>
+    </div>
 
-      <!-- MOVE -->
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        field="move"
-        hideonlocked="true"
-        label="MOVE"
-        hidecontrols="true"
-        textalign="center"
-        minvalue="0"
-        onchange="onUpdateStat(value, 'move')"
-      ></numberfield>
-
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        field="totalMove"
-        hideonlocked="false"
-        label="MOVE"
-        hidecontrols="true"
-        textalign="center"
-        minvalue="0"
-      ></numberfield>
-
-      <!-- BODY -->
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        field="body"
-        hideonlocked="true"
-        label="BODY"
-        hidecontrols="true"
-        textalign="center"
-        minvalue="0"
-        onchange="onUpdateStat(value, 'body')"
-      ></numberfield>
-
-      <numberfield
-        placeholder="0"
-        size="xs"
-        width="88px"
-        field="totalBody"
-        hideonlocked="false"
-        label="BODY"
-        hidecontrols="true"
-        textalign="center"
-        minvalue="0"
-      ></numberfield>
-
-      <!-- EMP -->
-      <div
-        style="
-          display: flex;
-          flex-direction: row;
-          gap: 4px;
-          align-items: flex-end;
-        "
-      >
-        <!-- Emp Current -->
-        <numberfield
-          placeholder="0"
-          size="xs"
-          label="EMP"
-          width="40px"
-          field="curEmp"
-          hideonlocked="true"
-          hidecontrols="true"
+    <!-- Use Luck -->
+    <popover onclose="onUseLuck()">
+      <popover.target>
+        <button
+          field="useLuckBtn"
+          label="Use Luck"
+          size="xxs"
+          width="90px"
+          color="primary"
+          variant="filled"
           textalign="center"
-          maxvaluefield="emp"
-          minvalue="0"
-          onchange="onUpdateStat(value, 'curEmp')"
-        ></numberfield>
-
-        <numberfield
-          placeholder="0"
-          size="xs"
-          label="EMP"
-          width="40px"
-          field="totalCurEmp"
-          hideonlocked="false"
-          hidecontrols="true"
-          textalign="center"
-          maxvaluefield="emp"
-          minvalue="0"
-        ></numberfield>
-
-        <div style="height: 30px; display: flex; align-items: center">
-          <divider orientation="vertical" size="xs" color="primary"></divider>
+          onclick=""
+        ></button>
+      </popover.target>
+      <popover.dropdown>
+        <label variant="bold" size="md" label="Use Luck"></label>
+        <label
+          variant="default"
+          size="sm"
+          label="Enter the desired amount to use."
+        ></label>
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            gap: 4px;
+            align-items: flex-end;
+          "
+        >
+          <numberfield
+            placeholder="0"
+            defaultvalue="0"
+            size="xs"
+            width="80px"
+            label="Amount"
+            field="useLuck"
+            minvalue="0"
+            updateonblur="true"
+            editable="true"
+          ></numberfield>
+          <button
+            field="useLuckBtn2"
+            label="Use Luck"
+            size="xs"
+            color="primary"
+            variant="outline"
+            onclick="useLuck()"
+          ></button>
         </div>
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            gap: 4px;
+            align-items: flex-end;
+            margin-top: 4px;
+          "
+        >
+          <button
+            field="Reset Luck"
+            size="xs"
+            color="secondary"
+            variant="outline"
+            onclick="onResetLuck()"
+          ></button>
+        </div>
+      </popover.dropdown>
+    </popover>
 
-        <!-- Emp Max -->
+    <!-- MOVE -->
+    <div class="rvtt-cpr-cell">
+      <div class="rvtt-cpr-cell__fill">
         <numberfield
           placeholder="0"
           size="xs"
-          width="40px"
-          field="emp"
+          width="100%"
+          field="move"
           hideonlocked="true"
-          label="MAX"
+          label="MOVE"
           hidecontrols="true"
           textalign="center"
           minvalue="0"
-          onchange="onUpdateStat(value, 'emp')"
+          onchange="onUpdateStat(value, 'move')"
         ></numberfield>
-
         <numberfield
           placeholder="0"
           size="xs"
-          width="40px"
-          field="totalEmp"
+          width="100%"
+          field="totalMove"
           hideonlocked="false"
-          label="MAX"
+          label="MOVE"
           hidecontrols="true"
           textalign="center"
           minvalue="0"
         ></numberfield>
       </div>
     </div>
+
+    <!-- BODY -->
+    <div class="rvtt-cpr-cell">
+      <div class="rvtt-cpr-cell__fill">
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="100%"
+          field="body"
+          hideonlocked="true"
+          label="BODY"
+          hidecontrols="true"
+          textalign="center"
+          minvalue="0"
+          onchange="onUpdateStat(value, 'body')"
+        ></numberfield>
+        <numberfield
+          placeholder="0"
+          size="xs"
+          width="100%"
+          field="totalBody"
+          hideonlocked="false"
+          label="BODY"
+          hidecontrols="true"
+          textalign="center"
+          minvalue="0"
+        ></numberfield>
+      </div>
+    </div>
+
+    <!-- EMP | MAX -->
+    <div class="rvtt-cpr-cell">
+      <div class="rvtt-cpr-cell__fill" style="flex-direction: row">
+        <div class="rvtt-cpr-cell-half">
+          <numberfield
+            placeholder="0"
+            size="xs"
+            width="100%"
+            label="EMP"
+            field="curEmp"
+            hideonlocked="true"
+            hidecontrols="true"
+            textalign="center"
+            maxvaluefield="emp"
+            minvalue="0"
+            onchange="onUpdateStat(value, 'curEmp')"
+          ></numberfield>
+          <numberfield
+            placeholder="0"
+            size="xs"
+            width="100%"
+            label="EMP"
+            field="totalCurEmp"
+            hideonlocked="false"
+            hidecontrols="true"
+            textalign="center"
+            maxvaluefield="emp"
+            minvalue="0"
+          ></numberfield>
+        </div>
+        <div class="rvtt-cpr-cell-sep"></div>
+        <div class="rvtt-cpr-cell-half">
+          <numberfield
+            placeholder="0"
+            size="xs"
+            width="100%"
+            field="emp"
+            hideonlocked="true"
+            label="MAX"
+            hidecontrols="true"
+            textalign="center"
+            minvalue="0"
+            onchange="onUpdateStat(value, 'emp')"
+          ></numberfield>
+          <numberfield
+            placeholder="0"
+            size="xs"
+            width="100%"
+            field="totalEmp"
+            hideonlocked="false"
+            label="MAX"
+            hidecontrols="true"
+            textalign="center"
+            minvalue="0"
+          ></numberfield>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Portrait,HP, Humanity, Armor -->
-  <div style="display: flex; flex-direction: column; width: 100%">
+  <!-- ===== DETAILS COLUMN ===== -->
+  <div
+    style="
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      min-width: 0;
+    "
+  >
+    <label field="namefield" class="rvtt-datapad-display-name"></label>
+
     <div
       style="
         display: flex;
         flex-direction: row;
         gap: 4px;
         align-items: flex-end;
-        margin-bottom: 4px;
       "
     >
       <stringfield
@@ -958,29 +979,29 @@
         field="role"
         label="Role and Rank"
       ></stringfield>
-
       <list
         listtype="role_icon_list"
         field="roles"
         onchange="onRoleDelete()"
       ></list>
     </div>
+
     <div style="display: flex; flex-direction: row; gap: 4px; width: 100%">
-      <div style="display: flex; flex-direction: column; gap: 4px">
-        <div
-          style="
-            width: 135px;
-            min-width: 135px;
-            max-width: 135px;
-            min-height: 135px;
-            max-height: 135px;
-          "
-        >
-          <portrait width="135px" height="135px"></portrait>
-        </div>
+      <div
+        style="width: 135px; min-width: 135px; height: 135px; min-height: 135px"
+      >
+        <portrait variant="fancy" width="135px" height="135px"></portrait>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 4px; width: 100%">
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          flex: 1;
+          min-width: 0;
+        "
+      >
         <div
           style="
             display: flex;
@@ -999,7 +1020,6 @@
             color="pink"
             minvalue="0"
           ></numberfield>
-
           <numberfield
             placeholder="0"
             size="sm"
@@ -1010,7 +1030,6 @@
             color="green"
             minvalue="0"
           ></numberfield>
-
           <numberfield
             placeholder="0"
             size="sm"
@@ -1021,7 +1040,6 @@
             color="blue"
             minvalue="0"
           ></numberfield>
-
           <iconbutton
             field="Rest"
             size="md"
@@ -1036,26 +1054,45 @@
           style="
             display: flex;
             flex-direction: row;
-            gap: 4px;
+            gap: 8px;
             align-items: flex-end;
-            margin-bottom: 4px;
+            margin-top: 4px;
           "
         >
-          <numberfield
-            placeholder="0"
-            size="xs"
-            width="100%"
-            icon="IconHeartbeat"
-            description="-2 to All Actions When Seriously Wounded"
-            field="seriouslyWounded"
-            label="Seriously Wounded"
-            editable="false"
-          ></numberfield>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 2px;
+              flex: 1;
+              min-width: 0;
+            "
+          >
+            <label
+              class="rvtt-datapad-label rvtt-datapad-label--accent"
+              label="Seriously Wounded"
+            ></label>
+            <div
+              style="
+                display: flex;
+                flex-direction: row;
+                gap: 8px;
+                align-items: baseline;
+              "
+            >
+              <label field="seriouslyWounded" variant="bold" size="xl"></label>
+              <label
+                size="xs"
+                color="dimmed"
+                label="-2 to All Actions When Seriously Wounded"
+              ></label>
+            </div>
+          </div>
 
           <numberfield
             placeholder="0"
             size="xs"
-            width="100px"
+            width="120px"
             minvalue="0"
             maxvalue="10"
             icon="IconSkull"
@@ -1075,28 +1112,40 @@
       </div>
     </div>
 
-    <divider orientation="horizontal" size="xs"></divider>
-
     <!-- Armor -->
     <table style="width: 100%; border-spacing: 4px; border-collapse: separate">
       <thead>
         <tr>
           <th style="width: 50px"></th>
           <th style="width: 100%; text-align: left">
-            <label variant="bold" size="sm" label="Armor"></label>
+            <label
+              class="rvtt-datapad-label rvtt-datapad-label--accent"
+              label="Armor"
+            ></label>
           </th>
           <th style="width: 70px; text-align: center">
-            <label variant="bold" size="sm" label="SP"></label>
+            <label
+              class="rvtt-datapad-label rvtt-datapad-label--accent"
+              label="SP"
+            ></label>
           </th>
           <th style="width: 70px; text-align: center">
-            <label variant="bold" size="sm" label="Penalty"></label>
+            <label
+              class="rvtt-datapad-label rvtt-datapad-label--accent"
+              label="Penalty"
+            ></label>
           </th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td>
-            <label variant="bold" size="xs" label="Head"></label>
+            <label
+              class="rvtt-datapad-label"
+              variant="bold"
+              size="xs"
+              label="Head"
+            ></label>
           </td>
           <td>
             <stringfield
@@ -1129,7 +1178,12 @@
         </tr>
         <tr>
           <td>
-            <label variant="bold" size="xs" label="Body"></label>
+            <label
+              class="rvtt-datapad-label"
+              variant="bold"
+              size="xs"
+              label="Body"
+            ></label>
           </td>
           <td>
             <stringfield
@@ -1162,7 +1216,12 @@
         </tr>
         <tr>
           <td>
-            <label variant="bold" size="xs" label="Shield"></label>
+            <label
+              class="rvtt-datapad-label"
+              variant="bold"
+              size="xs"
+              label="Shield"
+            ></label>
           </td>
           <td>
             <div style="display: flex; flex-direction: row; gap: 4px">
@@ -1205,31 +1264,22 @@
       </tbody>
     </table>
 
-    <divider orientation="horizontal" size="xs"></divider>
-
-    <div
-      style="
-        display: flex;
-        flex-direction: row;
-        gap: 4px;
-        width: 100%;
-        height: 100%;
-        margin-top: 4px;
-      "
-    >
+    <!-- Critical Injuries / Addictions -->
+    <div style="display: flex; flex-direction: row; gap: 8px; width: 100%">
       <div
         style="
           display: flex;
           flex-direction: column;
           gap: 4px;
-          width: 100%;
-          height: 100%;
+          flex: 1;
+          min-width: 0;
         "
       >
-        <div style="margin-left: 4px">
-          <label variant="bold" size="sm" label="Critical Injuries"></label>
-        </div>
-        <div style="flex-grow: 1; height: 100px; overflow-y: auto">
+        <label
+          class="rvtt-datapad-label rvtt-datapad-label--accent"
+          label="Critical Injuries"
+        ></label>
+        <div style="height: 110px; overflow-y: auto">
           <list
             listtype="critical_injury_list"
             field="criticalInjuries"
@@ -1244,14 +1294,15 @@
           display: flex;
           flex-direction: column;
           gap: 4px;
-          width: 100%;
-          height: 100%;
+          flex: 1;
+          min-width: 0;
         "
       >
-        <div style="margin-left: 4px">
-          <label variant="bold" size="sm" label="Addictions"></label>
-        </div>
-        <div style="flex-grow: 1; height: 100px; overflow-y: auto">
+        <label
+          class="rvtt-datapad-label rvtt-datapad-label--accent"
+          label="Addictions"
+        ></label>
+        <div style="height: 110px; overflow-y: auto">
           <list
             listtype="addictions_list"
             field="addictions"
@@ -1263,15 +1314,15 @@
       </div>
     </div>
 
-    <divider orientation="horizontal" size="xs"></divider>
-
+    <!-- Humanity -->
     <div
       style="
         display: flex;
         flex-direction: row;
-        gap: 4px;
+        gap: 6px;
         align-items: flex-end;
-        width: 200px;
+        width: 100%;
+        max-width: 320px;
       "
     >
       <numberfield
@@ -1284,7 +1335,6 @@
         label="Humanity"
         color="cyan"
       ></numberfield>
-
       <numberfield
         placeholder="0"
         size="xs"
@@ -1294,7 +1344,6 @@
         color="blue"
         label="Max Humanity"
       ></numberfield>
-
       <numberfield
         placeholder="0"
         size="xs"

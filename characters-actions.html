@@ -78,217 +78,223 @@
   }
 </script>
 
-<div>
-  <label
-    variant="bold"
-    field="attackListLabel"
-    label="Attacks"
-    size="md"
-    textalign="center"
-  ></label>
-</div>
-
+<!-- Datapad-themed Cyberpunk RED actions tab. Field bindings, list types
+     and on* handlers preserved verbatim. -->
 <div
-  style="
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    gap: 4px;
-    align-items: flex-end;
-  "
+  class="sheet--datapad sheet--datapad--cpr"
+  style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px"
 >
-  <!-- Targeted Location and Throw Object Column -->
-  <div style="width: 100%; display: flex; flex-direction: column">
+  <!-- ===== ATTACKS ===== -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Attacks</span>
+    </div>
+
     <div
-      style="display: flex; flex-direction: row; gap: 4px; align-items: center"
+      style="
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        align-items: flex-end;
+      "
     >
-      <label
-        variant="bold"
-        label="Targeted Location"
-        size="sm"
-        textalign="left"
-      ></label>
-      <iconbutton
-        size="md"
-        hidden="false"
-        field="targetedLocation"
-        variant="default"
-        options='[{"icon": "GiChestArmor", "label": "Body", "value": "body"}, 
-          {"icon": "GiHeadshot", "label": "Head", "value": "head"},
-          {"icon": "GiArm", "label": "Hand/Item", "value": "hand"},
-          {"icon": "GiLeg", "label": "Leg", "value": "leg"}]'
-      ></iconbutton>
+      <div style="width: 100%; display: flex; flex-direction: column">
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            gap: 4px;
+            align-items: center;
+          "
+        >
+          <label
+            class="rvtt-datapad-label rvtt-datapad-label--accent"
+            label="Targeted Location"
+          ></label>
+          <iconbutton
+            size="md"
+            hidden="false"
+            field="targetedLocation"
+            variant="default"
+            options='[{"icon": "GiChestArmor", "label": "Body", "value": "body"},
+              {"icon": "GiHeadshot", "label": "Head", "value": "head"},
+              {"icon": "GiArm", "label": "Hand/Item", "value": "hand"},
+              {"icon": "GiLeg", "label": "Leg", "value": "leg"}]'
+          ></iconbutton>
+          <div
+            style="
+              display: flex;
+              flex-direction: row;
+              margin-left: 8px;
+              gap: 4px;
+              align-items: center;
+            "
+          >
+            <label
+              class="rvtt-datapad-label rvtt-datapad-label--accent"
+              label="Dodge Ranged"
+            ></label>
+            <checkbox field="dodgeRanged" editable="true" size="xs"></checkbox>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end">
+        <button
+          field="rollInitBtn"
+          size="xs"
+          icon="D10"
+          label="Initiative"
+          variant="outline"
+          onclick="rollInitiative();"
+        ></button>
+      </div>
+    </div>
+
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        margin-top: 8px;
+        flex-grow: 1;
+      "
+    >
+      <div
+        class="rvtt-cpr-colhead"
+        style="display: flex; flex-direction: row; width: 100%; gap: 4px"
+      >
+        <div style="flex-grow: 1">
+          <label
+            class="rvtt-datapad-label rvtt-datapad-label--accent"
+            label="Weapon"
+          ></label>
+        </div>
+        <div style="width: 90px">
+          <label
+            class="rvtt-datapad-label rvtt-datapad-label--accent rvtt-datapad-label--wrap"
+            label="Actions"
+          ></label>
+        </div>
+        <div style="width: 136px">
+          <label
+            class="rvtt-datapad-label rvtt-datapad-label--accent rvtt-datapad-label--wrap"
+            label="Ammo Select"
+          ></label>
+        </div>
+        <div style="width: 100px">
+          <label
+            class="rvtt-datapad-label rvtt-datapad-label--accent rvtt-datapad-label--wrap"
+            label="Ammo / ROF"
+          ></label>
+        </div>
+      </div>
+
+      <list listtype="attack_list" variant="striped" field="inventory"></list>
+
+      <!-- Throw Ammo Selector -->
       <div
         style="
           display: flex;
           flex-direction: row;
-          margin-left: 8px;
           gap: 4px;
-          align-items: center;
+          align-items: flex-end;
+          margin-top: 6px;
         "
       >
-        <label
-          variant="bold"
-          label="Dodge Ranged"
-          size="sm"
-          textalign="left"
-        ></label>
-        <checkbox field="dodgeRanged" editable="true" size="xs"></checkbox>
+        <dropdown
+          field="throwAmmo"
+          width="125px"
+          size="xs"
+          placeholder="None Selected"
+          optionsFunction="return throwAmmoOptions();"
+          label="Throw Object"
+        ></dropdown>
+        <dropdown
+          field="throwRange"
+          width="125px"
+          size="xs"
+          placeholder="Select Range..."
+          label="Throw Range"
+          options='[{"value": "auto", "label": "Auto"}, {"value": "0to6", "label": "0 to 6 m/yds"}, {"value": "7to12", "label": "7 to 12 m/yds"}, {"value": "13to25", "label": "13 to 25 m/yds"}]'
+        ></dropdown>
+        <button
+          field="throwBtn"
+          size="xs"
+          label="Throw"
+          variant="light"
+          color="secondary"
+          onclick="throwObject();"
+          icon="GiGrenade"
+        ></button>
+
+        <div style="margin-left: auto">
+          <numberfield
+            field="afMultiplier"
+            width="145px"
+            label="Current Autofire Multiplier"
+            placeholder="Enter Multiplier..."
+            size="xs"
+          ></numberfield>
+        </div>
       </div>
     </div>
   </div>
-  <!-- Initiative Button -->
-  <div style="display: flex; justify-content: flex-end">
-    <button
-      field="rollInitBtn"
-      size="xs"
-      icon="D10"
-      label="Initiative"
-      variant="outline"
-      onclick="rollInitiative();"
-    ></button>
-  </div>
-</div>
 
-<div
-  style="display: flex; flex-direction: column; margin-top: 8px; flex-grow: 1"
->
-  <div style="display: flex; flex-direction: row; width: 100%; gap: 4px">
-    <div style="flex-grow: 1">
-      <label variant="bold" label="Weapon" size="xs" textalign="left"></label>
+  <!-- ===== AMMO & ABILITIES ===== -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Ammo &amp; Abilities</span>
     </div>
-    <div style="width: 90px">
-      <label
-        variant="bold"
-        label="Actions"
-        size="xs"
-        textalign="center"
-      ></label>
-    </div>
-    <div style="width: 136px">
-      <label
-        variant="bold"
-        label="Ammo Select"
-        size="xs"
-        textalign="center"
-        width="100%"
-      ></label>
-    </div>
-    <div style="width: 100px">
-      <label
-        variant="bold"
-        label="Ammo / ROF"
-        size="xs"
-        textalign="center"
-        width="100%"
-      ></label>
-    </div>
-  </div>
-
-  <list listtype="attack_list" variant="striped" field="inventory"></list>
-
-  <!-- Throw Ammo Selector -->
-  <div
-    style="display: flex; flex-direction: row; gap: 4px; align-items: flex-end"
-  >
-    <dropdown
-      field="throwAmmo"
-      width="125px"
-      size="xs"
-      placeholder="None Selected"
-      optionsFunction="return throwAmmoOptions();"
-      label="Throw Object"
-    ></dropdown>
-    <dropdown
-      field="throwRange"
-      width="125px"
-      size="xs"
-      placeholder="Select Range..."
-      label="Throw Range"
-      options='[{"value": "auto", "label": "Auto"}, {"value": "0to6", "label": "0 to 6 m/yds"}, {"value": "7to12", "label": "7 to 12 m/yds"}, {"value": "13to25", "label": "13 to 25 m/yds"}]'
-    ></dropdown>
-    <button
-      field="throwBtn"
-      size="xs"
-      label="Throw"
-      variant="light"
-      color="secondary"
-      onclick="throwObject();"
-      icon="GiGrenade"
-    ></button>
-
-    <div style="margin-left: auto">
-      <numberfield
-        field="afMultiplier"
-        width="145px"
-        label="Current Autofire Multiplier"
-        placeholder="Enter Multiplier..."
-        size="xs"
-      ></numberfield>
-    </div>
-  </div>
-
-  <div style="display: flex; margin-top: 8px">
-    <div style="width: 100%">
-      <div>
+    <div style="display: flex; flex-direction: row; gap: 8px">
+      <div style="width: 100%">
         <label
-          variant="bold"
-          field="ammoListLabel"
+          class="rvtt-datapad-label rvtt-datapad-label--accent"
           label="Ammo"
-          size="sm"
-          textalign="center"
         ></label>
+        <list
+          listtype="ammo_list"
+          variant="striped"
+          field="inventory"
+        ></list>
       </div>
-
-      <list listtype="ammo_list" variant="striped" field="inventory"></list>
-    </div>
-    <div style="width: 100%">
-      <div>
+      <div style="width: 100%">
         <label
-          variant="bold"
-          field="abilityListLabel"
+          class="rvtt-datapad-label rvtt-datapad-label--accent"
           label="Abilities"
-          size="sm"
-          textalign="center"
         ></label>
+        <list
+          listtype="ability_list"
+          variant="striped"
+          field="abilities"
+        ></list>
       </div>
-
-      <list listtype="ability_list" variant="striped" field="abilities"></list>
     </div>
   </div>
-</div>
 
-<!-- Role Panels -->
-<div style="margin-top: 8px">
-  <label
-    variant="bold"
-    label="Role Abilities"
-    size="md"
-    textalign="center"
-  ></label>
-
-  <list
-    listtype="role_panel_list"
-    variant="standard"
-    field="roles"
-    onchange="onRoleDelete();"
-  ></list>
-</div>
-
-<!-- Cyberdeck Panels -->
-<box field="cyberdecks" hidden="true">
-  <div style="margin-top: 8px">
-    <label
-      variant="bold"
-      label="Equipped Cyberdeck"
-      size="md"
-      textalign="center"
-    ></label>
-
+  <!-- ===== ROLE ABILITIES ===== -->
+  <div class="rvtt-datapad-section">
+    <div class="rvtt-datapad-divider">
+      <span class="rvtt-datapad-divider__label">Role Abilities</span>
+    </div>
     <list
-      listtype="cyberdeck_panel_list"
+      listtype="role_panel_list"
       variant="standard"
-      field="inventory"
+      field="roles"
+      onchange="onRoleDelete();"
     ></list>
   </div>
-</box>
+
+  <!-- ===== EQUIPPED CYBERDECK ===== -->
+  <box field="cyberdecks" hidden="true">
+    <div class="rvtt-datapad-section">
+      <div class="rvtt-datapad-divider">
+        <span class="rvtt-datapad-divider__label">Equipped Cyberdeck</span>
+      </div>
+      <list
+        listtype="cyberdeck_panel_list"
+        variant="standard"
+        field="inventory"
+      ></list>
+    </div>
+  </box>
+</div>
