@@ -1,0 +1,3253 @@
+{
+  "name": "Cyberpunk RED",
+  "description": "The latest edition of the Cyberpunk Role Playing Game.",
+  "version": 1,
+  "published": true,
+  "records": [
+    {
+      "name": "Characters",
+      "type": "characters",
+      "minX": 615,
+      "minY": 685,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "characters-main.html"
+        },
+        {
+          "name": "Skills",
+          "file": "characters-skills.html"
+        },
+        {
+          "name": "Actions",
+          "file": "characters-actions.html"
+        },
+        {
+          "name": "Inventory",
+          "file": "characters-inventory.html"
+        },
+        {
+          "name": "Cyberware",
+          "file": "characters-cyberware.html"
+        },
+        {
+          "name": "Notes",
+          "file": "characters-notes.html"
+        }
+      ],
+      "isList": false,
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "",
+      "singleRow": false,
+      "filters": {},
+      "wizard": {
+        "enabled": true,
+        "steps": [
+          {
+            "name": "Select Method and Role",
+            "file": "wizards/characters/step-1.html",
+            "next": "Next",
+            "previous": ""
+          },
+          {
+            "name": "Lifepath",
+            "file": "wizards/characters/step-2.html",
+            "next": "Next",
+            "previous": "Back"
+          },
+          {
+            "name": "STATs",
+            "file": "wizards/characters/step-3.html",
+            "next": "Next",
+            "previous": "Back"
+          },
+          {
+            "name": "Step 4",
+            "file": "wizards/characters/step-4.html",
+            "next": "Next",
+            "previous": "Back"
+          },
+          {
+            "name": "Step 5",
+            "file": "wizards/characters/step-5.html",
+            "next": "Finish",
+            "previous": "Back"
+          }
+        ]
+      },
+      "hideFromCompendium": false,
+      "hasToken": false
+    },
+    {
+      "name": "NPCs",
+      "type": "npcs",
+      "minX": 500,
+      "minY": 500,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "npcs-main.html"
+        },
+        {
+          "name": "Description",
+          "file": "npcs-description.html"
+        }
+      ],
+      "isList": false,
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "",
+      "singleRow": false,
+      "filters": {
+        "type": "dynamic",
+        "npcLevel": "dynamic"
+      },
+      "hideFromCompendium": false,
+      "hasToken": false
+    },
+    {
+      "name": "Abilities",
+      "type": "abilities",
+      "isList": false,
+      "minX": 500,
+      "minY": 500,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "abilities-main.html",
+          "fields": []
+        },
+        {
+          "name": "FX",
+          "file": "abilities-fx.html"
+        }
+      ],
+      "icon": "IconHandGrab",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "",
+      "singleRow": false,
+      "filters": {
+        "skill": "dynamic"
+      }
+    },
+    {
+      "name": "Conditions",
+      "type": "conditions",
+      "isList": false,
+      "minX": 500,
+      "minY": 500,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "conditions-main.html",
+          "fields": []
+        },
+        {
+          "name": "Rules",
+          "file": "conditions-rules.html"
+        }
+      ],
+      "icon": "IconBodyScan",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "",
+      "singleRow": false,
+      "filters": {
+        "type": "critical_injury,addiction,cover"
+      }
+    },
+    {
+      "name": "Items",
+      "type": "items",
+      "isList": false,
+      "minX": 500,
+      "minY": 500,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "items-main.html",
+          "fields": []
+        },
+        {
+          "name": "Rules",
+          "file": "items-rules.html"
+        }
+      ],
+      "icon": "IconBox",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "",
+      "singleRow": false,
+      "filters": {
+        "type": "agent app,ammo,armor,black ice,cyberdeck,cyberware,demon,drone,drug,fashion,gear,pack,melee weapon,program or hardware,ranged weapon,vehicle,vehicle upgrade,weapon attachment",
+        "priceCategory": "dirt cheap,cheap,everyday,costly,expensive,very expensive,luxury,super luxury ",
+        "weaponSkill": "Archery,Autofire,Brawling,Drive Air Vehicle,Drive Land Vehicle,Drive Sea Vehicle,Handgun,Heavy Weapons,Martial Arts,Melee Weapon,Pilot Air Vehicle,Pilot Sea Vehicle,Shoulder Arms",
+        "weaponType": "light,medium,heavy,very heavy",
+        "armorLocation": "head,body,shield",
+        "cyberwareInstallSlot": "foundational,fashionware,neuralware,chipware,cyberoptics,cyberaudio,cyberfingers,internal body cyberware,external body cyberware,cyberarms,cyberlegs,borgware",
+        "foundationalSlot": "neural link,cyberaudio suite,right cybereye,left cybereye,right cyberarm,left cyberarm,right hand,left hand,right cyberleg,left cyberleg,right foot,left foot"
+      }
+    },
+    {
+      "name": "NET Architectures",
+      "type": "net_architectures",
+      "isList": false,
+      "minX": 600,
+      "minY": 600,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "net-architecture-main.html",
+          "fields": []
+        },
+        {
+          "name": "Description",
+          "file": "net-architecture-description.html"
+        }
+      ],
+      "icon": "IconWorld",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "",
+      "singleRow": false,
+      "filters": {},
+      "wizard": {
+        "enabled": true,
+        "steps": [
+          {
+            "name": "Parameters",
+            "file": "wizards/net_architectures/step-1.html",
+            "next": "Generate Architecture",
+            "previous": ""
+          }
+        ]
+      },
+      "hideFromCompendium": false,
+      "hasToken": false
+    },
+    {
+      "name": "Roles",
+      "type": "roles",
+      "isList": false,
+      "minX": 500,
+      "minY": 500,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "roles-main.html",
+          "fields": []
+        },
+        {
+          "name": "Rules",
+          "file": "roles-rules.html"
+        }
+      ],
+      "icon": "IconBadge",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "",
+      "singleRow": false,
+      "filters": {}
+    },
+    {
+      "name": "Skills",
+      "type": "skill",
+      "isList": false,
+      "minX": 500,
+      "minY": 500,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "skills-main.html",
+          "fields": []
+        }
+      ],
+      "icon": "IconTools",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "",
+      "singleRow": false,
+      "filters": {
+        "stat": "dynamic"
+      }
+    },
+    {
+      "name": "Vehicles",
+      "type": "vehicles",
+      "isList": false,
+      "minX": 500,
+      "minY": 500,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "vehicles-main.html",
+          "fields": []
+        },
+        {
+          "name": "Description",
+          "file": "vehicles-description.html"
+        }
+      ],
+      "hideFromCompendium": false,
+      "hasToken": true,
+      "icon": "IconCar",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "",
+      "singleRow": false,
+      "filters": {}
+    },
+    {
+      "name": "Ability List",
+      "type": "ability_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "ability-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "New Ability",
+      "allowedListTypes": [
+        "abilities"
+      ],
+      "newItemName": "New Ability",
+      "newItemUnidentifiedName": "Ability",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "Drag Abilities Here",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Active Features List",
+      "type": "active_features_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "active-features-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "",
+      "orderCriteria": [
+        {
+          "field": "rank",
+          "descending": true
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Addictions List",
+      "type": "addictions_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "conditions-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Addiction",
+      "allowedListTypes": [
+        "conditions"
+      ],
+      "newItemName": "New Addiction",
+      "newItemUnidentifiedName": "New Addiction",
+      "stackDuplicates": false,
+      "disableDrop": true,
+      "countFieldName": "",
+      "emptyListText": "No Addictions",
+      "orderCriteria": [],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Ammo List",
+      "type": "ammo_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "ammo-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "items"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": true,
+      "countFieldName": "",
+      "emptyListText": "No Ammo Equipped",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [
+        {
+          "field": "type",
+          "operator": "equals",
+          "value": "ammo",
+          "isOr": false
+        },
+        {
+          "field": "carried",
+          "operator": "equals",
+          "value": "equipped",
+          "isOr": false
+        }
+      ],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Attachment List",
+      "type": "attachment_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "attachments-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Attachment",
+      "allowedListTypes": [
+        "items"
+      ],
+      "newItemName": "New Attachment",
+      "newItemUnidentifiedName": "Attachment",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "Drag Attachments Here",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Attachment Weapon Select List",
+      "type": "attachment_weapon_select_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "attachments-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "items"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "Drag a Weapon Here",
+      "orderCriteria": [],
+      "maxLength": 1,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Attack Attachment List",
+      "type": "attack_attachment_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "attack-attachment-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": " ",
+      "orderCriteria": [],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Attack List",
+      "type": "attack_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 64,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "attack-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Weapons Equipped",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [
+        {
+          "field": "type",
+          "operator": "equals",
+          "value": "ranged weapon",
+          "isOr": false
+        },
+        {
+          "field": "carried",
+          "operator": "equals",
+          "value": "equipped",
+          "isOr": false
+        },
+        {
+          "field": "type",
+          "operator": "equals",
+          "value": "melee weapon",
+          "isOr": true
+        },
+        {
+          "field": "carried",
+          "operator": "equals",
+          "value": "equipped",
+          "isOr": false
+        },
+        {
+          "field": "type",
+          "operator": "equals",
+          "value": "cyberware",
+          "isOr": true
+        },
+        {
+          "field": "carried",
+          "operator": "equals",
+          "value": "equipped",
+          "isOr": false
+        },
+        {
+          "field": "weaponAttached",
+          "operator": "is_not_empty",
+          "value": "",
+          "isOr": false
+        }
+      ],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Basic Features",
+      "type": "basic_features",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "basic-features.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Feature",
+      "allowedListTypes": [],
+      "newItemName": "New Feature",
+      "newItemUnidentifiedName": "Feature",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Features",
+      "orderCriteria": [
+        {
+          "field": "rank",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Buy Item List",
+      "type": "buy_item_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "buy-item-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "items"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": true,
+      "disableDrop": true,
+      "countFieldName": "count",
+      "emptyListText": "No Items Bought",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        },
+        {
+          "field": "count",
+          "descending": true
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Critical Injury List",
+      "type": "critical_injury_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "conditions-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Injury",
+      "allowedListTypes": [
+        "conditions"
+      ],
+      "newItemName": "New Injury",
+      "newItemUnidentifiedName": "New Injury",
+      "stackDuplicates": false,
+      "disableDrop": true,
+      "countFieldName": "",
+      "emptyListText": "No Critical Injuries",
+      "orderCriteria": [],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Cyberdeck Black Ice List",
+      "type": "black_ice_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "attachments-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "items",
+        "npcs"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "Drag Black ICE Here",
+      "orderCriteria": [],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Cyberdeck Panel List",
+      "type": "cyberdeck_panel_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 500,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "cyberdeck-panel-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "items"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": true,
+      "countFieldName": "",
+      "emptyListText": "No Equipped Cyberdeck",
+      "orderCriteria": [],
+      "maxLength": 0,
+      "filterCriteria": [
+        {
+          "field": "type",
+          "operator": "equals",
+          "value": "cyberdeck",
+          "isOr": false
+        },
+        {
+          "field": "carried",
+          "operator": "equals",
+          "value": "equipped",
+          "isOr": false
+        }
+      ],
+      "singleRow": false
+    },
+    {
+      "name": "Cyberdeck Programs and Hardware List",
+      "type": "programs_and_hardware_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "attachments-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "items",
+        "npcs"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "Drag Programs and Hardware Here",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Cyberware Foundational List",
+      "type": "cyberware_foundational_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "cyberware-foundational-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "items"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": true,
+      "disableDrop": true,
+      "countFieldName": "count",
+      "emptyListText": "No Equipped Foundational Cyberware",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 1,
+      "filterCriteria": [
+        {
+          "field": "type",
+          "operator": "equals",
+          "value": "cyberware",
+          "isOr": false
+        },
+        {
+          "field": "carried",
+          "operator": "equals",
+          "value": "equipped",
+          "isOr": false
+        }
+      ],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Cyberware List",
+      "type": "cyberware_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "cyberware-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "items"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": true,
+      "countFieldName": "",
+      "emptyListText": "No Cyberware Options Equipped",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        },
+        {
+          "field": "count",
+          "descending": true
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [
+        {
+          "field": "type",
+          "operator": "equals",
+          "value": "cyberware",
+          "isOr": false
+        },
+        {
+          "field": "carried",
+          "operator": "equals",
+          "value": "equipped",
+          "isOr": false
+        }
+      ],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Equipped Cyberdeck Black ICE List",
+      "type": "equipped_cyberdeck_blackice_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "equipped-cyberdeck-blackice-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "items",
+        "npcs"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "Drag Black ICE Here",
+      "orderCriteria": [
+        {
+          "field": "blackICEType",
+          "descending": false
+        },
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Equipped Cyberdeck Programs List",
+      "type": "equipped_cyberdeck_programs_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "equipped-cyberdeck-programs-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "items",
+        "npcs"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "Drag Programs and Hardware Here",
+      "orderCriteria": [
+        {
+          "field": "programHardwareType",
+          "descending": false
+        },
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Exec Loyalty Changes",
+      "type": "exec_loyalty_changes",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "exec-loyalty-changes.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Entry",
+      "allowedListTypes": [],
+      "newItemName": "New Entry",
+      "newItemUnidentifiedName": "Entry",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Details",
+      "orderCriteria": [
+        {
+          "field": "loyalty",
+          "descending": true
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Exec Team Member List",
+      "type": "exec_team_member_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "exec-team-members-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "No Team Members",
+      "allowedListTypes": [
+        "npcs"
+      ],
+      "newItemName": "New Team Member",
+      "newItemUnidentifiedName": "Team Member",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "Drag Team Member NPCs Here",
+      "orderCriteria": [],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Installed Demons List",
+      "type": "installed_demon_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "installed-demons-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "npcs"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": true,
+      "countFieldName": "",
+      "emptyListText": "Drag Demon to Add",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Inventory List",
+      "type": "inventory_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "inventory-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Item",
+      "allowedListTypes": [
+        "items"
+      ],
+      "newItemName": "New Item",
+      "newItemUnidentifiedName": "Unidentified Item",
+      "stackDuplicates": true,
+      "disableDrop": true,
+      "countFieldName": "count",
+      "emptyListText": "Drag Items on the Inventory Tab",
+      "orderCriteria": [
+        {
+          "field": "location",
+          "descending": false
+        },
+        {
+          "field": "namefield",
+          "descending": false
+        },
+        {
+          "field": "count",
+          "descending": true
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [
+        {
+          "field": "type",
+          "operator": "equals",
+          "value": "{data.filterList}"
+        },
+        {
+          "field": "location",
+          "operator": "equals",
+          "value": "{data.filterByLocation}",
+          "isOr": false
+        }
+      ],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "IP Used List",
+      "type": "ip_used_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "ip-used-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Entry",
+      "allowedListTypes": [],
+      "newItemName": "New IP Entry",
+      "newItemUnidentifiedName": "IP Entry",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No IP Spent",
+      "orderCriteria": [],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Item List",
+      "type": "item_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "items-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Item",
+      "allowedListTypes": [
+        "items"
+      ],
+      "newItemName": "New Item",
+      "newItemUnidentifiedName": "New Item",
+      "stackDuplicates": true,
+      "disableDrop": false,
+      "countFieldName": "count",
+      "emptyListText": "No Items",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        },
+        {
+          "field": "count",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Items Black Ice Select List",
+      "type": "items_black_ice_select_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "items-list-no-count.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "npcs"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "Drag Black ICE NPC Here",
+      "orderCriteria": [],
+      "maxLength": 1,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Items Demon Select List",
+      "type": "items_demon_select_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "items-list-no-count.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "npcs"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "Drag Demon NPC Here",
+      "orderCriteria": [],
+      "maxLength": 1,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Items Drone Select List",
+      "type": "items_drone_select_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "items-list-no-count.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "npcs"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "Drag Drone NPC Here",
+      "orderCriteria": [],
+      "maxLength": 1,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Items Pharmaceuticals List",
+      "type": "items_pharmaceuticals_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "items-list-no-count.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "items"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "Drag Chosen Pharmaceuticals Here",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Items Program Select List",
+      "type": "items_program_select_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "items-list-no-count.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "npcs"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "Drag Program NPC Here",
+      "orderCriteria": [],
+      "maxLength": 1,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Items Vehicle Select List",
+      "type": "items_vehicle_select_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "items-list-no-count.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "vehicles",
+        "npcs"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "Drag Vehicle Here",
+      "orderCriteria": [],
+      "maxLength": 1,
+      "filterCriteria": [],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Lawman Backup Select",
+      "type": "lawman_backup_select",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "lawman-backup-select.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "",
+      "orderCriteria": [
+        {
+          "field": "rank",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Lawman Features",
+      "type": "lawman_features",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "lawman-features.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Feature",
+      "allowedListTypes": [],
+      "newItemName": "New Backup Option",
+      "newItemUnidentifiedName": "Backup Option",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Features",
+      "orderCriteria": [
+        {
+          "field": "rank",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Media Rumor List",
+      "type": "media_rumor_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 300,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "media-rumor-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Rumor",
+      "allowedListTypes": [],
+      "newItemName": "New Rumor",
+      "newItemUnidentifiedName": "Rumor",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Rumors",
+      "orderCriteria": [],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Media Rumor Panel List",
+      "type": "media_rumor_panel_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "media-rumor-panel-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "",
+      "orderCriteria": [
+        {
+          "field": "passiveDV",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Modifier List",
+      "type": "modifier_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 500,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "modifiers.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Modifier",
+      "allowedListTypes": [],
+      "newItemName": "Modifier",
+      "newItemUnidentifiedName": "Modifier",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Modifiers",
+      "orderCriteria": [],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "NET Architecture Branch",
+      "type": "net_architecture_branch_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "net-architecture-branch.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Branches",
+      "orderCriteria": [],
+      "maxLength": 1,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "NET Architecture Floor",
+      "type": "net_architecture_floor_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 200,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "net-architecture-floor.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "New Floor",
+      "allowedListTypes": [],
+      "newItemName": "Floor",
+      "newItemUnidentifiedName": "Floor",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Floors",
+      "orderCriteria": [],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Nomad Vehicle List",
+      "type": "nomad_vehicle_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "nomad-vehicle-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "vehicles",
+        "npcs"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "Drag Vehicles Here",
+      "orderCriteria": [],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "NPC Conditions List",
+      "type": "npc_conditions_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "npc-conditions-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "conditions"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": true,
+      "countFieldName": "",
+      "emptyListText": "Drag Conditions To Add",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "NPC Inventory List",
+      "type": "npc_inventory_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "npc-inventory-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Item",
+      "allowedListTypes": [
+        "items"
+      ],
+      "newItemName": "New Item",
+      "newItemUnidentifiedName": "Unidentified Item",
+      "stackDuplicates": true,
+      "disableDrop": true,
+      "countFieldName": "count",
+      "emptyListText": "Drag Items to Add",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        },
+        {
+          "field": "count",
+          "descending": true
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "NPC Skill List",
+      "type": "npc_skill_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "npc-skill-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Skill",
+      "allowedListTypes": [
+        "skill"
+      ],
+      "newItemName": "New Skill",
+      "newItemUnidentifiedName": "Skill",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Skills",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": true
+    },
+    {
+      "name": "Reputation Event List",
+      "type": "reputation_event_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "reputation-event-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Event",
+      "allowedListTypes": [],
+      "newItemName": "New Event",
+      "newItemUnidentifiedName": "Event",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Reputation Events",
+      "orderCriteria": [
+        {
+          "field": "reputation",
+          "descending": true
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Role Icon List",
+      "type": "role_icon_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "role-icon-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "roles"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": true,
+      "countFieldName": "",
+      "emptyListText": "No Roles",
+      "orderCriteria": [
+        {
+          "field": "order",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": true
+    },
+    {
+      "name": "Role Panel List",
+      "type": "role_panel_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 500,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "role-panel-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "roles"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": false,
+      "disableDrop": true,
+      "countFieldName": "",
+      "emptyListText": "Drag a Role Here",
+      "orderCriteria": [
+        {
+          "field": "order",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Skill Group List",
+      "type": "skill_group_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "skill-group-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Skill Group",
+      "allowedListTypes": [],
+      "newItemName": "New Skills",
+      "newItemUnidentifiedName": "Custom Skill Group",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Skill Lists",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Skill List",
+      "type": "skill_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "skill-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Skill",
+      "allowedListTypes": [
+        "skill"
+      ],
+      "newItemName": "New Skill",
+      "newItemUnidentifiedName": "New Skill",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Skills",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Skill Wizard Group List",
+      "type": "skill_wizard_group_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "skill-wizard-group-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "Add Skill Group",
+      "allowedListTypes": [],
+      "newItemName": "New Skills",
+      "newItemUnidentifiedName": "Custom Group List",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Skill Lists",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Skill Wizard List",
+      "type": "skill_wizard_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "skill-wizard-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "Add Skill",
+      "allowedListTypes": [
+        "skill"
+      ],
+      "newItemName": "New Skill",
+      "newItemUnidentifiedName": "New Skill",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Skills",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Starting Item List",
+      "type": "starting_item_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "buy-item-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": false,
+      "addButtonText": "",
+      "allowedListTypes": [
+        "items"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": true,
+      "disableDrop": true,
+      "countFieldName": "count",
+      "emptyListText": "Loading Starting Gear...",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        },
+        {
+          "field": "count",
+          "descending": true
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    },
+    {
+      "name": "Subskill List",
+      "type": "subskill_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "subskill-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Subskill",
+      "allowedListTypes": [
+        "skill"
+      ],
+      "newItemName": "New Skill",
+      "newItemUnidentifiedName": "New Skill",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Subskills",
+      "orderCriteria": [],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Subskill Wizard List",
+      "type": "subskill_wizard_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "subskill-wizard-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Subskill",
+      "allowedListTypes": [
+        "skill"
+      ],
+      "newItemName": "New Skill",
+      "newItemUnidentifiedName": "New Skill",
+      "stackDuplicates": false,
+      "disableDrop": false,
+      "countFieldName": "",
+      "emptyListText": "No Subskills",
+      "orderCriteria": [],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false,
+      "hideFromCompendium": false
+    },
+    {
+      "name": "Vehicle Item List",
+      "type": "vehicle_item_list",
+      "isList": true,
+      "minX": 500,
+      "minY": 60,
+      "tabs": [
+        {
+          "name": "Main",
+          "file": "vehicle-item-list.html",
+          "fields": []
+        }
+      ],
+      "icon": "",
+      "showAddButton": false,
+      "showDeleteButton": true,
+      "addButtonText": "Add Upgrade",
+      "allowedListTypes": [
+        "items"
+      ],
+      "newItemName": "",
+      "newItemUnidentifiedName": "",
+      "stackDuplicates": true,
+      "disableDrop": false,
+      "countFieldName": "count",
+      "emptyListText": "Drag Vehicle Upgrades Here",
+      "orderCriteria": [
+        {
+          "field": "namefield",
+          "descending": false
+        },
+        {
+          "field": "count",
+          "descending": true
+        }
+      ],
+      "maxLength": 0,
+      "filterCriteria": [],
+      "singleRow": false
+    }
+  ],
+  "settings": {
+    "effects": [
+      {
+        "label": "Skill Bonus",
+        "type": "skillBonus",
+        "fields": [],
+        "freeTextField": true
+      },
+      {
+        "label": "Skill Penalty",
+        "type": "skillPenalty",
+        "fields": [],
+        "freeTextField": true
+      },
+      {
+        "label": "Attack Bonus",
+        "type": "attackBonus",
+        "fields": [
+          {
+            "label": "All Attacks",
+            "field": "all"
+          },
+          {
+            "label": "Ranged Attacks",
+            "field": "ranged"
+          },
+          {
+            "label": "Melee Attacks",
+            "field": "melee"
+          }
+        ],
+        "freeTextField": false
+      },
+      {
+        "label": "Attack Penalty",
+        "type": "attackPenalty",
+        "fields": [
+          {
+            "label": "All Attacks",
+            "field": "all"
+          },
+          {
+            "label": "Ranged Attacks",
+            "field": "ranged"
+          },
+          {
+            "label": "Melee Attacks",
+            "field": "melee"
+          }
+        ],
+        "freeTextField": false
+      },
+      {
+        "label": "Initiative Bonus",
+        "type": "initiativeBonus",
+        "fields": [],
+        "freeTextField": false
+      },
+      {
+        "label": "Initiative Penalty",
+        "type": "initiativePenalty",
+        "fields": [],
+        "freeTextField": false
+      },
+      {
+        "label": "Role Ability Bonus",
+        "type": "roleAbilityBonus",
+        "fields": [
+          {
+            "label": "Charismatic Impact",
+            "field": "charismaticImpact"
+          },
+          {
+            "label": "Interface",
+            "field": "interface"
+          },
+          {
+            "label": "Maker",
+            "field": "maker"
+          },
+          {
+            "label": "Medicine",
+            "field": "medicine"
+          },
+          {
+            "label": "Credibility",
+            "field": "credibility"
+          },
+          {
+            "label": "Teamwork",
+            "field": "teamwork"
+          },
+          {
+            "label": "Backup",
+            "field": "backup"
+          },
+          {
+            "label": "Operator",
+            "field": "operator"
+          },
+          {
+            "label": "Interface (Scanner)",
+            "field": "Scanner"
+          },
+          {
+            "label": "Interface (Backdoor)",
+            "field": "Backdoor"
+          },
+          {
+            "label": "Interface (Cloak)",
+            "field": "Cloak"
+          },
+          {
+            "label": "Interface (Control)",
+            "field": "Control"
+          },
+          {
+            "label": "Interface (Eye-Dee)",
+            "field": "Eye-Dee"
+          },
+          {
+            "label": "Interface (Pathfinder)",
+            "field": "Pathfinder"
+          },
+          {
+            "label": "Interface (Slide)",
+            "field": "Slide"
+          },
+          {
+            "label": "Interface (Virus)",
+            "field": "Virus"
+          },
+          {
+            "label": "Interface (Zap)",
+            "field": "Zap"
+          }
+        ],
+        "freeTextField": false
+      },
+      {
+        "label": "Role Ability Penalty",
+        "type": "roleAbilityPenalty",
+        "fields": [
+          {
+            "label": "Charismatic Impact",
+            "field": "charismaticImpact"
+          },
+          {
+            "label": "Interface",
+            "field": "interface"
+          },
+          {
+            "label": "Maker",
+            "field": "maker"
+          },
+          {
+            "label": "Medicine",
+            "field": "medicine"
+          },
+          {
+            "label": "Credibility",
+            "field": "credibility"
+          },
+          {
+            "label": "Teamwork",
+            "field": "teamwork"
+          },
+          {
+            "label": "Backup",
+            "field": "backup"
+          },
+          {
+            "label": "Operator",
+            "field": "operator"
+          },
+          {
+            "label": "Interface (Scanner)",
+            "field": "Scanner"
+          },
+          {
+            "label": "Interface (Backdoor)",
+            "field": "Backdoor"
+          },
+          {
+            "label": "Interface (Cloak)",
+            "field": "Cloak"
+          },
+          {
+            "label": "Interface (Control)",
+            "field": "Control"
+          },
+          {
+            "label": "Interface (Eye-Dee)",
+            "field": "Eye-Dee"
+          },
+          {
+            "label": "Interface (Pathfinder)",
+            "field": "Pathfinder"
+          },
+          {
+            "label": "Interface (Slide)",
+            "field": "Slide"
+          },
+          {
+            "label": "Interface (Virus)",
+            "field": "Virus"
+          },
+          {
+            "label": "Interface (Zap)",
+            "field": "Zap"
+          }
+        ],
+        "freeTextField": false
+      },
+      {
+        "label": "Damage Bonus",
+        "type": "damageBonus",
+        "fields": [
+          {
+            "label": "All Attacks",
+            "field": "all"
+          },
+          {
+            "label": "Ranged Attacks",
+            "field": "ranged"
+          },
+          {
+            "label": "Melee Attacks",
+            "field": "melee"
+          }
+        ],
+        "freeTextField": false
+      },
+      {
+        "label": "Damage Penalty",
+        "type": "damagePenalty",
+        "fields": [
+          {
+            "label": "All Attacks",
+            "field": "all"
+          },
+          {
+            "label": "Ranged Attacks",
+            "field": "ranged"
+          },
+          {
+            "label": "Melee Attacks",
+            "field": "melee"
+          }
+        ],
+        "freeTextField": false
+      },
+      {
+        "label": "Death Save Penalty",
+        "type": "deathSavePenalty",
+        "fields": [],
+        "freeTextField": false
+      },
+      {
+        "label": "Ignore Seriously Wounded Penalty",
+        "type": "ignoreSeriouslyWounded",
+        "fields": [],
+        "freeTextField": false
+      },
+      {
+        "label": "Natural Healing Bonus",
+        "type": "healingBonus",
+        "fields": [],
+        "freeTextField": false
+      },
+      {
+        "label": "STAT Bonus (for Skill Checks)",
+        "type": "statBonusSkill",
+        "fields": [
+          {
+            "label": "INT",
+            "field": "int"
+          },
+          {
+            "label": "REF",
+            "field": "ref"
+          },
+          {
+            "label": "DEX",
+            "field": "dex"
+          },
+          {
+            "label": "TECH",
+            "field": "tech"
+          },
+          {
+            "label": "COOL",
+            "field": "cool"
+          },
+          {
+            "label": "WILL",
+            "field": "will"
+          },
+          {
+            "label": "LUCK",
+            "field": "luck"
+          },
+          {
+            "label": "MOVE",
+            "field": "move"
+          },
+          {
+            "label": "BODY",
+            "field": "body"
+          },
+          {
+            "label": "EMP",
+            "field": "emp"
+          }
+        ],
+        "freeTextField": false
+      },
+      {
+        "label": "STAT Penalty (for Skill Checks)",
+        "type": "statPenaltySkill",
+        "fields": [
+          {
+            "label": "INT",
+            "field": "int"
+          },
+          {
+            "label": "REF",
+            "field": "ref"
+          },
+          {
+            "label": "DEX",
+            "field": "dex"
+          },
+          {
+            "label": "TECH",
+            "field": "tech"
+          },
+          {
+            "label": "COOL",
+            "field": "cool"
+          },
+          {
+            "label": "WILL",
+            "field": "will"
+          },
+          {
+            "label": "LUCK",
+            "field": "luck"
+          },
+          {
+            "label": "MOVE",
+            "field": "move"
+          },
+          {
+            "label": "BODY",
+            "field": "body"
+          },
+          {
+            "label": "EMP",
+            "field": "emp"
+          }
+        ],
+        "freeTextField": false
+      },
+      {
+        "label": "Persistent Damage",
+        "type": "persistentDamage",
+        "fields": [],
+        "freeTextField": false
+      },
+      {
+        "label": "Damage Reduction from Programs",
+        "type": "programDamageReduction",
+        "fields": [],
+        "freeTextField": false
+      }
+    ],
+    "otherSettings": {
+      "advDisRolls": [],
+      "advName": "",
+      "advShortName": "",
+      "disName": "",
+      "disShortName": "",
+      "commonScript": {
+        "file": "rollhandlers/common.js"
+      },
+      "scripts": {},
+      "defaultDice": "default",
+      "defaultUnitsPerSquare": 2,
+      "defaultUnits": "m/yds",
+      "alternateDiagonalMovement": false,
+      "rerollContextMenuLabel": "",
+      "onReroll": "",
+      "rerollIgnoresAdvDis": false
+    },
+    "rollTypes": [
+      {
+        "name": "attack",
+        "file": "rollhandlers/attack.js"
+      },
+      {
+        "name": "skill",
+        "file": "rollhandlers/skill.js"
+      },
+      {
+        "name": "initiative",
+        "file": "rollhandlers/initiative.js"
+      },
+      {
+        "name": "damage",
+        "file": "rollhandlers/damage.js"
+      },
+      {
+        "name": "criticalInjury",
+        "file": "rollhandlers/criticalInjury.js"
+      },
+      {
+        "name": "healing",
+        "file": "rollhandlers/healing.js"
+      },
+      {
+        "name": "deathSave",
+        "file": "rollhandlers/deathSave.js"
+      },
+      {
+        "name": "humanityLoss",
+        "file": "rollhandlers/humanityLoss.js"
+      },
+      {
+        "name": "facedown",
+        "file": "rollhandlers/facedown.js"
+      },
+      {
+        "name": "reputation",
+        "file": "rollhandlers/reputation.js"
+      },
+      {
+        "name": "loyalty",
+        "file": "rollhandlers/loyalty.js"
+      },
+      {
+        "name": "wizardStatsRoll",
+        "file": "rollhandlers/wizardStatsRoll.js"
+      }
+    ],
+    "damage": {
+      "enableDamage": true,
+      "enableHealing": true,
+      "damageScript": {
+        "file": "rollhandlers/damageScript.js"
+      },
+      "healingScript": {
+        "file": "rollhandlers/healingScript.js"
+      },
+      "damageTypes": {},
+      "enableSecondaryStat": false,
+      "secondaryStatLabel": "",
+      "secondaryStatScript": "",
+      "secondaryStatIcon": "",
+      "secondaryStatColor": ""
+    },
+    "healthIndicator": {
+      "disabled": false,
+      "maxHealthField": "hitpoints",
+      "currentHealthField": "curhp",
+      "color": [
+        {
+          "percentage": 0,
+          "color": "#ff0000",
+          "label": "Mortally Wounded"
+        },
+        {
+          "percentage": 10,
+          "color": "#ff0000",
+          "label": "Seriously Wounded"
+        },
+        {
+          "percentage": 30,
+          "color": "#ff4d00",
+          "label": "Seriously Wounded"
+        },
+        {
+          "percentage": 49,
+          "color": "#ffd600",
+          "label": "Seriously Wounded"
+        },
+        {
+          "percentage": 70,
+          "color": "#dbff00",
+          "label": "Lightly Wounded "
+        },
+        {
+          "percentage": 90,
+          "color": "#87c91b",
+          "label": "Lightly Wounded "
+        },
+        {
+          "percentage": 99,
+          "color": "#1bc91b",
+          "label": "Lightly Wounded "
+        },
+        {
+          "percentage": 100,
+          "color": "#00FF00",
+          "label": "Healthy"
+        }
+      ]
+    },
+    "partySheet": {
+      "additionalFields": [
+        {
+          "field": "curhp",
+          "label": "HP",
+          "type": "healthbar",
+          "width": 80,
+          "editable": true,
+          "onChange": "",
+          "maxField": "hitpoints"
+        },
+        {
+          "field": "role",
+          "label": "Role",
+          "type": "string",
+          "width": 100,
+          "editable": false,
+          "onChange": ""
+        },
+        {
+          "field": "coverHp",
+          "label": "Cover",
+          "type": "number",
+          "width": 50,
+          "editable": true,
+          "onChange": ""
+        },
+        {
+          "field": "bodyArmorSP",
+          "label": "Body SP",
+          "type": "number",
+          "width": 50,
+          "editable": true,
+          "onChange": ""
+        },
+        {
+          "field": "headArmorSP",
+          "label": "Head SP",
+          "type": "number",
+          "width": 50,
+          "editable": true,
+          "onChange": ""
+        },
+        {
+          "field": "totalInt",
+          "label": "INT",
+          "type": "number",
+          "width": 40,
+          "editable": false,
+          "onChange": ""
+        },
+        {
+          "field": "totalRef",
+          "label": "REF",
+          "type": "number",
+          "width": 40,
+          "editable": false,
+          "onChange": ""
+        },
+        {
+          "field": "totalDex",
+          "label": "DEX",
+          "type": "number",
+          "width": 40,
+          "editable": false,
+          "onChange": ""
+        },
+        {
+          "field": "totalTech",
+          "label": "TECH",
+          "type": "number",
+          "width": 40,
+          "editable": false,
+          "onChange": ""
+        },
+        {
+          "field": "totalCool",
+          "label": "COOL",
+          "type": "number",
+          "width": 40,
+          "editable": false,
+          "onChange": ""
+        },
+        {
+          "field": "totalWill",
+          "label": "WILL",
+          "type": "number",
+          "width": 40,
+          "editable": false,
+          "onChange": ""
+        },
+        {
+          "field": "curLuck",
+          "label": "LUCK",
+          "type": "number",
+          "width": 40,
+          "editable": true,
+          "onChange": ""
+        },
+        {
+          "field": "totalMove",
+          "label": "MOVE",
+          "type": "number",
+          "width": 40,
+          "editable": false,
+          "onChange": ""
+        },
+        {
+          "field": "totalBody",
+          "label": "BODY",
+          "type": "number",
+          "width": 40,
+          "editable": false,
+          "onChange": ""
+        },
+        {
+          "field": "totalCurEmp",
+          "label": "EMP",
+          "type": "number",
+          "width": 40,
+          "editable": false,
+          "onChange": ""
+        },
+        {
+          "field": "IP",
+          "label": "I.P",
+          "type": "number",
+          "width": 50,
+          "editable": true,
+          "onChange": ""
+        },
+        {
+          "field": "curHumanity",
+          "label": "Humanity",
+          "type": "progressbar",
+          "width": 100,
+          "editable": true,
+          "onChange": "",
+          "maxField": "totalHumanity"
+        }
+      ],
+      "inventory": {
+        "enabled": true,
+        "recordType": "items",
+        "additionalFields": [
+          {
+            "field": "cost",
+            "label": "Cost",
+            "type": "string",
+            "width": 70
+          }
+        ]
+      },
+      "awards": {
+        "enabled": true,
+        "xpName": "Improvement Points",
+        "xpField": "IP",
+        "xpMethod": "award_equally",
+        "currencyFields": [
+          {
+            "field": "eb",
+            "label": "eb"
+          }
+        ]
+      },
+      "stats": {
+        "enabled": true,
+        "tabName": "Skills",
+        "fields": [
+          {
+            "field": "skillGroups1[name=Awareness Skills].data.skills[name=Concentration].data.lvl",
+            "label": "Concentration"
+          },
+          {
+            "field": "skillGroups1[name=Awareness Skills].data.skills[name=Conceal/Reveal Object].data.lvl",
+            "label": "Conceal/Reveal Object"
+          },
+          {
+            "field": "skillGroups1[name=Awareness Skills].data.skills[name=Lip Reading].data.lvl",
+            "label": "Lip Reading"
+          },
+          {
+            "field": "skillGroups1[name=Awareness Skills].data.skills[name=Perception].data.lvl",
+            "label": "Perception"
+          },
+          {
+            "field": "skillGroups1[name=Awareness Skills].data.skills[name=Tracking].data.lvl",
+            "label": "Tracking"
+          },
+          {
+            "field": "skillGroups1[name=Body Skills].data.skills[name=Athletics].data.lvl",
+            "label": "Athletics"
+          },
+          {
+            "field": "skillGroups1[name=Body Skills].data.skills[name=Contortionist].data.lvl",
+            "label": "Contortionist"
+          },
+          {
+            "field": "skillGroups1[name=Body Skills].data.skills[name=Dance].data.lvl",
+            "label": "Dance"
+          },
+          {
+            "field": "skillGroups1[name=Body Skills].data.skills[name=Endurance].data.lvl",
+            "label": "Endurance"
+          },
+          {
+            "field": "skillGroups1[name=Body Skills].data.skills[name=Resist Torture/Drugs].data.lvl",
+            "label": "Resist Torture/Drugs"
+          },
+          {
+            "field": "skillGroups1[name=Body Skills].data.skills[name=Stealth].data.lvl",
+            "label": "Stealth"
+          },
+          {
+            "field": "skillGroups1[name=Control Skills].data.skills[name=Drive Land Vehicle].data.lvl",
+            "label": "Drive Land Vehicle"
+          },
+          {
+            "field": "skillGroups1[name=Control Skills].data.skills[name=Pilot Air Vehicle (x2)].data.lvl",
+            "label": "Pilot Air Vehicle (x2)"
+          },
+          {
+            "field": "skillGroups1[name=Control Skills].data.skills[name=Pilot Sea Vehicle].data.lvl",
+            "label": "Pilot Sea Vehicle"
+          },
+          {
+            "field": "skillGroups1[name=Control Skills].data.skills[name=Riding].data.lvl",
+            "label": "Riding"
+          },
+          {
+            "field": "skillGroups1[name=Education Skills].data.skills[name=Accounting].data.lvl",
+            "label": "Accounting"
+          },
+          {
+            "field": "skillGroups1[name=Education Skills].data.skills[name=Animal Handling].data.lvl",
+            "label": "Animal Handling"
+          },
+          {
+            "field": "skillGroups1[name=Education Skills].data.skills[name=Bureaucracy].data.lvl",
+            "label": "Bureaucracy"
+          },
+          {
+            "field": "skillGroups1[name=Education Skills].data.skills[name=Business].data.lvl",
+            "label": "Business"
+          },
+          {
+            "field": "skillGroups1[name=Education Skills].data.skills[name=Composition].data.lvl",
+            "label": "Composition"
+          },
+          {
+            "field": "skillGroups1[name=Education Skills].data.skills[name=Criminology].data.lvl",
+            "label": "Criminology"
+          },
+          {
+            "field": "skillGroups1[name=Education Skills].data.skills[name=Cryptography].data.lvl",
+            "label": "Cryptography"
+          },
+          {
+            "field": "skillGroups1[name=Education Skills].data.skills[name=Deduction].data.lvl",
+            "label": "Deduction"
+          },
+          {
+            "field": "skillGroups1[name=Education Skills].data.skills[name=Education].data.lvl",
+            "label": "Education"
+          },
+          {
+            "field": "skillGroups1[name=Education Skills].data.skills[name=Gamble].data.lvl",
+            "label": "Gamble"
+          },
+          {
+            "field": "skillGroups1[name=Education Skills].data.skills[name=Library Search].data.lvl",
+            "label": "Library Search"
+          },
+          {
+            "field": "skillGroups1[name=Education Skills].data.skills[name=Tactics].data.lvl",
+            "label": "Tactics"
+          },
+          {
+            "field": "skillGroups1[name=Education Skills].data.skills[name=Wilderness Survival].data.lvl",
+            "label": "Wilderness Survival"
+          },
+          {
+            "field": "skillGroups2[name=Fighting Skills].data.skills[name=Brawling].data.lvl",
+            "label": "Brawling"
+          },
+          {
+            "field": "skillGroups2[name=Fighting Skills].data.skills[name=Evasion].data.lvl",
+            "label": "Evasion"
+          },
+          {
+            "field": "skillGroups2[name=Fighting Skills].data.skills[name=Melee Weapon].data.lvl",
+            "label": "Melee Weapon"
+          },
+          {
+            "field": "skillGroups2[name=Performance Skills].data.skills[name=Acting].data.lvl",
+            "label": "Acting"
+          },
+          {
+            "field": "skillGroups2[name=Ranged Weapon Skills].data.skills[name=Archery].data.lvl",
+            "label": "Archery"
+          },
+          {
+            "field": "skillGroups2[name=Ranged Weapon Skills].data.skills[name=Autofire (x2)].data.lvl",
+            "label": "Autofire (x2)"
+          },
+          {
+            "field": "skillGroups2[name=Ranged Weapon Skills].data.skills[name=Handgun].data.lvl",
+            "label": "Handgun"
+          },
+          {
+            "field": "skillGroups2[name=Ranged Weapon Skills].data.skills[name=Heavy Weapons (x2)].data.lvl",
+            "label": "Heavy Weapons (x2)"
+          },
+          {
+            "field": "skillGroups2[name=Ranged Weapon Skills].data.skills[name=Shoulder Arms].data.lvl",
+            "label": "Shoulder Arms"
+          },
+          {
+            "field": "skillGroups2[name=Social Skills].data.skills[name=Bribery].data.lvl",
+            "label": "Bribery"
+          },
+          {
+            "field": "skillGroups2[name=Social Skills].data.skills[name=Conversation].data.lvl",
+            "label": "Conversation"
+          },
+          {
+            "field": "skillGroups2[name=Social Skills].data.skills[name=Human Perception].data.lvl",
+            "label": "Human Perception"
+          },
+          {
+            "field": "skillGroups2[name=Social Skills].data.skills[name=Interrogation].data.lvl",
+            "label": "Interrogation"
+          },
+          {
+            "field": "skillGroups2[name=Social Skills].data.skills[name=Persuasion].data.lvl",
+            "label": "Persuasion"
+          },
+          {
+            "field": "skillGroups2[name=Social Skills].data.skills[name=Personal Grooming].data.lvl",
+            "label": "Personal Grooming"
+          },
+          {
+            "field": "skillGroups2[name=Social Skills].data.skills[name=Streetwise].data.lvl",
+            "label": "Streetwise"
+          },
+          {
+            "field": "skillGroups2[name=Social Skills].data.skills[name=Trading].data.lvl",
+            "label": "Trading"
+          },
+          {
+            "field": "skillGroups2[name=Social Skills].data.skills[name=Wardrobe & Style].data.lvl",
+            "label": "Wardrobe & Style"
+          },
+          {
+            "field": "skillGroups2[name=Technique Skills].data.skills[name=Air Vehicle Tech].data.lvl",
+            "label": "Air Vehicle Tech"
+          },
+          {
+            "field": "skillGroups2[name=Technique Skills].data.skills[name=Basic Tech].data.lvl",
+            "label": "Basic Tech"
+          },
+          {
+            "field": "skillGroups2[name=Technique Skills].data.skills[name=Cybertech].data.lvl",
+            "label": "Cybertech"
+          },
+          {
+            "field": "skillGroups2[name=Technique Skills].data.skills[name=Demolitions (x2)].data.lvl",
+            "label": "Demolitions (x2)"
+          },
+          {
+            "field": "skillGroups2[name=Technique Skills].data.skills[name=Electronics/Security Tech (x2)].data.lvl",
+            "label": "Electronics/Security Tech (x2)"
+          },
+          {
+            "field": "skillGroups2[name=Technique Skills].data.skills[name=First Aid].data.lvl",
+            "label": "First Aid"
+          },
+          {
+            "field": "skillGroups2[name=Technique Skills].data.skills[name=Forgery].data.lvl",
+            "label": "Forgery"
+          },
+          {
+            "field": "skillGroups2[name=Technique Skills].data.skills[name=Land Vehicle Tech].data.lvl",
+            "label": "Land Vehicle Tech"
+          },
+          {
+            "field": "skillGroups2[name=Technique Skills].data.skills[name=Paint/Draw/Sculpt].data.lvl",
+            "label": "Paint/Draw/Sculpt"
+          },
+          {
+            "field": "skillGroups2[name=Technique Skills].data.skills[name=Paramedic (x2)].data.lvl",
+            "label": "Paramedic (x2)"
+          },
+          {
+            "field": "skillGroups2[name=Technique Skills].data.skills[name=Photography/Film].data.lvl",
+            "label": "Photography/Film"
+          },
+          {
+            "field": "skillGroups2[name=Technique Skills].data.skills[name=Pick Lock].data.lvl",
+            "label": "Pick Lock"
+          },
+          {
+            "field": "skillGroups2[name=Technique Skills].data.skills[name=Pick Pocket].data.lvl",
+            "label": "Pick Pocket"
+          },
+          {
+            "field": "skillGroups2[name=Technique Skills].data.skills[name=Sea Vehicle Tech].data.lvl",
+            "label": "Sea Vehicle Tech"
+          },
+          {
+            "field": "skillGroups2[name=Technique Skills].data.skills[name=Weaponstech].data.lvl",
+            "label": "Weaponstech"
+          }
+        ]
+      }
+    },
+    "combatTracker": {
+      "initiative": "initiative",
+      "slotBased": false,
+      "clearSlotsPerRound": false,
+      "order": "desc",
+      "additionalFields": [
+        {
+          "field": "curhp",
+          "label": "HP",
+          "type": "number",
+          "width": 60,
+          "editable": true,
+          "onChange": ""
+        },
+        {
+          "field": "hitpoints",
+          "label": "Max",
+          "type": "number",
+          "width": 60,
+          "editable": true,
+          "onChange": ""
+        },
+        {
+          "field": "coverHp",
+          "label": "Cover",
+          "type": "string",
+          "width": 60,
+          "editable": true,
+          "onChange": ""
+        }
+      ],
+      "onTokenAdd": "",
+      "onEncounterStart": "",
+      "onEncounterEnd": "",
+      "onTurnStart": {
+        "file": "rollhandlers/onTurnStart.js"
+      },
+      "onTurnEnd": {
+        "file": "rollhandlers/onTurnEnd.js"
+      },
+      "onRoundStart": "",
+      "onRoundEnd": "",
+      "onRollInitiative": {
+        "file": "rollhandlers/onRollInitiative.js"
+      },
+      "onRollInitiativeGroup": {
+        "file": "rollhandlers/onRollInitiativeGroup.js"
+      }
+    }
+  }
+}
