@@ -261,6 +261,45 @@
       });
     }, 300);
   }
+
+  // Toggle between the row list and the grid of item tiles. The column-header
+  // row only makes sense for rows, so hide it in grid mode.
+  function onViewModeChange() {
+    const mode = api.getValue("data.inventoryViewMode") || "rows";
+    const headerFields = api.getValue("fields.listHeaderRow") || {};
+    api.setValues({
+      "fields.listHeaderRow": { ...headerFields, hidden: mode === "grid" },
+    });
+  }
+
+  // "Use" an inventory item from the grid popover. Delegates to the shared
+  // useItem(record, itemDataPath) in commonScript so the grid and the item-row
+  // Use button run identical logic.
+  function useGridItem(index) {
+    useItem(record, "data.inventory." + index);
+  }
+
+  // Equip/carry/drop from the grid: set the state, then run the shared equip
+  // handler (commonScript) so cyberware slots, armor SP, effects and Use-button
+  // visibility update exactly like the row's carried dropdown.
+  function equipGridItem(index, newValue) {
+    const itemDataPath = "data.inventory." + index;
+    api.setValue(itemDataPath + ".data.carried", newValue, function () {
+      onItemEquippedFor(itemDataPath, newValue);
+    });
+  }
+
+  // Zero-arg grid action wrappers — the state string lives here (JS), not in the
+  // cellactions JSON, so the attribute needs no nested quotes.
+  function gridEquip(index) {
+    equipGridItem(index, "equipped");
+  }
+  function gridCarry(index) {
+    equipGridItem(index, "carried");
+  }
+  function gridDrop(index) {
+    equipGridItem(index, "dropped");
+  }
 </script>
 
 <!-- Datapad-themed Cyberpunk RED inventory tab. All field bindings,
@@ -293,6 +332,17 @@
         optionsFunction="return getLocations();"
         disablediflocked="false"
       ></dropdown>
+      <div style="display: flex; align-items: flex-end">
+        <iconbutton
+          size="md"
+          variant="default"
+          field="inventoryViewMode"
+          defaultvalue="rows"
+          disablediflocked="false"
+          options='[{"icon": "IconLayoutList", "label": "List View", "value": "rows"}, {"icon": "IconLayoutGrid", "label": "Grid View", "value": "grid"}]'
+          onchange="onViewModeChange()"
+        ></iconbutton>
+      </div>
       <div
         style="
           margin-left: auto;
@@ -387,6 +437,7 @@
       </div>
     </div>
 
+    <box field="listHeaderRow">
     <div
       class="rvtt-cpr-colhead"
       style="display: flex; flex-direction: row; margin-top: 8px"
@@ -435,6 +486,7 @@
         <div style="width: 16px"></div>
       </box>
     </div>
+    </box>
 
     <div style="display: flex; flex-direction: column; flex-grow: 1">
       <list
@@ -443,6 +495,20 @@
         variant="striped"
         field="inventory"
         onchange="onItemDeleted();"
+        layout="rows"
+        layoutfield="data.inventoryViewMode"
+        cellsize="56"
+        countfield="data.count"
+        equipfield="data.carried"
+        equippedvalue="equipped"
+        droppedvalue="dropped"
+        descriptionfield="data.description"
+        celltooltipfields='[{"label": "Type", "field": "data.type", "capitalize": true}, {"label": "Location", "field": "data.location"}]'
+        cellactions='[{"label": "Equip", "fn": "gridEquip(data.itemIndex)", "icon": "IconShirt"}, {"label": "Carry (Unequip)", "fn": "gridCarry(data.itemIndex)", "icon": "IconBackpack"}, {"label": "Drop", "fn": "gridDrop(data.itemIndex)", "icon": "IconArrowDown"}]'
+        celluse="useGridItem(data.itemIndex)"
+        celluselabel="Use"
+        celluseshowfield="fields.useBtn.hidden"
+        celluseshowvalue="false"
       >
       </list>
     </div>
