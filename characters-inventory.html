@@ -285,6 +285,14 @@
   function equipGridItem(index, newValue) {
     const itemDataPath = "data.inventory." + index;
     api.setValue(itemDataPath + ".data.carried", newValue, function () {
+      // The in-memory `record` this script closes over is a snapshot — unlike a
+      // component onchange (which re-renders against a fresh one), this callback
+      // still sees the PREVIOUS carried state. getBestEquippedArmor() reads
+      // record.data.inventory directly, so without this the armor SP and the
+      // REF/DEX/MOVE penalty would land one step behind: still counting armor
+      // just unequipped, or missing armor just equipped. Mirror the new value
+      // across before handing off.
+      syncInventoryItemValue(itemDataPath, "carried", newValue);
       onItemEquippedFor(itemDataPath, newValue);
     });
   }
