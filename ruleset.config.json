@@ -85,7 +85,15 @@
         ]
       },
       "hideFromCompendium": false,
-      "hasToken": false
+      "hasToken": false,
+      "pdfExport": {
+        "enabled": true,
+        "label": "Export to PDF",
+        "filename": "{name}.pdf",
+        "script": {
+          "file": "exporters/characters.js"
+        }
+      }
     },
     {
       "name": "NPCs",
