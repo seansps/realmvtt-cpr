@@ -799,12 +799,14 @@
   }
 
   function drawRecordChip(c, x, y, rl, colors, gm) {
+    // The unlink X shows only for a GM on an unlocked record
+    const canUnlink = gm && !isRecordLocked();
     const label = rl.value?.name || rl.tooltip || "Record";
     c.setFont("11px sans-serif");
     c.setTextBaseline("middle");
     c.setTextAlign("left");
     const tw = c.measureText(label).width;
-    const chipPadLeft = gm ? 16 : 8;
+    const chipPadLeft = canUnlink ? 16 : 8;
     const chipW = Math.min(140, tw + chipPadLeft + 8);
     const chipH = 18;
     c.setFillStyle(colors.colPrimary);
@@ -815,8 +817,8 @@
       c.rect(x, y, chipW, chipH);
     }
     c.fill();
-    // X mark (GM only — player can't unlink)
-    if (gm) {
+    // X mark (GM on an unlocked record only)
+    if (canUnlink) {
       c.setStrokeStyle("#ffffff");
       c.setLineWidth(1.2);
       c.beginPath();
@@ -978,11 +980,19 @@
       if (rl && rl.value) {
         const cx = x + floorW + 8;
         const cy = y + h - 26;
-        if (wx >= cx && wx <= cx + 18 && wy >= cy && wy <= cy + 18) {
+        const unlinkable = !isRecordLocked();
+        if (
+          unlinkable &&
+          wx >= cx &&
+          wx <= cx + 18 &&
+          wy >= cy &&
+          wy <= cy + 18
+        ) {
           return { kind: "chipX", node };
         }
-        // Chip body — open record
-        if (wx >= cx + 18 && wx <= cx + 140 && wy >= cy && wy <= cy + 18) {
+        // Chip body — open record (the whole chip when locked)
+        const bodyX = unlinkable ? cx + 18 : cx;
+        if (wx >= bodyX && wx <= cx + 140 && wy >= cy && wy <= cy + 18) {
           return { kind: "chipOpen", node };
         }
       }

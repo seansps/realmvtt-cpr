@@ -5276,12 +5276,10 @@ function isNetArchitectureGroupEncounter(encounter) {
   return text.includes(",") || /x\s*\d+\s*$/i.test(text);
 }
 
-// Case-insensitive exact-name query for a list of names
+// Exact-name query for a list of names. The npcs/encounters query schemas type
+// `name` as a string, so the server rejects $regex on it; $in is allowed.
 function getNetArchitectureNameQuery(names) {
-  const escaped = [...names].map((n) =>
-    n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
-  );
-  return { name: { $regex: `^(${escaped.join("|")})$`, $options: "i" } };
+  return { name: { $in: [...names] } };
 }
 
 // Link each generated floor to what it rolled, as data.recordLink:

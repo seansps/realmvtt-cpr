@@ -12,7 +12,7 @@ const { assert, section, summary } = require("./test-helpers");
 const NPCS = [
   { _id: "n-hound", name: "Hellhound", data: { type: "black ice" } },
   { _id: "n-killer-mook", name: "Killer", data: { type: "mook" } },
-  { _id: "n-killer", name: "killer", data: { type: "black ice" } },
+  { _id: "n-killer", name: "Killer", data: { type: "black ice" } },
   { _id: "n-pass", name: "Password", data: { type: "defense" } },
 ];
 
@@ -31,9 +31,10 @@ function run(difficulty, seed, npcs = NPCS, encounters = ENCOUNTERS) {
   ctx.api.getRecordsByQuery = (type, q, cb) => {
     query = query || { type, q };
     queries.push(type);
-    const re = new RegExp(q.name.$regex, q.name.$options);
+    // Mirror the server: $regex on name fails validation, only $in passes
+    if (!Array.isArray(q.name?.$in) || Object.keys(q.name).length !== 1) throw new Error("name query must be $in");
     const pool = type === "encounters" ? encounters : npcs;
-    cb(pool.filter((n) => re.test(n.name)));
+    cb(pool.filter((n) => q.name.$in.includes(n.name)));
   };
   ctx.api.setValuesOnRecord = (rec, values, cb) => {
     if (values["data.floors"]) saved = values["data.floors"];
