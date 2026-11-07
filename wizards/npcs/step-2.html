@@ -1,0 +1,139 @@
+<script>
+  // Step 2: STATs. Rolled instantly on the Role's Edgerunner table (any Role's
+  // table per STAT when there is no Role), then fit to the tier.
+
+  function npcwWizardStats() {
+    const stats = {};
+    NPCB_STATS.forEach((stat) => {
+      stats[stat] = parseInt(api.getValue(`data.wizard.${stat}`) || 0, 10) || 0;
+    });
+    return stats;
+  }
+
+  // The changed field may not be saved yet, so use the new value directly
+  function npcwOnStatChange(changedStat, newValue) {
+    const stats = npcwWizardStats();
+    stats[changedStat] = parseInt(newValue || 0, 10) || 0;
+    api.setValues({
+      "data.wizard.derivedText": npcbDerivedText(
+        stats,
+        api.getValue("data.wizard.tier")
+      ),
+    });
+  }
+
+  function npcwRollStats() {
+    const tier = api.getValue("data.wizard.tier") || "mook";
+    const role = api.getValue("data.wizard.role") || "";
+    const stats = npcbRollStats(tier, role);
+    const values = {};
+    NPCB_STATS.forEach((stat) => {
+      values[`data.wizard.${stat}`] = stats[stat];
+    });
+    values["data.wizard.derivedText"] = npcbDerivedText(stats, tier);
+    api.setValues(values);
+  }
+</script>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+  <label
+    label="STATs are rolled on the Edgerunner tables for the chosen Role, then brought into the range this tier calls for. Type over any value, or paste them in from your own stat block."
+    size="sm"
+  ></label>
+  <div>
+    <button
+      onclick="npcwRollStats()"
+      size="sm"
+      variant="light"
+      icon="IconDice"
+      label="Roll STATs"
+    ></button>
+  </div>
+  <div
+    style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px"
+  >
+    <numberfield
+      field="int"
+      label="INT"
+      minvalue="0"
+      maxvalue="20"
+      onchange="npcwOnStatChange('int', value)"
+    ></numberfield>
+    <numberfield
+      field="ref"
+      label="REF"
+      minvalue="0"
+      maxvalue="20"
+      onchange="npcwOnStatChange('ref', value)"
+    ></numberfield>
+    <numberfield
+      field="dex"
+      label="DEX"
+      minvalue="0"
+      maxvalue="20"
+      onchange="npcwOnStatChange('dex', value)"
+    ></numberfield>
+    <numberfield
+      field="tech"
+      label="TECH"
+      minvalue="0"
+      maxvalue="20"
+      onchange="npcwOnStatChange('tech', value)"
+    ></numberfield>
+    <numberfield
+      field="cool"
+      label="COOL"
+      minvalue="0"
+      maxvalue="20"
+      onchange="npcwOnStatChange('cool', value)"
+    ></numberfield>
+    <numberfield
+      field="will"
+      label="WILL"
+      minvalue="0"
+      maxvalue="20"
+      onchange="npcwOnStatChange('will', value)"
+    ></numberfield>
+    <numberfield
+      field="luck"
+      label="LUCK"
+      minvalue="0"
+      maxvalue="20"
+      onchange="npcwOnStatChange('luck', value)"
+    ></numberfield>
+    <numberfield
+      field="move"
+      label="MOVE"
+      minvalue="0"
+      maxvalue="20"
+      onchange="npcwOnStatChange('move', value)"
+    ></numberfield>
+    <numberfield
+      field="body"
+      label="BODY"
+      minvalue="0"
+      maxvalue="20"
+      onchange="npcwOnStatChange('body', value)"
+    ></numberfield>
+    <numberfield
+      field="emp"
+      label="EMP"
+      minvalue="0"
+      maxvalue="20"
+      onchange="npcwOnStatChange('emp', value)"
+    ></numberfield>
+  </div>
+  <stringfield
+    field="derivedText"
+    label="Derived"
+    editable="false"
+    variant="unstyled"
+    multiline="true"
+    size="xs"
+  ></stringfield>
+  <label
+    label="Most NPCs have no LUCK. Enter STATs before any armor penalty; the sheet applies it. Skill bases on the next step are kept as written, and their levels are worked out from these STATs when you finish."
+    size="xs"
+    color="dimmed"
+  ></label>
+</div>

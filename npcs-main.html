@@ -589,6 +589,31 @@
     api.closeOpenedPopovers();
   }
 
+  function clickImportGear() {
+    api.closeOpenedPopovers();
+  }
+
+  function importGear() {
+    // Re-query: gearImportText may have been saved on blur just now
+    const recordType = record.linked === undefined ? "npcs" : "tokens";
+    api.getRecord(recordType, record._id, (current) => {
+      const text = current.data?.gearImportText || "";
+      if (!text.trim()) {
+        return;
+      }
+      npcbImportGear(recordType, record._id, text, (count, placeholders) => {
+        const missing = placeholders.length
+          ? ` No match for: ${placeholders.join(", ")} (added as placeholders).`
+          : "";
+        api.showNotification(
+          `Added ${count} item${count === 1 ? "" : "s"}.${missing}`,
+          placeholders.length ? "yellow" : "green",
+          "Import Gear"
+        );
+      });
+    });
+  }
+
   function importSkills() {
     // First re-query the record, in case we're in the middle of updating
     // on blur of the skillText field.
@@ -603,118 +628,43 @@
         return;
       }
 
-      // Convert bullet points to commas
-      skillText = skillText.split("•").join(",");
-
-      // Remove all newline characters first - use character codes to avoid sanitization issues
-      skillText = skillText.split(String.fromCharCode(13, 10)).join(","); // \r\n
-      skillText = skillText.split(String.fromCharCode(10)).join(","); // \n
-      skillText = skillText.split(String.fromCharCode(13)).join(","); // \r
-
-      // First try comma-separated parsing
-      let skillsArray = [];
-      const skillEntries = skillText.split(",");
-      let allSkillParts = [];
-
-      // Check if comma-separated parsing works well
-      let commaParsingWorked = true;
-      for (let i = 0; i < skillEntries.length; i++) {
-        const entry = skillEntries[i].trim();
-        if (entry) {
-          // Split by spaces and find the last number as the skill value
-          const parts = entry.split(" ");
-          let skillValue = "";
-          let skillNameParts = [];
-
-          // Work backwards to find the skill value (last number)
-          for (let j = parts.length - 1; j >= 0; j--) {
-            const part = parts[j].trim();
-            if (part && !isNaN(parseInt(part)) && !skillValue) {
-              skillValue = part;
-            } else if (part) {
-              skillNameParts.unshift(part);
-            }
-          }
-
-          if (skillValue && skillNameParts.length > 0) {
-            const skillName = skillNameParts.join(" ");
-            allSkillParts.push(skillName);
-            allSkillParts.push(skillValue);
-          } else {
-            // If we can't parse this entry properly, comma parsing might not be working
-            commaParsingWorked = false;
-            break;
-          }
+      // Shared stat-block parser (rollhandlers/npcBuilder.js). Each number is
+      // the skill BASE; "10 (8)" gives the base after the armor penalty,
+      // which is what the sheet's current STATs already include.
+      const parsed = npcbParseSkillText(skillText);
+      const statTotal = (stat) => {
+        let statFieldName;
+        if (stat === "luck") {
+          statFieldName = "totalCurLuck";
+        } else if (stat === "emp") {
+          statFieldName = "totalCurEmp";
+        } else {
+          statFieldName = `total${capitalize(stat)}`;
         }
-      }
-
-      // If comma parsing didn't work well, try space-based parsing
-      if (!commaParsingWorked || allSkillParts.length === 0) {
-        allSkillParts = [];
-
-        // Split the entire text by spaces
-        const allParts = skillText.split(" ");
-        let currentSkillParts = [];
-
-        for (let i = 0; i < allParts.length; i++) {
-          const part = allParts[i].trim();
-          if (!part) continue;
-
-          // Check if this part is a number
-          if (!isNaN(parseInt(part))) {
-            // This is a skill value
-            if (currentSkillParts.length > 0) {
-              // We have a skill name, so add the skill
-              const skillName = currentSkillParts.join(" ");
-              allSkillParts.push(skillName);
-              allSkillParts.push(part);
-              currentSkillParts = [];
-            }
-          } else {
-            // This is part of a skill name
-            currentSkillParts.push(part);
-          }
-        }
-      }
-
-      // Process skills in pairs (name, value)
-      for (let i = 0; i < allSkillParts.length; i += 2) {
-        const skillName = allSkillParts[i]?.trim();
-        const skillValue = allSkillParts[i + 1]?.trim();
-
-        if (skillName && skillValue && !isNaN(parseInt(skillValue))) {
-          const baseValue = parseInt(skillValue);
-          const skillStat = findSkillStat(skillName);
-
-          // Get the stat value from the record
-          let statFieldName;
-          if (skillStat === "luck") {
-            statFieldName = "totalCurLuck";
-          } else if (skillStat === "emp") {
-            statFieldName = "totalCurEmp";
-          } else {
-            statFieldName = `total${
-              skillStat.charAt(0).toUpperCase() + skillStat.slice(1)
-            }`;
-          }
-
-          const statValue = parseInt(record?.data?.[statFieldName] || "0", 10);
-
-          // Calculate level (base value minus stat)
-          const levelValue = Math.max(baseValue - statValue, 0);
-
-          skillsArray.push({
-            _id: generateUuid(),
-            name: skillName.split(",").join(" ").trim(),
-            unidentifiedName: skillName.split(",").join(" ").trim(),
-            data: {
-              base: baseValue,
-              lvl: levelValue,
-              stat: skillStat,
-            },
-          });
-        }
-      }
+        return parseInt(record?.data?.[statFieldName] || "0", 10);
+      };
+      const skillsArray = [
+        // Role Abilities ("Interface 4") stay on the list as before
+        ...parsed.roles.map((role) => ({
+          name: role.ability,
+          base: role.rank,
+          stat: findSkillStat(role.ability),
+        })),
+        ...parsed.skills.map((skill) => ({
+          name: skill.name,
+          base: skill.penalizedBase ?? skill.base,
+          stat: skill.stat,
+        })),
+      ].map((skill) => ({
+        _id: generateUuid(),
+        name: skill.name,
+        unidentifiedName: skill.name,
+        data: {
+          base: skill.base,
+          lvl: Math.max(skill.base - statTotal(skill.stat), 0),
+          stat: skill.stat,
+        },
+      }));
 
       // Set the skills array to the record
       if (skillsArray.length > 0) {
@@ -2162,6 +2112,44 @@ ${whiplashMacro}
             options='[{"icon": "IconShieldDown", "label": "Shield Down", "value": "shieldDown"}, {"icon": "IconShieldCheckFilled", "label": "Shield Up", "value": "shieldUp"}]'
           ></iconbutton>
         </div>
+        <!-- Popover to add weapons, ammo, gear and cyberware from a statblock line -->
+        <popover onclose="importGear()">
+          <popover.target>
+            <button
+              size="xs"
+              icon="IconPlus"
+              label="Import Gear from Statblock"
+              variant="outline"
+              field="importGearBtn"
+              hideonlocked="true"
+            ></button>
+          </popover.target>
+          <popover.dropdown>
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                width: 300px;
+                gap: 4px;
+              "
+            >
+              <stringfield
+                size="xs"
+                width="100%"
+                field="gearImportText"
+                label="Weapons, Gear &amp; Cyberware"
+                multiline="true"
+                placeholder="e.g. Poor Quality Shotgun, Slug Ammo x25, Cybereye x2 (Anti-Dazzle)"
+              ></stringfield>
+              <button
+                size="xs"
+                label="Import"
+                variant="outline"
+                onclick="clickImportGear()"
+              ></button>
+            </div>
+          </popover.dropdown>
+        </popover>
         <list
           listtype="npc_inventory_list"
           variant="striped"

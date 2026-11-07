@@ -1,0 +1,104 @@
+<script>
+  // Step 3: Role Abilities and Skill Bases, written the way stat blocks print
+  // them ("Athletics 9, Brawling 11, Language (Native) 5"). Each number is the
+  // skill's BASE (STAT + level).
+
+  function npcwWizardStats() {
+    const stats = {};
+    NPCB_STATS.forEach((stat) => {
+      stats[stat] = parseInt(api.getValue(`data.wizard.${stat}`) || 0, 10) || 0;
+    });
+    return stats;
+  }
+
+  function npcwCheckSkills() {
+    // Re-read so text typed just before clicking is included
+    api.getRecord("npcs", record._id, (current) => {
+      const w = current.data?.wizard || {};
+      api.setValues({
+        "data.wizard.skillPreview": npcbSkillPreviewText(
+          w.skillText || "",
+          w.roleAbilities || "",
+          npcwWizardStats()
+        ),
+      });
+    });
+  }
+
+  function npcwRandomizeSkills() {
+    api.getRecord("npcs", record._id, (current) => {
+      const w = current.data?.wizard || {};
+      const tier = w.tier || "mook";
+      const role = w.role || "";
+      const stats = npcwWizardStats();
+      const skillText = npcbGenerateSkillText(
+        tier,
+        role,
+        stats,
+        w.equipmentText || "",
+        w.equipmentText || ""
+      );
+      api.setValues({
+        "data.wizard.skillText": skillText,
+        "data.wizard.skillPreview": npcbSkillPreviewText(
+          skillText,
+          w.roleAbilities || "",
+          stats
+        ),
+      });
+    });
+  }
+</script>
+
+<box field="step3" onload="npcwCheckSkills()">
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <label
+      label="Write Role Abilities and Skill Bases the way stat blocks print them. You can paste a Skill Bases line straight from your book; a Role Ability at the start of it (for example Combat Awareness 4) is picked up as the NPC's Role."
+      size="sm"
+    ></label>
+    <stringfield
+      field="roleAbilities"
+      label="Role Abilities"
+      placeholder="e.g. Combat Awareness 4, Maker 2"
+      size="sm"
+    ></stringfield>
+    <stringfield
+      field="skillText"
+      label="Skill Bases"
+      placeholder="e.g. Athletics 9, Brawling 11, Handgun 12, Language (Streetslang) 6, Local Expert (Your Home) 6"
+      multiline="true"
+      maxrows="10"
+      size="sm"
+    ></stringfield>
+    <div style="display: flex; gap: 8px">
+      <button
+        onclick="npcwRandomizeSkills()"
+        size="sm"
+        variant="light"
+        icon="IconDice"
+        label="Randomize Skills"
+      ></button>
+      <button
+        onclick="npcwCheckSkills()"
+        size="sm"
+        variant="outline"
+        icon="IconChecklist"
+        label="Check Skills"
+      ></button>
+    </div>
+    <stringfield
+      field="skillPreview"
+      label="How these will be read"
+      editable="false"
+      variant="unstyled"
+      multiline="true"
+      maxrows="14"
+      size="xs"
+    ></stringfield>
+    <label
+      label="OK = a core skill. ? = not a core skill, kept and rolled off INT. A base of 10 (8) means 10 before the armor penalty; the sheet applies the penalty itself."
+      size="xs"
+      color="dimmed"
+    ></label>
+  </div>
+</box>

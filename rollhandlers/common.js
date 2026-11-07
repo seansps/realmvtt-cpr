@@ -1011,18 +1011,23 @@ function getStatForSkill(skillName) {
       ) {
         return skill.stat;
       }
-      // Check subskills if they exist
+      // Check subskills if they exist; they use their parent's STAT
       if (skill.subSkills) {
         for (const subSkill of skill.subSkills) {
           if (
             subSkill.name.toLowerCase().replace("(x2)", "").trim() ===
             skillName.toLowerCase().replace("(x2)", "").trim()
           ) {
-            return subSkill.stat;
+            return subSkill.stat || skill.stat;
           }
         }
       }
     }
+  }
+  // "Martial Arts (Karate)", "Language (Native)": use the parent skill's STAT
+  const parentMatch = skillName.match(/^(.*?)\s*\((?!x2\))[^)]+\)\s*$/i);
+  if (parentMatch) {
+    return getStatForSkill(parentMatch[1]);
   }
   return null;
 }
@@ -3991,28 +3996,12 @@ api.getRecordByTypeAndName('conditions', 'Broken Leg', (injuryRecord) => {
 }
 
 // Adds a role the the NPC or Character
-function addRole(record, recordLink) {
-  const roleObj = {
-    ...recordLink.value,
-  };
-
-  // Get current roles on character if any
-  let roles = [...(record.data?.roles || [])];
-
-  const valuesToSet = {};
-  const existingRole = roles.find((role) => role.name === roleObj.name);
-
-  let initialRank = 1;
-  // If this is a character and they have no other roles,
-  // set the initial rank to 4
-  if (record.recordType === "characters" && roles.length === 0) {
-    initialRank = 4;
-  }
-
+// Role data for a newly added role at the given rank
+function buildRoleData(roleObj, order, initialRank) {
   let roleData = {
     ...roleObj.data,
     // Add an order field that we will use to sort the role panels by
-    order: roles.length + 1,
+    order: order,
     rank: initialRank,
     unallocatedRanks: initialRank,
   };
@@ -4037,6 +4026,28 @@ function addRole(record, recordLink) {
   if (roleObj.data?.panel === "netrunner") {
     roleData.netActions = roleObj.data[`netActionsRank${initialRank}`];
   }
+  return roleData;
+}
+
+function addRole(record, recordLink) {
+  const roleObj = {
+    ...recordLink.value,
+  };
+
+  // Get current roles on character if any
+  let roles = [...(record.data?.roles || [])];
+
+  const valuesToSet = {};
+  const existingRole = roles.find((role) => role.name === roleObj.name);
+
+  let initialRank = 1;
+  // If this is a character and they have no other roles,
+  // set the initial rank to 4
+  if (record.recordType === "characters" && roles.length === 0) {
+    initialRank = 4;
+  }
+
+  const roleData = buildRoleData(roleObj, roles.length + 1, initialRank);
 
   // Add the role to the character if not in the map
   if (!existingRole) {
@@ -4838,9 +4849,11 @@ function getRandomFloorEncounter(floorType = "Standard Floor") {
     },
   };
 
-  // Return the encounter for the given roll and floor type
+  // Return the encounter for the given roll and floor type (unknown or blank
+  // difficulty falls back to Standard)
+  const table = encounterTable[floorType] || encounterTable["Standard Floor"];
   return (
-    encounterTable[floorType][roll] || {
+    table[roll] || {
       encounter: "No encounter found",
       dv: null,
     }
@@ -5189,6 +5202,20 @@ function generateNetArchitecture(
     floors.push(floor);
   }
 
+  // Every Password, File, and Control Node needs a DV
+  const defenseDv =
+    NET_DEFENSE_DV_BY_DIFFICULTY[difficultyRating] ||
+    NET_DEFENSE_DV_BY_DIFFICULTY["Standard Floor"];
+  forEachNetArchitectureFloor(floors, (floor) => {
+    const needsDv = getNetArchitectureEncounterNames(
+      floor?.data?.encounter,
+    ).some((n) => NET_DV_ENCOUNTERS.includes(n.toLowerCase()));
+    const dv = floor?.data?.dv;
+    if (needsDv && (dv === null || dv === undefined || dv === "")) {
+      floor.data.dv = defenseDv;
+    }
+  });
+
   // Set the floors directly on the architecture
   valuesToSet["data.floors"] = floors;
 
@@ -5199,12 +5226,156 @@ function generateNetArchitecture(
 
   const buttonUpdates = updateNetArchitectureBranchButtons(tempArch, false);
 
-  // First set the floors, then the button updates
-  api.setValuesOnRecord(architecture, valuesToSet, (updatedRecord) => {
-    api.setValuesOnRecord(updatedRecord, buttonUpdates);
+  // Link any rolled encounter that exists as an NPC in the campaign, then set
+  // the floors, then the button updates
+  linkNetArchitectureEncounters(floors, () => {
+    api.setValuesOnRecord(architecture, valuesToSet, (updatedRecord) => {
+      api.setValuesOnRecord(updatedRecord, buttonUpdates);
+    });
   });
 
   return valuesToSet;
+}
+
+// Visit every floor in a generated architecture, including branch floors
+function forEachNetArchitectureFloor(floors, visit) {
+  (floors || []).forEach((floor) => {
+    visit(floor);
+    (floor?.data?.branches || []).forEach((branch) => {
+      forEachNetArchitectureFloor(branch?.data?.branch_left, visit);
+      forEachNetArchitectureFloor(branch?.data?.branch_right, visit);
+    });
+  });
+}
+
+// "Hellhound, Killer" -> ["Hellhound", "Killer"]; "Raven x2" -> ["Raven"]
+function getNetArchitectureEncounterNames(encounter) {
+  return String(encounter || "")
+    .split(",")
+    .map((part) => part.replace(/\s*x\s*\d+\s*$/i, "").trim())
+    .filter((name) => name);
+}
+
+// Encounters that are always broken against a DV
+const NET_DV_ENCOUNTERS = ["password", "file", "control node"];
+
+// Password/File/Control Node DV for each NET Architecture difficulty
+const NET_DEFENSE_DV_BY_DIFFICULTY = {
+  "Basic Floor": 6,
+  "Standard Floor": 8,
+  "Uncommon Floor": 10,
+  "Advanced Floor": 12,
+};
+
+// NPC types a NET encounter should resolve to before any other same-named NPC
+const NET_ENCOUNTER_NPC_TYPES = ["black ice", "defense", "program", "demon"];
+
+// "Hellhound x2" or "Hellhound, Killer" -> true; "Hellhound" -> false
+function isNetArchitectureGroupEncounter(encounter) {
+  const text = String(encounter || "");
+  return text.includes(",") || /x\s*\d+\s*$/i.test(text);
+}
+
+// Case-insensitive exact-name query for a list of names
+function getNetArchitectureNameQuery(names) {
+  const escaped = [...names].map((n) =>
+    n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+  );
+  return { name: { $regex: `^(${escaped.join("|")})$`, $options: "i" } };
+}
+
+// Link each generated floor to what it rolled, as data.recordLink:
+// - several ICE ("Raven x2", "Hellhound, Killer") -> the Encounter of that
+//   exact name (the Basic Data module ships one for every table result)
+// - one ICE, or a group with no matching Encounter -> the first NPC found
+// Two queries total (NPCs, then Encounters). Always calls back.
+function linkNetArchitectureEncounters(floors, callback) {
+  const npcNames = new Set();
+  const groupNames = new Set();
+  forEachNetArchitectureFloor(floors, (floor) => {
+    const encounter = String(floor?.data?.encounter || "").trim();
+    getNetArchitectureEncounterNames(encounter).forEach((n) => npcNames.add(n));
+    if (isNetArchitectureGroupEncounter(encounter)) groupNames.add(encounter);
+  });
+  if (npcNames.size === 0) {
+    callback();
+    return;
+  }
+
+  const npcsByName = {};
+  const encountersByName = {};
+
+  const applyLinks = () => {
+    forEachNetArchitectureFloor(floors, (floor) => {
+      const encounter = String(floor?.data?.encounter || "").trim();
+      const group = isNetArchitectureGroupEncounter(encounter)
+        ? encountersByName[encounter.toLowerCase()]
+        : null;
+      if (group) {
+        floor.data.recordLink = {
+          type: "encounters",
+          tooltip: group.name,
+          value: { _id: group._id, name: group.name, recordType: "encounters" },
+        };
+        return;
+      }
+      const npc = getNetArchitectureEncounterNames(encounter)
+        .map((n) => npcsByName[n.toLowerCase()])
+        .find((r) => r);
+      if (!npc) return;
+      floor.data.recordLink = {
+        type: "npcs",
+        tooltip: npc.name,
+        value: {
+          _id: npc._id,
+          name: npc.name,
+          recordType: "npcs",
+          data: { type: npc.data?.type },
+        },
+      };
+    });
+    callback();
+  };
+
+  const loadEncounters = () => {
+    if (groupNames.size === 0) {
+      applyLinks();
+      return;
+    }
+    api.getRecordsByQuery(
+      "encounters",
+      getNetArchitectureNameQuery(groupNames),
+      (records) => {
+        (records || []).forEach((r) => {
+          const key = String(r?.name || "").toLowerCase();
+          if (key && r._id && !encountersByName[key]) encountersByName[key] = r;
+        });
+        applyLinks();
+      },
+      50,
+    );
+  };
+
+  api.getRecordsByQuery(
+    "npcs",
+    getNetArchitectureNameQuery(npcNames),
+    (records) => {
+      (records || []).forEach((r) => {
+        const key = String(r?.name || "").toLowerCase();
+        if (!key || !r._id) return;
+        const preferred = NET_ENCOUNTER_NPC_TYPES.includes(r.data?.type);
+        const existing = npcsByName[key];
+        if (
+          !existing ||
+          (preferred && !NET_ENCOUNTER_NPC_TYPES.includes(existing.data?.type))
+        ) {
+          npcsByName[key] = r;
+        }
+      });
+      loadEncounters();
+    },
+    50,
+  );
 }
 
 // Shared CPR equip/carry/drop handler (cyberware slot assignment, armor SP,

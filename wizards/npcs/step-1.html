@@ -1,0 +1,108 @@
+<script>
+  // Step 1: threat tier, optional role and gang, and how to start.
+  // Leaving this step (re)builds steps 2-4 whenever these choices changed, so
+  // going Back and Next without changes keeps any edits made later.
+
+  function npcwOnTierChange(value) {
+    const tier = NPCB_TIERS[value];
+    api.setValues({
+      "data.wizard.tierInfo": tier ? tier.guidance : "",
+    });
+  }
+
+  function onStepEnd(stepIndex) {
+    api.getRecord("npcs", record._id, (current) => {
+      const w = current.data?.wizard || {};
+      const choices = {
+        tier: w.tier || "mook",
+        role: w.role || "",
+        gang: w.gang || "",
+        source: w.source || "random",
+      };
+      const buildKey = [
+        choices.tier,
+        choices.role,
+        choices.gang,
+        choices.source,
+      ].join("|");
+      if (w.builtKey === buildKey) {
+        return;
+      }
+      const spec = npcbBuildSpec(choices);
+      const values = npcbSpecToWizardValues(spec);
+      values["data.wizard.builtKey"] = buildKey;
+      values["data.wizard.derivedText"] = npcbDerivedText(spec.stats, spec.tier);
+      values["data.wizard.skillPreview"] = npcbSkillPreviewText(
+        spec.skillText,
+        spec.roleAbilities,
+        spec.stats
+      );
+      api.setValues(values);
+    });
+  }
+</script>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+  <label
+    label="Build a human NPC by threat tier. Everything the wizard fills in stays editable, and you can paste skill and gear lines from a stat block in your own book."
+    size="sm"
+  ></label>
+  <label
+    label="Making Black ICE, a Program, Demon, Vehicle or Defense? Click Cancel and set the Type on the sheet."
+    size="xs"
+    color="dimmed"
+  ></label>
+  <div
+    style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px"
+  >
+    <dropdown
+      field="tier"
+      label="Threat Tier"
+      size="sm"
+      defaultvalue="mook"
+      onchange="npcwOnTierChange(value)"
+      options='[{"label": "Mook", "value": "mook"}, {"label": "Hardened Mook", "value": "hardenedMook"}, {"label": "Lieutenant", "value": "lieutenant"}, {"label": "Hardened Lieutenant", "value": "hardenedLieutenant"}, {"label": "Mini Boss", "value": "miniBoss"}, {"label": "Hardened Mini Boss", "value": "hardenedMiniBoss"}, {"label": "Boss", "value": "boss"}]'
+    ></dropdown>
+    <dropdown
+      field="source"
+      label="Start From"
+      size="sm"
+      defaultvalue="random"
+      options='[{"label": "Random (roll everything)", "value": "random"}, {"label": "Manual (enter or paste skills and gear)", "value": "manual"}]'
+    ></dropdown>
+    <dropdown
+      field="role"
+      label="Role (optional)"
+      placeholder="No Role"
+      size="sm"
+      options='[{"label": "No Role", "value": ""}, {"label": "Rockerboy", "value": "rockerboy"}, {"label": "Solo", "value": "solo"}, {"label": "Netrunner", "value": "netrunner"}, {"label": "Tech", "value": "tech"}, {"label": "Medtech", "value": "medtech"}, {"label": "Media", "value": "media"}, {"label": "Exec", "value": "exec"}, {"label": "Lawman", "value": "lawman"}, {"label": "Fixer", "value": "fixer"}, {"label": "Nomad", "value": "nomad"}]'
+    ></dropdown>
+    <dropdown
+      field="gang"
+      label="Gang (optional)"
+      placeholder="No Gang"
+      size="sm"
+      options='[{"label": "No Gang", "value": ""}, {"label": "6th Street", "value": "sixthStreet"}, {"label": "Bozos", "value": "bozos"}, {"label": "Inquisitors", "value": "inquisitors"}, {"label": "Iron Sights", "value": "ironSights"}, {"label": "Maelstrom", "value": "maelstrom"}, {"label": "Nomads", "value": "nomads"}, {"label": "Philharmonic Vampires", "value": "philharmonicVampires"}, {"label": "Piranhas", "value": "piranhas"}, {"label": "Primetime Players", "value": "primetimePlayers"}, {"label": "Red Chrome Legion", "value": "redChromeLegion"}, {"label": "Tyger Claws", "value": "tygerClaws"}, {"label": "Voodoo Boys", "value": "voodooBoys"}]'
+    ></dropdown>
+  </div>
+  <stringfield
+    field="affiliation"
+    label="Other Affiliation (optional)"
+    placeholder="Any other gang, corp or crew; added to the NPC's notes"
+    size="sm"
+  ></stringfield>
+  <stringfield
+    field="tierInfo"
+    label="About this tier"
+    defaultvalue="Low threat. Roughly one per Edgerunner makes a fair fight the crew should win."
+    multiline="true"
+    editable="false"
+    variant="unstyled"
+    size="xs"
+  ></stringfield>
+  <label
+    label="A Role gives the NPC that Role's Ability at a rank suited to the tier and shapes their STATs, skills and gear. A gang adjusts their armor, weapons, cyberware and skills to match. Changing these after editing later steps rebuilds those steps."
+    size="xs"
+    color="dimmed"
+  ></label>
+</div>

@@ -1,0 +1,453 @@
+[
+ {
+  "_id": "6a0a0734d8ac17357ba122a8",
+  "name": "Very Heavy Pistol, Poor Quality",
+  "data": {
+   "type": "ranged weapon",
+   "ammoType": "vh pistol",
+   "magazine": 8
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba120e4",
+  "name": "Basic VH Pistol",
+  "data": {
+   "type": "ammo",
+   "rounds": 10,
+   "isShell": 0
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba121c2",
+  "name": "Leathers (body)",
+  "data": {
+   "type": "armor",
+   "armorLocation": "body",
+   "sp": 4,
+   "penalty": 0
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba121c3",
+  "name": "Leathers (head)",
+  "data": {
+   "type": "armor",
+   "armorLocation": "head",
+   "sp": 4,
+   "penalty": 0
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba121dd",
+  "name": "Medium Armorjack (body)",
+  "data": {
+   "type": "armor",
+   "armorLocation": "body",
+   "sp": 12,
+   "penalty": 2
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba121de",
+  "name": "Medium Armorjack (head)",
+  "data": {
+   "type": "armor",
+   "armorLocation": "head",
+   "sp": 12,
+   "penalty": 2
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba12220",
+  "name": "Rippers",
+  "data": {
+   "type": "cyberware",
+   "cyberwareInstallSlot": "cyberarms",
+   "humanityLoss": "1d6"
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba12280",
+  "name": "Wolvers",
+  "data": {
+   "type": "cyberware",
+   "cyberwareInstallSlot": "cyberarms",
+   "humanityLoss": "2d6",
+   "borgware": 0
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba12234",
+  "name": "Shotgun",
+  "data": {
+   "type": "ranged weapon",
+   "ammoType": "slug",
+   "magazine": 4
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba120e3",
+  "name": "Basic Slug",
+  "data": {
+   "type": "ammo",
+   "rounds": 10,
+   "isShell": 0
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba120ca",
+  "name": "Assault Rifle",
+  "data": {
+   "type": "ranged weapon",
+   "ammoType": "rifle",
+   "magazine": 25
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba120e1",
+  "name": "Basic Rifle",
+  "data": {
+   "type": "ammo",
+   "rounds": 10,
+   "isShell": 0
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba12127",
+  "name": "Cybereye, Left",
+  "data": {
+   "type": "cyberware",
+   "cyberwareInstallSlot": "foundational",
+   "foundationalSlot": "left cybereye",
+   "humanityLoss": "2d6"
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba1228e",
+  "name": "Cybereye, Right",
+  "data": {
+   "type": "cyberware",
+   "cyberwareInstallSlot": "foundational",
+   "foundationalSlot": "right cybereye",
+   "humanityLoss": "2d6"
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba120af",
+  "name": "Anti-Dazzle",
+  "data": {
+   "type": "cyberware",
+   "cyberwareInstallSlot": "cyberoptics",
+   "humanityLoss": "2d6"
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba12277",
+  "name": "Very Heavy Pistol",
+  "data": {
+   "type": "ranged weapon",
+   "ammoType": "vh pistol",
+   "magazine": 8
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba1220f",
+  "name": "Popup Ranged Weapon (Template)",
+  "data": {
+   "type": "cyberware",
+   "baseHumanityLoss": 7,
+   "cost": "500",
+   "humanityLoss": "2d6",
+   "installLocation": "clinic",
+   "cyberwareInstallSlot": "cyberarms",
+   "halfHumanityLoss": 0,
+   "slots": 2,
+   "hasUseBtn": false,
+   "priceCategory": "expensive"
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba1220d",
+  "name": "Popup Grenade Launcher",
+  "data": {
+   "type": "cyberware",
+   "baseHumanityLoss": 7,
+   "cost": 500,
+   "humanityLoss": "2d6",
+   "installLocation": "clinic",
+   "cyberwareInstallSlot": "cyberarms",
+   "borgware": 0,
+   "halfHumanityLoss": 0,
+   "linkedWeapon": {
+    "af0to6": 0,
+    "af13to25": 0,
+    "af26to50": 0,
+    "af51to100": 0,
+    "af7to12": 0,
+    "autofireDamage": "2d6",
+    "ammoType": "grenade",
+    "afMultiplierMax": 3,
+    "concealable": "no",
+    "cost": 0,
+    "damage": "6d6",
+    "dv0to6": 16,
+    "dv101to200": 22,
+    "dv13to25": 15,
+    "dv201to400": 25,
+    "dv26to50": 17,
+    "dv401to800": 0,
+    "dv51to100": 20,
+    "dv7to12": 15,
+    "handsRequired": 2,
+    "arrows": 0,
+    "autofire": 0,
+    "explosives": 1,
+    "shotgunShells": 0,
+    "suppressiveFire": 0,
+    "magazine": 1,
+    "name": "Popup Grenade Launcher",
+    "unidentifiedDescription": "",
+    "description": "",
+    "rof": 1,
+    "weaponSkill": "heavyweapons"
+   },
+   "hasLinkedWeapon": true,
+   "slots": 2,
+   "hasUseBtn": false,
+   "priceCategory": "expensive",
+   "weaponAttached": [
+    {
+     "_id": "6a0a0734d8ac17357ba12183",
+     "name": "Popup Grenade Launcher",
+     "data": {
+      "type": "ranged weapon",
+      "ammoType": "grenade",
+      "magazine": 1,
+      "damage": "6d6"
+     }
+    }
+   ]
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba12191",
+  "name": "Heavy SMG",
+  "data": {
+   "type": "ranged weapon",
+   "weaponType": "medium",
+   "quality": "average",
+   "priceCategory": "premium",
+   "exotic": "false",
+   "concealable": "false",
+   "af0to6": 20,
+   "af13to25": 20,
+   "af26to50": 25,
+   "af51to100": 30,
+   "af7to12": 17,
+   "autofireDamage": "2d6",
+   "ammoType": "h pistol",
+   "afMultiplierMax": 3,
+   "cost": 100,
+   "damage": "3d6",
+   "dv0to6": 15,
+   "dv101to200": 25,
+   "dv13to25": 15,
+   "dv201to400": 30,
+   "dv26to50": 20,
+   "dv401to800": 0,
+   "dv51to100": 25,
+   "dv7to12": 13,
+   "handsRequired": "1",
+   "arrows": 0,
+   "autofire": true,
+   "explosives": 0,
+   "shotgunShells": 0,
+   "suppressiveFire": true,
+   "magazine": 40,
+   "rof": 1,
+   "weaponSkill": "Handgun",
+   "hasUseBtn": false
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba120bb",
+  "name": "Armor-Piercing Rocket",
+  "data": {
+   "type": "ammo",
+   "rounds": 1,
+   "cost": 100,
+   "quantity": 1,
+   "damage": "",
+   "isShell": 0,
+   "checkDV": "",
+   "hasUseBtn": false,
+   "priceCategory": "premium",
+   "modifiers": [
+    {
+     "_id": "dbae40e3-7e10-40b7-b5b0-1d1b1e60d1d3",
+     "name": "Modifier",
+     "unidentifiedName": "Modifier",
+     "recordType": "records",
+     "identified": true,
+     "data": {
+      "type": "armorAblationBonus",
+      "valueType": "number",
+      "value": "1",
+      "itemOnly": true,
+      "active": true
+     },
+     "fields": {
+      "itemOnly": {
+       "hidden": false
+      },
+      "noDerivedAttributes": {
+       "hidden": true
+      },
+      "smartBonus": {
+       "hidden": true
+      },
+      "stat": {
+       "hidden": true
+      },
+      "statBonus": {
+       "hidden": true
+      },
+      "statMaximum": {
+       "hidden": true
+      },
+      "statMinimum": {
+       "hidden": true
+      },
+      "statPenalty": {
+       "hidden": true
+      },
+      "statSet": {
+       "hidden": true
+      },
+      "active": {
+       "hidden": false
+      },
+      "field": {
+       "hidden": false
+      },
+      "value": {
+       "hidden": false
+      },
+      "valueType": {
+       "hidden": false
+      }
+     }
+    }
+   ]
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba121aa",
+  "name": "Incendiary Grenade",
+  "data": {
+   "type": "ammo",
+   "rounds": 1,
+   "cost": 100,
+   "quantity": 1,
+   "damage": "",
+   "isShell": 0,
+   "checkDV": "",
+   "hasUseBtn": false,
+   "priceCategory": "premium",
+   "effects": [
+    "{\"_id\":\"6a0a0734d8ac17357ba11ffd\",\"name\":\"On Fire (Mild)\"}"
+   ],
+   "useDamage": "6d6",
+   "isExplosive": true
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba120b7",
+  "name": "Armor-Piercing Grenade",
+  "data": {
+   "type": "ammo",
+   "rounds": 1,
+   "cost": 100,
+   "quantity": 1,
+   "damage": "",
+   "isShell": 0,
+   "checkDV": "",
+   "hasUseBtn": false,
+   "priceCategory": "premium",
+   "modifiers": [
+    {
+     "_id": "7481e4f8-8dd4-4710-a9a7-1b094ae1e5c8",
+     "name": "Modifier",
+     "unidentifiedName": "Modifier",
+     "recordType": "records",
+     "identified": true,
+     "data": {
+      "type": "armorAblationBonus",
+      "valueType": "number",
+      "active": true,
+      "value": "1",
+      "itemOnly": true
+     },
+     "fields": {
+      "itemOnly": {
+       "hidden": false
+      },
+      "noDerivedAttributes": {
+       "hidden": true
+      },
+      "smartBonus": {
+       "hidden": true
+      },
+      "stat": {
+       "hidden": true
+      },
+      "statBonus": {
+       "hidden": true
+      },
+      "statMaximum": {
+       "hidden": true
+      },
+      "statMinimum": {
+       "hidden": true
+      },
+      "statPenalty": {
+       "hidden": true
+      },
+      "statSet": {
+       "hidden": true
+      },
+      "active": {
+       "hidden": false
+      },
+      "field": {
+       "hidden": false
+      },
+      "value": {
+       "hidden": false
+      },
+      "valueType": {
+       "hidden": false
+      }
+     }
+    }
+   ],
+   "isExplosive": true,
+   "useDamage": "6d6"
+  }
+ },
+ {
+  "_id": "6a0a0734d8ac17357ba120df",
+  "name": "Basic H Pistol",
+  "data": {
+   "type": "ammo",
+   "rounds": 10,
+   "cost": 10,
+   "quantity": 1,
+   "damage": "",
+   "isShell": 0,
+   "checkDV": "",
+   "hasUseBtn": false,
+   "priceCategory": "cheap"
+  }
+ }
+]

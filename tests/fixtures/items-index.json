@@ -1,0 +1,2473 @@
+[
+ {
+  "name": "(Template) Skill Chip",
+  "type": "cyberware",
+  "slot": "chipware"
+ },
+ {
+  "name": "(Template) Skill Chip (x2)",
+  "type": "cyberware",
+  "slot": "chipware"
+ },
+ {
+  "name": "AV-4 Engine Upgrade",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "AV-4 Multipurpose Aerodyne",
+  "type": "vehicle"
+ },
+ {
+  "name": "AV-9 Super Aerodyne",
+  "type": "vehicle"
+ },
+ {
+  "name": "Aerozep",
+  "type": "vehicle"
+ },
+ {
+  "name": "Agent",
+  "type": "gear"
+ },
+ {
+  "name": "Air Pistol",
+  "type": "ranged weapon",
+  "ammoType": "m pistol"
+ },
+ {
+  "name": "AirHypo",
+  "type": "gear"
+ },
+ {
+  "name": "Alcohol",
+  "type": "gear"
+ },
+ {
+  "name": "Amplified Hearing",
+  "type": "cyberware",
+  "slot": "cyberaudio"
+ },
+ {
+  "name": "Anti-Dazzle",
+  "type": "cyberware",
+  "slot": "cyberoptics"
+ },
+ {
+  "name": "Anti-Smog Breathing Mask",
+  "type": "gear"
+ },
+ {
+  "name": "Antibiotic",
+  "type": "drug"
+ },
+ {
+  "name": "Arasaka \"Minami 10\"",
+  "type": "ranged weapon",
+  "ammoType": "m pistol"
+ },
+ {
+  "name": "Arasaka \"Rapid Assault\"",
+  "type": "ranged weapon",
+  "ammoType": "slug"
+ },
+ {
+  "name": "Arasaka WSSA Sniper System",
+  "type": "ranged weapon",
+  "ammoType": "rifle"
+ },
+ {
+  "name": "Armor",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Armor-Piercing Arrow",
+  "type": "ammo"
+ },
+ {
+  "name": "Armor-Piercing Grenade",
+  "type": "ammo"
+ },
+ {
+  "name": "Armor-Piercing H Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Armor-Piercing M Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Armor-Piercing Rifle",
+  "type": "ammo"
+ },
+ {
+  "name": "Armor-Piercing Rocket",
+  "type": "ammo"
+ },
+ {
+  "name": "Armor-Piercing Slug",
+  "type": "ammo"
+ },
+ {
+  "name": "Armor-Piercing VH Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Armored Chassis",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Artificial Shoulder Mount",
+  "type": "cyberware",
+  "slot": "borgware"
+ },
+ {
+  "name": "Asia Pop Bottoms",
+  "type": "fashion"
+ },
+ {
+  "name": "Asia Pop Contact Lenses",
+  "type": "fashion"
+ },
+ {
+  "name": "Asia Pop Footwear",
+  "type": "fashion"
+ },
+ {
+  "name": "Asia Pop Glasses",
+  "type": "fashion"
+ },
+ {
+  "name": "Asia Pop Hat",
+  "type": "fashion"
+ },
+ {
+  "name": "Asia Pop Jacket",
+  "type": "fashion"
+ },
+ {
+  "name": "Asia Pop Jewelry",
+  "type": "fashion"
+ },
+ {
+  "name": "Asia Pop Mirrorshades",
+  "type": "fashion"
+ },
+ {
+  "name": "Asia Pop Top",
+  "type": "fashion"
+ },
+ {
+  "name": "Asp",
+  "type": "black ice"
+ },
+ {
+  "name": "Assault Rifle",
+  "type": "ranged weapon",
+  "ammoType": "rifle"
+ },
+ {
+  "name": "Assault Rifle, Excellent Quality",
+  "type": "ranged weapon",
+  "ammoType": "rifle"
+ },
+ {
+  "name": "Assault Rifle, Poor Quality",
+  "type": "ranged weapon",
+  "ammoType": "rifle"
+ },
+ {
+  "name": "Audio Recorder",
+  "type": "cyberware",
+  "slot": "cyberaudio"
+ },
+ {
+  "name": "Audio Recorder (Gear)",
+  "type": null
+ },
+ {
+  "name": "AudioVox",
+  "type": "cyberware",
+  "slot": "internal body cyberware"
+ },
+ {
+  "name": "Auto Level Dampening Ear Protectors",
+  "type": "gear"
+ },
+ {
+  "name": "Backup Drive",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Bag Lady Chic Bottoms",
+  "type": "fashion"
+ },
+ {
+  "name": "Bag Lady Chic Contact Lenses",
+  "type": "fashion"
+ },
+ {
+  "name": "Bag Lady Chic Footwear",
+  "type": "fashion"
+ },
+ {
+  "name": "Bag Lady Chic Glasses",
+  "type": "fashion"
+ },
+ {
+  "name": "Bag Lady Chic Hat",
+  "type": "fashion"
+ },
+ {
+  "name": "Bag Lady Chic Jacket",
+  "type": "fashion"
+ },
+ {
+  "name": "Bag Lady Chic Jewelry",
+  "type": "fashion"
+ },
+ {
+  "name": "Bag Lady Chic Mirrorshades",
+  "type": "fashion"
+ },
+ {
+  "name": "Bag Lady Chic Top",
+  "type": "fashion"
+ },
+ {
+  "name": "Bags of Grain",
+  "type": "gear"
+ },
+ {
+  "name": "Bags of Prepak",
+  "type": null
+ },
+ {
+  "name": "Balron",
+  "type": "demon"
+ },
+ {
+  "name": "Banhamer",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Baseball Bat",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Basic Arrow",
+  "type": "ammo"
+ },
+ {
+  "name": "Basic H Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Basic M Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Basic Rifle",
+  "type": "ammo"
+ },
+ {
+  "name": "Basic Shell",
+  "type": "ammo"
+ },
+ {
+  "name": "Basic Slug",
+  "type": "ammo"
+ },
+ {
+  "name": "Basic VH Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Battery",
+  "type": "ammo"
+ },
+ {
+  "name": "Battery (Microwaver)",
+  "type": "ammo"
+ },
+ {
+  "name": "Battery (Shrieker)",
+  "type": "ammo"
+ },
+ {
+  "name": "Battleglove",
+  "type": "gear"
+ },
+ {
+  "name": "Bayonet",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Bayonet (Light Melee Weapon)",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Big Knucks",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Big Knucks (Medium Melee Weapon)",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Binoculars",
+  "type": "gear"
+ },
+ {
+  "name": "Biomonitor",
+  "type": "cyberware",
+  "slot": "fashionware"
+ },
+ {
+  "name": "Biotoxin Arrow",
+  "type": "ammo"
+ },
+ {
+  "name": "Biotoxin Grenade",
+  "type": "ammo"
+ },
+ {
+  "name": "Black Lace",
+  "type": "drug"
+ },
+ {
+  "name": "Blue Glass",
+  "type": "drug"
+ },
+ {
+  "name": "Bodysculpting: Exotic",
+  "type": "cyberware",
+  "slot": "fashionware"
+ },
+ {
+  "name": "Bodysculpting: Standard",
+  "type": "cyberware",
+  "slot": "fashionware"
+ },
+ {
+  "name": "Bodyweight Suit",
+  "type": "gear"
+ },
+ {
+  "name": "Bohemian Bottoms",
+  "type": "fashion"
+ },
+ {
+  "name": "Bohemian Contact Lenses",
+  "type": "fashion"
+ },
+ {
+  "name": "Bohemian Footwear",
+  "type": "fashion"
+ },
+ {
+  "name": "Bohemian Glasses",
+  "type": "fashion"
+ },
+ {
+  "name": "Bohemian Hat",
+  "type": "fashion"
+ },
+ {
+  "name": "Bohemian Jacket",
+  "type": "fashion"
+ },
+ {
+  "name": "Bohemian Jewelry",
+  "type": "fashion"
+ },
+ {
+  "name": "Bohemian Mirrorshades",
+  "type": "fashion"
+ },
+ {
+  "name": "Bohemian Top",
+  "type": "fashion"
+ },
+ {
+  "name": "Boost",
+  "type": "drug"
+ },
+ {
+  "name": "Bow",
+  "type": "ranged weapon",
+  "ammoType": "arrow"
+ },
+ {
+  "name": "Bow, Excellent Quality",
+  "type": "ranged weapon",
+  "ammoType": "arrow"
+ },
+ {
+  "name": "Bow, Poor Quality",
+  "type": "ranged weapon",
+  "ammoType": "arrow"
+ },
+ {
+  "name": "Braindance Recorder",
+  "type": "cyberware",
+  "slot": "neuralware"
+ },
+ {
+  "name": "Braindance Viewer",
+  "type": "gear"
+ },
+ {
+  "name": "Bug Detector",
+  "type": "cyberware",
+  "slot": "cyberaudio"
+ },
+ {
+  "name": "Bug Detector (Gear)",
+  "type": null
+ },
+ {
+  "name": "Bulletproof Glass",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Bulletproof Shield",
+  "type": "armor"
+ },
+ {
+  "name": "Businesswear Bottoms",
+  "type": "fashion"
+ },
+ {
+  "name": "Businesswear Contact Lenses",
+  "type": "fashion"
+ },
+ {
+  "name": "Businesswear Footwear",
+  "type": "fashion"
+ },
+ {
+  "name": "Businesswear Glasses",
+  "type": "fashion"
+ },
+ {
+  "name": "Businesswear Hat",
+  "type": "fashion"
+ },
+ {
+  "name": "Businesswear Jacket",
+  "type": "fashion"
+ },
+ {
+  "name": "Businesswear Jewelry",
+  "type": "fashion"
+ },
+ {
+  "name": "Businesswear Mirrorshades",
+  "type": "fashion"
+ },
+ {
+  "name": "Businesswear Top",
+  "type": "fashion"
+ },
+ {
+  "name": "Cabin Cruiser",
+  "type": "vehicle"
+ },
+ {
+  "name": "Canned Goods",
+  "type": "gear"
+ },
+ {
+  "name": "Carryall",
+  "type": "gear"
+ },
+ {
+  "name": "Chadran Arms \"City Reaper\"",
+  "type": "ranged weapon",
+  "ammoType": "h pistol"
+ },
+ {
+  "name": "Chadran Arms \"Jungle Reaper\"",
+  "type": "ranged weapon",
+  "ammoType": "rifle"
+ },
+ {
+  "name": "Chainsaw",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Chemical Analyzer",
+  "type": "gear"
+ },
+ {
+  "name": "Chemical Analyzer",
+  "type": "cyberware",
+  "slot": "chipware"
+ },
+ {
+  "name": "Chemskin",
+  "type": "cyberware",
+  "slot": "fashionware"
+ },
+ {
+  "name": "Chipware Socket",
+  "type": "cyberware",
+  "slot": "neuralware"
+ },
+ {
+  "name": "Chyron",
+  "type": "cyberware",
+  "slot": "cyberoptics"
+ },
+ {
+  "name": "Color Shift",
+  "type": "cyberware",
+  "slot": "cyberoptics"
+ },
+ {
+  "name": "Combat Knife",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Combat Plow",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Communications Center",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Compact Groundcar",
+  "type": "vehicle"
+ },
+ {
+  "name": "Computer",
+  "type": null
+ },
+ {
+  "name": "Constitution Arms Hurricane Assault Weapon",
+  "type": "ranged weapon",
+  "ammoType": "slug"
+ },
+ {
+  "name": "Contraceptive Implant",
+  "type": "cyberware",
+  "slot": "internal body cyberware"
+ },
+ {
+  "name": "Crossbow",
+  "type": "ranged weapon",
+  "ammoType": "arrow"
+ },
+ {
+  "name": "Crossbow, Excellent Quality",
+  "type": "ranged weapon",
+  "ammoType": "arrow"
+ },
+ {
+  "name": "Crossbow, Poor Quality",
+  "type": "ranged weapon",
+  "ammoType": "arrow"
+ },
+ {
+  "name": "Crowbar",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Cryopump",
+  "type": "gear"
+ },
+ {
+  "name": "Cryotank",
+  "type": "gear"
+ },
+ {
+  "name": "Cyberarm, Left",
+  "type": "cyberware",
+  "slot": "foundational"
+ },
+ {
+  "name": "Cyberarm, Right",
+  "type": "cyberware",
+  "slot": "foundational"
+ },
+ {
+  "name": "Cyberaudio Suite",
+  "type": "cyberware",
+  "slot": "foundational"
+ },
+ {
+  "name": "Cyberdeck",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Cyberdeck (Excellent Quality)",
+  "type": "cyberdeck"
+ },
+ {
+  "name": "Cyberdeck (Poor Quality)",
+  "type": "cyberdeck"
+ },
+ {
+  "name": "Cyberdeck (Standard Quality)",
+  "type": "cyberdeck"
+ },
+ {
+  "name": "Cybereye, Left",
+  "type": "cyberware",
+  "slot": "foundational"
+ },
+ {
+  "name": "Cybereye, Right",
+  "type": "cyberware",
+  "slot": "foundational"
+ },
+ {
+  "name": "Cyberleg, Left",
+  "type": "cyberware",
+  "slot": "foundational"
+ },
+ {
+  "name": "Cyberleg, Right",
+  "type": "cyberware",
+  "slot": "foundational"
+ },
+ {
+  "name": "Cybersnake",
+  "type": "cyberware",
+  "slot": "internal body cyberware"
+ },
+ {
+  "name": "Cybersnake (Very Heavy Melee Weapon)",
+  "type": "melee weapon"
+ },
+ {
+  "name": "DNA Lock",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Dai Lung Magnum",
+  "type": "ranged weapon",
+  "ammoType": "h pistol"
+ },
+ {
+  "name": "Dai Lung Streetmaster",
+  "type": "ranged weapon",
+  "ammoType": "m pistol"
+ },
+ {
+  "name": "Dartgun",
+  "type": "cyberware",
+  "slot": "cyberoptics"
+ },
+ {
+  "name": "Dartgun (Eye)",
+  "type": "ranged weapon",
+  "ammoType": "arrow"
+ },
+ {
+  "name": "Dartgun (VH Pistol)",
+  "type": "ranged weapon",
+  "ammoType": "arrow"
+ },
+ {
+  "name": "DeckKRASH",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Deployable Spike Strip",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Disposable Cell Phone",
+  "type": "gear"
+ },
+ {
+  "name": "Dragon",
+  "type": "black ice"
+ },
+ {
+  "name": "Drum Magazine (Assault Rifle)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Drum Magazine (Grenade Launcher)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Drum Magazine (Heavy Pistol)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Drum Magazine (Heavy SMG)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Drum Magazine (Medium Pistol)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Drum Magazine (Rocket Launcher)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Drum Magazine (SMG)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Drum Magazine (Shotgun)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Drum Magazine (Sniper Rifle)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Drum Magazine (Very Heavy Pistol)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Drum Synthesizer",
+  "type": "gear"
+ },
+ {
+  "name": "Duct Tape",
+  "type": "gear"
+ },
+ {
+  "name": "EMP Grenade",
+  "type": "ammo"
+ },
+ {
+  "name": "EMP Threading",
+  "type": "cyberware",
+  "slot": "fashionware"
+ },
+ {
+  "name": "Eagletech \"Bearcat\"",
+  "type": "ranged weapon",
+  "ammoType": "arrow"
+ },
+ {
+  "name": "Eagletech \"Scorpion\"",
+  "type": "ranged weapon",
+  "ammoType": "arrow"
+ },
+ {
+  "name": "Eagletech \"Striker\"",
+  "type": "ranged weapon",
+  "ammoType": "arrow"
+ },
+ {
+  "name": "Eagletech \"Tomcat\"",
+  "type": "ranged weapon",
+  "ammoType": "arrow"
+ },
+ {
+  "name": "Efreet",
+  "type": "demon"
+ },
+ {
+  "name": "Electric Guitar",
+  "type": "gear"
+ },
+ {
+  "name": "Electric Guitar or another Instrument",
+  "type": "gear"
+ },
+ {
+  "name": "Enhanced Antibodies",
+  "type": "cyberware",
+  "slot": "internal body cyberware"
+ },
+ {
+  "name": "Enhanced Interface Plug Integration",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Eraser",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Excellent Quality Alcohol",
+  "type": "gear"
+ },
+ {
+  "name": "Exotic Fruits",
+  "type": "gear"
+ },
+ {
+  "name": "Exotic Vegetables",
+  "type": "gear"
+ },
+ {
+  "name": "Expansive Arrow",
+  "type": "ammo"
+ },
+ {
+  "name": "Expansive H Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Expansive M Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Expansive Rifle",
+  "type": "ammo"
+ },
+ {
+  "name": "Expansive Slug",
+  "type": "ammo"
+ },
+ {
+  "name": "Expansive VH Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Extended Magazine (Assault Rifle)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Extended Magazine (Grenade Launcher)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Extended Magazine (Heavy Pistol)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Extended Magazine (Heavy SMG)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Extended Magazine (Medium Pistol)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Extended Magazine (Rocket Launcher)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Extended Magazine (SMG)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Extended Magazine (Shotgun)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Extended Magazine (Sniper Rifle)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Extended Magazine (Very Heavy Pistol)",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Federated Arms \"Super Chief\"",
+  "type": "ranged weapon",
+  "ammoType": "vh pistol"
+ },
+ {
+  "name": "Federated Arms Tech-Assault III",
+  "type": "ranged weapon",
+  "ammoType": "m pistol"
+ },
+ {
+  "name": "Federated Arms X-9mm",
+  "type": "ranged weapon",
+  "ammoType": "m pistol"
+ },
+ {
+  "name": "Flak",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Flak (body)",
+  "type": "armor"
+ },
+ {
+  "name": "Flak (head)",
+  "type": "armor"
+ },
+ {
+  "name": "Flamethrower",
+  "type": "ranged weapon"
+ },
+ {
+  "name": "Flashbang Grenade",
+  "type": "ammo"
+ },
+ {
+  "name": "Flashlight",
+  "type": "gear"
+ },
+ {
+  "name": "Food Stick",
+  "type": "gear"
+ },
+ {
+  "name": "Fresh Fruits",
+  "type": "gear"
+ },
+ {
+  "name": "Fresh Vegetables",
+  "type": "gear"
+ },
+ {
+  "name": "Frozen Goods",
+  "type": "gear"
+ },
+ {
+  "name": "Gang Colors Bottoms",
+  "type": "fashion"
+ },
+ {
+  "name": "Gang Colors Contact Lenses",
+  "type": "fashion"
+ },
+ {
+  "name": "Gang Colors Footwear",
+  "type": "fashion"
+ },
+ {
+  "name": "Gang Colors Glasses",
+  "type": "fashion"
+ },
+ {
+  "name": "Gang Colors Hat",
+  "type": "fashion"
+ },
+ {
+  "name": "Gang Colors Jacket",
+  "type": "fashion"
+ },
+ {
+  "name": "Gang Colors Jewelry",
+  "type": "fashion"
+ },
+ {
+  "name": "Gang Colors Mirrorshades",
+  "type": "fashion"
+ },
+ {
+  "name": "Gang Colors Top",
+  "type": "fashion"
+ },
+ {
+  "name": "Generic Chic Bottoms",
+  "type": "fashion"
+ },
+ {
+  "name": "Generic Chic Contact Lenses",
+  "type": "fashion"
+ },
+ {
+  "name": "Generic Chic Footwear",
+  "type": "fashion"
+ },
+ {
+  "name": "Generic Chic Glasses",
+  "type": "fashion"
+ },
+ {
+  "name": "Generic Chic Hat",
+  "type": "fashion"
+ },
+ {
+  "name": "Generic Chic Jacket",
+  "type": "fashion"
+ },
+ {
+  "name": "Generic Chic Jewelry",
+  "type": "fashion"
+ },
+ {
+  "name": "Generic Chic Mirrorshades",
+  "type": "fashion"
+ },
+ {
+  "name": "Generic Chic Top",
+  "type": "fashion"
+ },
+ {
+  "name": "Giant",
+  "type": "black ice"
+ },
+ {
+  "name": "Gills",
+  "type": "cyberware",
+  "slot": "internal body cyberware"
+ },
+ {
+  "name": "Glow Paint",
+  "type": "gear"
+ },
+ {
+  "name": "Glow Stick",
+  "type": "gear"
+ },
+ {
+  "name": "Grafted Muscle and Bone Lace",
+  "type": "cyberware",
+  "slot": "internal body cyberware"
+ },
+ {
+  "name": "Grapple Gun",
+  "type": "gear"
+ },
+ {
+  "name": "Grapple Hand",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Grenade Launcher",
+  "type": "ranged weapon",
+  "ammoType": "grenade"
+ },
+ {
+  "name": "Grenade Launcher Underbarrel",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Grenade Launcher, Excellent Quality",
+  "type": "ranged weapon",
+  "ammoType": "grenade"
+ },
+ {
+  "name": "Grenade Launcher, Poor Quality",
+  "type": "ranged weapon",
+  "ammoType": "grenade"
+ },
+ {
+  "name": "Grip Foot",
+  "type": "cyberware",
+  "slot": "cyberlegs"
+ },
+ {
+  "name": "GunMart \"Home Defender\"",
+  "type": "ranged weapon",
+  "ammoType": "slug"
+ },
+ {
+  "name": "GunMart \"Hunter\"",
+  "type": "ranged weapon",
+  "ammoType": "arrow"
+ },
+ {
+  "name": "GunMart \"Sherwood\"",
+  "type": "ranged weapon",
+  "ammoType": "arrow"
+ },
+ {
+  "name": "GunMart \"Snipe-Star\"",
+  "type": "ranged weapon",
+  "ammoType": "rifle"
+ },
+ {
+  "name": "Gyrocopter",
+  "type": "vehicle"
+ },
+ {
+  "name": "Handcuffs",
+  "type": "gear"
+ },
+ {
+  "name": "Hardened Circuitry",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Hardened Shielding (Arm)",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Hardened Shielding (Leg)",
+  "type": "cyberware",
+  "slot": "cyberlegs"
+ },
+ {
+  "name": "Heavy Armorjack (body)",
+  "type": "armor"
+ },
+ {
+  "name": "Heavy Armorjack (head)",
+  "type": "armor"
+ },
+ {
+  "name": "Heavy Chassis",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Heavy Melee Weapon",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Heavy Melee Weapon, Excellent Quality",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Heavy Melee Weapon, Poor Quality",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Heavy Pistol",
+  "type": "ranged weapon",
+  "ammoType": "h pistol"
+ },
+ {
+  "name": "Heavy Pistol, Excellent Quality",
+  "type": "ranged weapon",
+  "ammoType": "h pistol"
+ },
+ {
+  "name": "Heavy Pistol, Poor Quality",
+  "type": "ranged weapon",
+  "ammoType": "h pistol"
+ },
+ {
+  "name": "Heavy SMG",
+  "type": "ranged weapon",
+  "ammoType": "h pistol"
+ },
+ {
+  "name": "Heavy SMG, Excellent Quality",
+  "type": "ranged weapon",
+  "ammoType": "h pistol"
+ },
+ {
+  "name": "Heavy SMG, Poor Quality",
+  "type": "ranged weapon",
+  "ammoType": "h pistol"
+ },
+ {
+  "name": "Helicopter",
+  "type": "vehicle"
+ },
+ {
+  "name": "Hellbolt",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Hellhound",
+  "type": "black ice"
+ },
+ {
+  "name": "Hidden Holster",
+  "type": "cyberware",
+  "slot": "external body cyberware"
+ },
+ {
+  "name": "High Fashion Bottoms",
+  "type": "fashion"
+ },
+ {
+  "name": "High Fashion Contact Lenses",
+  "type": "fashion"
+ },
+ {
+  "name": "High Fashion Footwear",
+  "type": "fashion"
+ },
+ {
+  "name": "High Fashion Glasses",
+  "type": "fashion"
+ },
+ {
+  "name": "High Fashion Hat",
+  "type": "fashion"
+ },
+ {
+  "name": "High Fashion Jacket",
+  "type": "fashion"
+ },
+ {
+  "name": "High Fashion Jewelry",
+  "type": "fashion"
+ },
+ {
+  "name": "High Fashion Mirrorshades",
+  "type": "fashion"
+ },
+ {
+  "name": "High Fashion Top",
+  "type": "fashion"
+ },
+ {
+  "name": "High Performance Groundcar",
+  "type": "vehicle"
+ },
+ {
+  "name": "Homing Tracer",
+  "type": "cyberware",
+  "slot": "cyberaudio"
+ },
+ {
+  "name": "Homing Tracer (Gear)",
+  "type": "gear"
+ },
+ {
+  "name": "Housing Capacity",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Hover Upgrade",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Image Enhance",
+  "type": "cyberware",
+  "slot": "cyberoptics"
+ },
+ {
+  "name": "Imp",
+  "type": "demon"
+ },
+ {
+  "name": "Implanted Linear Frame ß (Beta)",
+  "type": "cyberware",
+  "slot": "borgware"
+ },
+ {
+  "name": "Implanted Linear Frame Σ (Sigma)",
+  "type": "cyberware",
+  "slot": "borgware"
+ },
+ {
+  "name": "Incendiary Arrow",
+  "type": "ammo"
+ },
+ {
+  "name": "Incendiary Flamethrower Shell",
+  "type": "ammo"
+ },
+ {
+  "name": "Incendiary Grenade",
+  "type": "ammo"
+ },
+ {
+  "name": "Incendiary H Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Incendiary M Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Incendiary Rifle",
+  "type": "ammo"
+ },
+ {
+  "name": "Incendiary Shell",
+  "type": "ammo"
+ },
+ {
+  "name": "Incendiary VH Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Independent Air Supply",
+  "type": "cyberware",
+  "slot": "internal body cyberware"
+ },
+ {
+  "name": "Inflatable Bed & Sleep-bag",
+  "type": "gear"
+ },
+ {
+  "name": "Infrared Nightvision Scope",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Insulated Wiring",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Interface Plugs",
+  "type": "cyberware",
+  "slot": "neuralware"
+ },
+ {
+  "name": "Internal Agent",
+  "type": "cyberware",
+  "slot": "cyberaudio"
+ },
+ {
+  "name": "Jetski",
+  "type": "vehicle"
+ },
+ {
+  "name": "Jump Booster",
+  "type": "cyberware",
+  "slot": "cyberlegs"
+ },
+ {
+  "name": "K151 AeroZep",
+  "type": "vehicle"
+ },
+ {
+  "name": "KRASH Barrier",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Kendachi Mono-Three",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Kerenzikov",
+  "type": "cyberware",
+  "slot": "neuralware"
+ },
+ {
+  "name": "Kevlar® (body)",
+  "type": "armor"
+ },
+ {
+  "name": "Kevlar® (head)",
+  "type": "armor"
+ },
+ {
+  "name": "Kibble Pack",
+  "type": "gear"
+ },
+ {
+  "name": "Killer",
+  "type": "black ice"
+ },
+ {
+  "name": "Kraken",
+  "type": "black ice"
+ },
+ {
+  "name": "Lead Pipe",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Leathers (body)",
+  "type": "armor"
+ },
+ {
+  "name": "Leathers (head)",
+  "type": "armor"
+ },
+ {
+  "name": "Leisurewear Bottoms",
+  "type": "fashion"
+ },
+ {
+  "name": "Leisurewear Contact Lenses",
+  "type": "fashion"
+ },
+ {
+  "name": "Leisurewear Footwear",
+  "type": "fashion"
+ },
+ {
+  "name": "Leisurewear Glasses",
+  "type": "fashion"
+ },
+ {
+  "name": "Leisurewear Hat",
+  "type": "fashion"
+ },
+ {
+  "name": "Leisurewear Jacket",
+  "type": "fashion"
+ },
+ {
+  "name": "Leisurewear Jewelry",
+  "type": "fashion"
+ },
+ {
+  "name": "Leisurewear Mirrorshades",
+  "type": "fashion"
+ },
+ {
+  "name": "Leisurewear Top",
+  "type": "fashion"
+ },
+ {
+  "name": "Level Damper",
+  "type": "cyberware",
+  "slot": "cyberaudio"
+ },
+ {
+  "name": "Liche",
+  "type": "black ice"
+ },
+ {
+  "name": "Light Armorjack (body)",
+  "type": "armor"
+ },
+ {
+  "name": "Light Armorjack (head)",
+  "type": "armor"
+ },
+ {
+  "name": "Light Melee Weapon",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Light Melee Weapon, Excellent Quality",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Light Melee Weapon, Poor Quality",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Light Tattoo",
+  "type": "cyberware",
+  "slot": "fashionware"
+ },
+ {
+  "name": "Linear Frame ß (Beta)",
+  "type": "gear"
+ },
+ {
+  "name": "Linear Frame Σ (Sigma)",
+  "type": "gear"
+ },
+ {
+  "name": "Live Chicken",
+  "type": "gear"
+ },
+ {
+  "name": "Live Fish",
+  "type": "gear"
+ },
+ {
+  "name": "Live Pigs",
+  "type": "gear"
+ },
+ {
+  "name": "Lock Picking Set",
+  "type": "gear"
+ },
+ {
+  "name": "Low Light/Infrared/UV",
+  "type": "cyberware",
+  "slot": "cyberoptics"
+ },
+ {
+  "name": "MRE",
+  "type": "gear"
+ },
+ {
+  "name": "Machete",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Malorian Arms 3516",
+  "type": "ranged weapon",
+  "ammoType": "vh pistol"
+ },
+ {
+  "name": "Medium Armorjack (body)",
+  "type": "armor"
+ },
+ {
+  "name": "Medium Armorjack (head)",
+  "type": "armor"
+ },
+ {
+  "name": "Medium Melee Weapon",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Medium Melee Weapon, Excellent Quality",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Medium Melee Weapon, Poor Quality",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Medium Pistol",
+  "type": "ranged weapon",
+  "ammoType": "m pistol"
+ },
+ {
+  "name": "Medium Pistol, Excellent Quality",
+  "type": "ranged weapon",
+  "ammoType": "m pistol"
+ },
+ {
+  "name": "Medium Pistol, Poor Quality",
+  "type": "ranged weapon",
+  "ammoType": "m pistol"
+ },
+ {
+  "name": "Medscanner",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Medscanner (Gear)",
+  "type": "gear"
+ },
+ {
+  "name": "Medtech Bag",
+  "type": "gear"
+ },
+ {
+  "name": "Memory Chip",
+  "type": "cyberware",
+  "slot": "chipware"
+ },
+ {
+  "name": "Memory Chips",
+  "type": "gear"
+ },
+ {
+  "name": "Metalgear® (body)",
+  "type": "armor"
+ },
+ {
+  "name": "Metalgear® (head)",
+  "type": "armor"
+ },
+ {
+  "name": "MicroOptics",
+  "type": "cyberware",
+  "slot": "cyberoptics"
+ },
+ {
+  "name": "MicroVideo",
+  "type": "cyberware",
+  "slot": "cyberoptics"
+ },
+ {
+  "name": "Microwaver",
+  "type": "ranged weapon",
+  "ammoType": "vh pistol"
+ },
+ {
+  "name": "Midnight Lady™ Sexual Implant",
+  "type": "cyberware",
+  "slot": "internal body cyberware"
+ },
+ {
+  "name": "Militech \"Avenger\"",
+  "type": "ranged weapon",
+  "ammoType": "m pistol"
+ },
+ {
+  "name": "Militech \"Boomer Buster\"",
+  "type": "ranged weapon",
+  "ammoType": "vh pistol"
+ },
+ {
+  "name": "Militech \"Bulldog\"",
+  "type": "ranged weapon",
+  "ammoType": "slug"
+ },
+ {
+  "name": "Militech \"Cowboy\" U-56 Grenade Launcher",
+  "type": "ranged weapon",
+  "ammoType": "grenade"
+ },
+ {
+  "name": "Militech \"Dragon\"",
+  "type": "ranged weapon",
+  "ammoType": "rifle"
+ },
+ {
+  "name": "Militech \"Hotshot\"",
+  "type": "ranged weapon",
+  "ammoType": "rocket"
+ },
+ {
+  "name": "Militech \"Mini-Gat\"",
+  "type": "ranged weapon",
+  "ammoType": "m pistol"
+ },
+ {
+  "name": "Militech \"Mini-Grenade\"",
+  "type": "ranged weapon",
+  "ammoType": "grenade"
+ },
+ {
+  "name": "Militech \"Ronin\"",
+  "type": "ranged weapon",
+  "ammoType": "rifle"
+ },
+ {
+  "name": "Militech \"Urban\"",
+  "type": "ranged weapon",
+  "ammoType": "rocket"
+ },
+ {
+  "name": "Militech \"Viper\"",
+  "type": "ranged weapon",
+  "ammoType": "h pistol"
+ },
+ {
+  "name": "Mr. Studd™ Sexual Implant",
+  "type": "cyberware",
+  "slot": "internal body cyberware"
+ },
+ {
+  "name": "MultiOptic Mount",
+  "type": "cyberware",
+  "slot": "borgware"
+ },
+ {
+  "name": "Mustang Arms \"Mark III\"",
+  "type": "ranged weapon",
+  "ammoType": "h pistol"
+ },
+ {
+  "name": "NOS",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Naginata",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Nasal Filters",
+  "type": "cyberware",
+  "slot": "internal body cyberware"
+ },
+ {
+  "name": "Nervescrub",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Neural Link",
+  "type": "cyberware",
+  "slot": "foundational"
+ },
+ {
+  "name": "Nomad \"Long Rifle\"",
+  "type": "ranged weapon",
+  "ammoType": "rifle"
+ },
+ {
+  "name": "Nomad Leathers Bottoms",
+  "type": "fashion"
+ },
+ {
+  "name": "Nomad Leathers Contact Lenses",
+  "type": "fashion"
+ },
+ {
+  "name": "Nomad Leathers Footwear",
+  "type": "fashion"
+ },
+ {
+  "name": "Nomad Leathers Glasses",
+  "type": "fashion"
+ },
+ {
+  "name": "Nomad Leathers Hat",
+  "type": "fashion"
+ },
+ {
+  "name": "Nomad Leathers Jacket",
+  "type": "fashion"
+ },
+ {
+  "name": "Nomad Leathers Jewelry",
+  "type": "fashion"
+ },
+ {
+  "name": "Nomad Leathers Mirrorshades",
+  "type": "fashion"
+ },
+ {
+  "name": "Nomad Leathers Top",
+  "type": "fashion"
+ },
+ {
+  "name": "Nova \"Cityhunter\"",
+  "type": "ranged weapon",
+  "ammoType": "h pistol"
+ },
+ {
+  "name": "Olfactory Boost",
+  "type": "cyberware",
+  "slot": "chipware"
+ },
+ {
+  "name": "Onboard Flamethrower",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Onboard Machine Gun",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Onboard Machine Gun (Weapon)",
+  "type": "ranged weapon",
+  "ammoType": "rifle"
+ },
+ {
+  "name": "Onboard Melee Weapon",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Onboard Rocket Pod",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Packaged Goods",
+  "type": null
+ },
+ {
+  "name": "Pain Editor",
+  "type": "cyberware",
+  "slot": "chipware"
+ },
+ {
+  "name": "Paint Ball",
+  "type": "ammo"
+ },
+ {
+  "name": "Paint Ball (Acid)",
+  "type": "ammo"
+ },
+ {
+  "name": "Personal CarePak",
+  "type": null
+ },
+ {
+  "name": "Plastic Covering (Arm)",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Plastic Covering (Leg)",
+  "type": "cyberware",
+  "slot": "cyberlegs"
+ },
+ {
+  "name": "Pocket Amplifier",
+  "type": null
+ },
+ {
+  "name": "Poison Arrow",
+  "type": "ammo"
+ },
+ {
+  "name": "Poison Flatline",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Poison Grenade",
+  "type": "ammo"
+ },
+ {
+  "name": "Poor Quality Alcohol",
+  "type": "gear"
+ },
+ {
+  "name": "Popup Grenade Launcher",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Popup Melee Weapon (Template)",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Popup Ranged Weapon (Template)",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Popup Shield",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Quick Change Mount",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Radar Detector",
+  "type": "cyberware",
+  "slot": "cyberaudio"
+ },
+ {
+  "name": "Radar Detector (Gear)",
+  "type": null
+ },
+ {
+  "name": "Radar/Sonar Implant",
+  "type": "cyberware",
+  "slot": "internal body cyberware"
+ },
+ {
+  "name": "Radiation Detector",
+  "type": "cyberware",
+  "slot": "cyberoptics"
+ },
+ {
+  "name": "Radiation Suit",
+  "type": null
+ },
+ {
+  "name": "Radio Communicator",
+  "type": "cyberware",
+  "slot": "cyberaudio"
+ },
+ {
+  "name": "Radio Communicator (Gear)",
+  "type": null
+ },
+ {
+  "name": "Radio Scanner/Music Player",
+  "type": "cyberware",
+  "slot": "cyberaudio"
+ },
+ {
+  "name": "Radio Scanner/Music Player (Gear)",
+  "type": null
+ },
+ {
+  "name": "Range Upgrade",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Rapidetox",
+  "type": "drug"
+ },
+ {
+  "name": "Raven",
+  "type": "black ice"
+ },
+ {
+  "name": "Realskinn™ Covering (Arm)",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Realskinn™ Covering (Leg)",
+  "type": "cyberware",
+  "slot": "cyberlegs"
+ },
+ {
+  "name": "Rhinemetall EMG-86 Railgun",
+  "type": "ranged weapon",
+  "ammoType": "rifle"
+ },
+ {
+  "name": "Rippers",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Rippers (Medium Melee Weapon)",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Road Flare",
+  "type": null
+ },
+ {
+  "name": "Roadbike",
+  "type": "vehicle"
+ },
+ {
+  "name": "Rocket Launcher",
+  "type": "ranged weapon",
+  "ammoType": "rocket"
+ },
+ {
+  "name": "Rocket Launcher, Excellent Quality",
+  "type": "ranged weapon",
+  "ammoType": "rocket"
+ },
+ {
+  "name": "Rocket Launcher, Poor Quality",
+  "type": "ranged weapon",
+  "ammoType": "rocket"
+ },
+ {
+  "name": "Root Vegetables",
+  "type": null
+ },
+ {
+  "name": "Rope (60m/yds)",
+  "type": null
+ },
+ {
+  "name": "Rubber Arrow",
+  "type": "ammo"
+ },
+ {
+  "name": "Rubber H Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Rubber M Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Rubber Rifle",
+  "type": "ammo"
+ },
+ {
+  "name": "Rubber Slug",
+  "type": "ammo"
+ },
+ {
+  "name": "Rubber VH Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "SMG",
+  "type": "ranged weapon",
+  "ammoType": "m pistol"
+ },
+ {
+  "name": "SMG, Excellent Quality",
+  "type": "ranged weapon",
+  "ammoType": "m pistol"
+ },
+ {
+  "name": "SMG, Poor Quality",
+  "type": "ranged weapon",
+  "ammoType": "m pistol"
+ },
+ {
+  "name": "Sabertooth",
+  "type": "black ice"
+ },
+ {
+  "name": "Sandevistan",
+  "type": "cyberware",
+  "slot": "neuralware"
+ },
+ {
+  "name": "Scorpion",
+  "type": "black ice"
+ },
+ {
+  "name": "Scrambler/Descrambler",
+  "type": "cyberware",
+  "slot": "cyberaudio"
+ },
+ {
+  "name": "Scrambler/Descrambler (Gear)",
+  "type": "gear"
+ },
+ {
+  "name": "Scratchers",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Scratchers (Light Melee Weapon)",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Seating Upgrade",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Security Upgrade",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "See Ya",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Sensor Array",
+  "type": "cyberware"
+ },
+ {
+  "name": "Shield",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Shift Tacts",
+  "type": "cyberware",
+  "slot": "fashionware"
+ },
+ {
+  "name": "Shotgun",
+  "type": "ranged weapon",
+  "ammoType": "slug"
+ },
+ {
+  "name": "Shotgun Underbarrel",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Shotgun, Excellent Quality",
+  "type": "ranged weapon",
+  "ammoType": "slug"
+ },
+ {
+  "name": "Shotgun, Poor Quality",
+  "type": "ranged weapon",
+  "ammoType": "slug"
+ },
+ {
+  "name": "Shoulder Cam",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Shovel or Axe",
+  "type": "gear"
+ },
+ {
+  "name": "Shrieker",
+  "type": "ranged weapon",
+  "ammoType": "vh pistol"
+ },
+ {
+  "name": "Skate Foot",
+  "type": "cyberware",
+  "slot": "cyberlegs"
+ },
+ {
+  "name": "Skin Weave",
+  "type": "cyberware",
+  "slot": "external body cyberware"
+ },
+ {
+  "name": "Skinwatch",
+  "type": "cyberware",
+  "slot": "fashionware"
+ },
+ {
+  "name": "Skunk",
+  "type": "black ice"
+ },
+ {
+  "name": "Sledgehammer",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Sleep Arrow",
+  "type": "ammo"
+ },
+ {
+  "name": "Sleep Grenade",
+  "type": "ammo"
+ },
+ {
+  "name": "Slice ‘N Dice",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Slice ‘N Dice (Medium Melee Weapon)",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Smart Arrow",
+  "type": "ammo"
+ },
+ {
+  "name": "Smart Glasses",
+  "type": "gear"
+ },
+ {
+  "name": "Smart H Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Smart M Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Smart Rifle",
+  "type": "ammo"
+ },
+ {
+  "name": "Smart Rocket",
+  "type": "ammo"
+ },
+ {
+  "name": "Smart VH Pistol",
+  "type": "ammo"
+ },
+ {
+  "name": "Smartgun Link",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Smash",
+  "type": "drug"
+ },
+ {
+  "name": "Smoke Grenade",
+  "type": "ammo"
+ },
+ {
+  "name": "Smuggling Upgrade",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Sniper Rifle",
+  "type": "ranged weapon",
+  "ammoType": "rifle"
+ },
+ {
+  "name": "Sniper Rifle, Excellent Quality",
+  "type": "ranged weapon",
+  "ammoType": "rifle"
+ },
+ {
+  "name": "Sniper Rifle, Poor Quality",
+  "type": "ranged weapon",
+  "ammoType": "rifle"
+ },
+ {
+  "name": "Sniping Scope",
+  "type": "weapon attachment"
+ },
+ {
+  "name": "Speedboat",
+  "type": "vehicle"
+ },
+ {
+  "name": "Speedheal",
+  "type": "drug"
+ },
+ {
+  "name": "Speedy Gonzalvez",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Spiked Bat",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Standard Foot, Left",
+  "type": "cyberware",
+  "slot": "foundational"
+ },
+ {
+  "name": "Standard Foot, Right",
+  "type": "cyberware",
+  "slot": "foundational"
+ },
+ {
+  "name": "Standard Hand, Left",
+  "type": "cyberware",
+  "slot": "foundational"
+ },
+ {
+  "name": "Standard Hand, Right",
+  "type": "cyberware",
+  "slot": "foundational"
+ },
+ {
+  "name": "Sternmeyer P-35",
+  "type": "ranged weapon",
+  "ammoType": "vh pistol"
+ },
+ {
+  "name": "Sternmeyer SMG-21",
+  "type": "ranged weapon",
+  "ammoType": "h pistol"
+ },
+ {
+  "name": "Stim",
+  "type": "drug"
+ },
+ {
+  "name": "Stun Baton",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Stun Gun",
+  "type": "ranged weapon",
+  "ammoType": "h pistol"
+ },
+ {
+  "name": "Subdermal Armor",
+  "type": "cyberware",
+  "slot": "external body cyberware"
+ },
+ {
+  "name": "Subdermal Grip",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Subdermal Pocket",
+  "type": "cyberware",
+  "slot": "external body cyberware"
+ },
+ {
+  "name": "Super Groundcar",
+  "type": "vehicle"
+ },
+ {
+  "name": "Superbike",
+  "type": "vehicle"
+ },
+ {
+  "name": "Superchrome® Covering (Arm)",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Superchrome® Covering (Leg)",
+  "type": "cyberware",
+  "slot": "cyberlegs"
+ },
+ {
+  "name": "Superglue",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Surge",
+  "type": "drug"
+ },
+ {
+  "name": "Sword",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Sword (Heavy Melee Weapon)",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Synthcoke",
+  "type": "drug"
+ },
+ {
+  "name": "Tactile Boost",
+  "type": "cyberware",
+  "slot": "chipware"
+ },
+ {
+  "name": "Talon Foot",
+  "type": "cyberware",
+  "slot": "cyberlegs"
+ },
+ {
+  "name": "Talon Foot (Light Melee Weapon)",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Targeting Scope",
+  "type": "cyberware",
+  "slot": "cyberoptics"
+ },
+ {
+  "name": "Teargas Grenade",
+  "type": "ammo"
+ },
+ {
+  "name": "Tech Bag",
+  "type": "gear"
+ },
+ {
+  "name": "Techhair",
+  "type": "cyberware",
+  "slot": "fashionware"
+ },
+ {
+  "name": "Techscanner",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Techscanner (Gear)",
+  "type": "gear"
+ },
+ {
+  "name": "Techtool",
+  "type": "gear"
+ },
+ {
+  "name": "TeleOptics",
+  "type": "cyberware",
+  "slot": "cyberoptics"
+ },
+ {
+  "name": "Tent & Camping Equipment",
+  "type": "gear"
+ },
+ {
+  "name": "Tomahawk",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Tool Hand",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Towa Manufacturing Type-G",
+  "type": "ranged weapon",
+  "ammoType": "grenade"
+ },
+ {
+  "name": "Towa Manufacturing Type-R",
+  "type": "ranged weapon",
+  "ammoType": "rocket"
+ },
+ {
+  "name": "Toxin Binders",
+  "type": "cyberware",
+  "slot": "internal body cyberware"
+ },
+ {
+  "name": "Trauma Team Card (Executive)",
+  "type": "gear"
+ },
+ {
+  "name": "Trauma Team Card (Silver)",
+  "type": "gear"
+ },
+ {
+  "name": "Tsunami Arms Helix",
+  "type": "ranged weapon",
+  "ammoType": "rifle"
+ },
+ {
+  "name": "Tsunami Arms Type-18",
+  "type": "ranged weapon",
+  "ammoType": "grenade"
+ },
+ {
+  "name": "Urban Flash Bottoms",
+  "type": "fashion"
+ },
+ {
+  "name": "Urban Flash Contact Lenses",
+  "type": "fashion"
+ },
+ {
+  "name": "Urban Flash Footwear",
+  "type": "fashion"
+ },
+ {
+  "name": "Urban Flash Glasses",
+  "type": "fashion"
+ },
+ {
+  "name": "Urban Flash Hat",
+  "type": "fashion"
+ },
+ {
+  "name": "Urban Flash Jacket",
+  "type": "fashion"
+ },
+ {
+  "name": "Urban Flash Jewelry",
+  "type": "fashion"
+ },
+ {
+  "name": "Urban Flash Mirrorshades",
+  "type": "fashion"
+ },
+ {
+  "name": "Urban Flash Top",
+  "type": "fashion"
+ },
+ {
+  "name": "Vampyres",
+  "type": "cyberware",
+  "slot": "internal body cyberware"
+ },
+ {
+  "name": "Vampyres (Light Melee Weapon)",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Vehicle Heavy Weapon Mount",
+  "type": "vehicle upgrade"
+ },
+ {
+  "name": "Very Heavy Melee Weapon",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Very Heavy Melee Weapon, Excellent Quality",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Very Heavy Melee Weapon, Poor Quality",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Very Heavy Pistol",
+  "type": "ranged weapon",
+  "ammoType": "vh pistol"
+ },
+ {
+  "name": "Very Heavy Pistol, Excellent Quality",
+  "type": "ranged weapon",
+  "ammoType": "vh pistol"
+ },
+ {
+  "name": "Very Heavy Pistol, Poor Quality",
+  "type": "ranged weapon",
+  "ammoType": "vh pistol"
+ },
+ {
+  "name": "Vial of Biotoxin",
+  "type": "ammo"
+ },
+ {
+  "name": "Vial of Poison",
+  "type": "ammo"
+ },
+ {
+  "name": "Video Camera",
+  "type": "gear"
+ },
+ {
+  "name": "Virtuality",
+  "type": "cyberware",
+  "slot": "cyberoptics"
+ },
+ {
+  "name": "Virtuality Goggles",
+  "type": "gear"
+ },
+ {
+  "name": "Voice Stress Analyzer",
+  "type": "cyberware",
+  "slot": "cyberaudio"
+ },
+ {
+  "name": "Vrizzbolt",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Web Foot",
+  "type": "cyberware",
+  "slot": "cyberlegs"
+ },
+ {
+  "name": "Wisp",
+  "type": "black ice"
+ },
+ {
+  "name": "Wolvers",
+  "type": "cyberware",
+  "slot": "cyberarms"
+ },
+ {
+  "name": "Wolvers (Heavy Melee Weapon)",
+  "type": "melee weapon"
+ },
+ {
+  "name": "Worm",
+  "type": "program or hardware"
+ },
+ {
+  "name": "Yacht",
+  "type": "vehicle"
+ }
+]

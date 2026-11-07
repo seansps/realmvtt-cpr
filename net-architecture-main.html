@@ -1082,7 +1082,13 @@
     if (hit.kind === "chipOpen") {
       const rl = hit.node.floor?.data?.recordLink;
       if (rl?.value) {
-        api.openRecord(rl.value);
+        // Generated Encounter links carry only _id/name, so fetch the full
+        // record before opening
+        if (rl.type === "encounters") {
+          api.openRecord(rl.value, "encounters");
+        } else {
+          api.openRecord(rl.value);
+        }
       }
       return;
     }

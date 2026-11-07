@@ -127,6 +127,35 @@
         "type": "dynamic",
         "npcLevel": "dynamic"
       },
+      "wizard": {
+        "enabled": true,
+        "steps": [
+          {
+            "name": "Threat Tier, Role and Gang",
+            "file": "wizards/npcs/step-1.html",
+            "next": "Next",
+            "previous": ""
+          },
+          {
+            "name": "STATs",
+            "file": "wizards/npcs/step-2.html",
+            "next": "Next",
+            "previous": "Back"
+          },
+          {
+            "name": "Skills and Role",
+            "file": "wizards/npcs/step-3.html",
+            "next": "Next",
+            "previous": "Back"
+          },
+          {
+            "name": "Armor, Weapons and Gear",
+            "file": "wizards/npcs/step-4.html",
+            "next": "Finish",
+            "previous": "Back"
+          }
+        ]
+      },
       "hideFromCompendium": false,
       "hasToken": false
     },
@@ -2670,7 +2699,11 @@
       "commonScript": {
         "file": "rollhandlers/common.js"
       },
-      "scripts": {},
+      "scripts": {
+        "npc-builder": {
+          "file": "rollhandlers/npcBuilder.js"
+        }
+      },
       "defaultDice": "default",
       "defaultUnitsPerSquare": 2,
       "defaultUnits": "m/yds",

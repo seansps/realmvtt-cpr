@@ -1,0 +1,105 @@
+<script>
+  // Step 4: everything the NPC carries in one box, written or pasted the way
+  // stat blocks print it. Entries are sorted into armor, weapons and gear and
+  // matched against this campaign's items when you click Check Items and
+  // again on Finish; entries with no match become placeholder items.
+
+  function npcwRandomizeGear() {
+    api.getRecord("npcs", record._id, (current) => {
+      const w = current.data?.wizard || {};
+      const tier = w.tier || "mook";
+      const gear = npcbGenerateGear(tier, w.role || "");
+      let spec = {
+        tier,
+        armor: gear.armor,
+        weaponsText: gear.weapons,
+        gearText: gear.gear,
+        skillText: "",
+      };
+      if (w.gang) {
+        spec = npcbApplyGang(spec, w.gang);
+      }
+      api.setValues({
+        "data.wizard.equipmentText": npcbEquipmentText(spec),
+        "data.wizard.gearPreview": "",
+      });
+    });
+  }
+
+  function npcwCheckItems() {
+    api.setValues({ "data.wizard.gearPreview": "Checking items..." });
+    api.getRecord("npcs", record._id, (current) => {
+      const w = current.data?.wizard || {};
+      npcbLoadItemIndex((index) => {
+        let spec = npcbWithEquipment(npcbSpecFromWizard(w), index);
+        if (w.gang && !spec.gangApplied) {
+          spec = npcbApplyGang(spec, w.gang);
+        }
+        const resolved = npcbResolveSpec(spec, index);
+        api.setValues({
+          "data.wizard.gearPreview":
+            npcbPreviewText(resolved) || "Nothing entered yet.",
+        });
+      });
+    });
+  }
+
+  function onStepEnd(stepIndex) {
+    npcbFinishWizard(record._id, () => {
+      api.showNotification("NPC created", "green", "NPC Wizard");
+    });
+  }
+</script>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+  <label
+    label="List everything the NPC carries: armor, weapons, ammo, gear and cyberware, in any order. Paste the weapon and armor box and the Cyberware & Special Equipment line straight from your book; labels, damage dice and SP lines are ignored."
+    size="sm"
+  ></label>
+  <stringfield
+    field="equipmentText"
+    label="Weapons, Armor &amp; Equipment"
+    placeholder="e.g. Kevlar, Poor Quality Shotgun, Very Heavy Pistol, Slug Ammo x25, VH Pistol Ammo x20, Agent, Cybereye x2 (Anti-Dazzle x2), Neural Link w/ Interface Plugs"
+    multiline="true"
+    maxrows="12"
+    size="sm"
+  ></stringfield>
+  <div style="display: flex; gap: 8px">
+    <button
+      onclick="npcwRandomizeGear()"
+      size="sm"
+      variant="light"
+      icon="IconDice"
+      label="Randomize Gear"
+    ></button>
+    <button
+      onclick="npcwCheckItems()"
+      size="sm"
+      variant="outline"
+      icon="IconChecklist"
+      label="Check Items"
+    ></button>
+  </div>
+  <stringfield
+    field="gearPreview"
+    label="What will be added"
+    editable="false"
+    variant="unstyled"
+    multiline="true"
+    maxrows="16"
+    size="xs"
+  ></stringfield>
+  <label
+    label="OK = matched an item. ~ = closest match, check it. BUILT = made from a template or a similar item. NEW = no match; a placeholder item with that name is created. Armor adds head and body pieces; ammo counts are rounds, and weapons are loaded from them; x2 on a cybereye, cyberarm or cyberleg adds a left and a right one."
+    size="xs"
+    color="dimmed"
+  ></label>
+  <stringfield
+    field="extraNotes"
+    label="Notes (optional)"
+    placeholder="Anything else to put in the NPC's notes"
+    multiline="true"
+    maxrows="4"
+    size="sm"
+  ></stringfield>
+</div>
